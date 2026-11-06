@@ -11,3 +11,10 @@ npm run build     # renderizar la composición HelloWorld a out/video.mp4
 ```
 
 Las composiciones se registran en `src/Root.tsx`.
+
+## Video: ¿Cómo funcionan las células?
+
+Composición `Celulas` (66 s, 1920×1080) en `src/celulas/`. Escenas: introducción,
+la célula como unidad de la vida, membrana, núcleo y ADN, ribosomas,
+mitocondrias, división celular y resumen. El video renderizado está en
+`videos/celulas.mp4`.
