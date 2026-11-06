@@ -32,3 +32,17 @@ npm run build:nutricion   # renderiza out/alimentacion-equilibrio.mp4
 El guion, la voz y los efectos se editan en `src/nutricion/guion.json`. Para
 regenerar un audio, borra su archivo en `public/nutricion/` (o usa `--forzar`).
 Las duraciones de la voz ajustan automáticamente la duración de cada escena.
+
+## Herramientas
+
+- **FFmpeg**: del sistema (`ffmpeg`, `ffprobe`).
+- **Hyperframes** (HeyGen): `npx hyperframes --help`; `npx hyperframes doctor` revisa dependencias.
+- **Whisper** (whisper.cpp, CPU): `whisper-cli`, con el modelo multilingüe `small`.
+  Transcribir a subtítulos:
+
+  ```bash
+  npm run transcribir -- public/nutricion/voz-marca.mp3 --to srt -o marca.srt
+  ```
+
+  `@remotion/install-whisper-cpp` y `@remotion/captions` están instalados para
+  usar las transcripciones como subtítulos en Remotion.

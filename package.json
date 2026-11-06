@@ -9,12 +9,15 @@
     "upgrade": "remotion upgrade",
     "typecheck": "tsc --noEmit",
     "build:nutricion": "remotion render AlimentacionEquilibrio out/alimentacion-equilibrio.mp4",
-    "audio:nutricion": "NODE_USE_ENV_PROXY=1 node scripts/generar-audio-nutricion.mjs"
+    "audio:nutricion": "NODE_USE_ENV_PROXY=1 node scripts/generar-audio-nutricion.mjs",
+    "transcribir": "hyperframes transcribe --engine whisper --model small --language es"
   },
   "dependencies": {
     "@fontsource/baloo-2": "5.3.0",
     "@fontsource/kalam": "5.3.0",
+    "@remotion/captions": "4.0.541",
     "@remotion/cli": "4.0.541",
+    "@remotion/install-whisper-cpp": "4.0.541",
     "@remotion/transitions": "4.0.541",
     "react": "19.2.0",
     "react-dom": "19.2.0",
@@ -22,6 +25,7 @@
   },
   "devDependencies": {
     "@types/react": "19.2.2",
+    "hyperframes": "0.9.19",
     "typescript": "5.9.3"
   }
 }
