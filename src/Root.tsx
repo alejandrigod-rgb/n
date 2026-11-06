@@ -1,10 +1,22 @@
 import { Composition } from "remotion";
 import { Celulas, DURACION_CELULAS } from "./celulas/Celulas";
 import { HelloWorld } from "./HelloWorld";
+import {
+  AlimentacionEquilibrio,
+  DURACION_NUTRICION,
+} from "./nutricion/AlimentacionEquilibrio";
 
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="AlimentacionEquilibrio"
+        component={AlimentacionEquilibrio}
+        durationInFrames={DURACION_NUTRICION}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
       <Composition
         id="Celulas"
         component={Celulas}

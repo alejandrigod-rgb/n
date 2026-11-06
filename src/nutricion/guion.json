@@ -1,0 +1,26 @@
+{
+  "voz": "cjVigY5qzO86Huf0OWal",
+  "modelo": "eleven_multilingual_v2",
+  "escenas": [
+    { "id": "gancho", "texto": "¿Quieres saber cómo estás comenzando el verano?" },
+    { "id": "problema", "texto": "El estrés, el cansancio y una mala alimentación le quitan energía y rendimiento a tu equipo de trabajo." },
+    { "id": "marca", "texto": "En Alimentación y Equilibrio realizamos campañas preventivas corporativas para cuidar la nutrición, la salud y la energía de tu grupo de trabajo." },
+    { "id": "servicios", "texto": "Evaluamos a cada colaborador, damos charlas y talleres prácticos, y diseñamos planes de alimentación a la medida." },
+    { "id": "beneficios", "texto": "El resultado: mejor alimentación, más salud, más energía... y equipos más fuertes." },
+    { "id": "productividad", "texto": "Te ayudamos a estar en tu mejor versión y a mejorar la productividad laboral. Porque tu bienestar también es productividad." },
+    { "id": "contacto", "texto": "Escríbenos al WhatsApp: nueve, nueve, cero... uno, cero, tres... cuatro, cuatro, siete. Alimentación y Equilibrio, de Giovanna Olivas." }
+  ],
+  "sfx": [
+    { "id": "musica", "texto": "Upbeat cheerful acoustic ukulele, claps and light percussion, happy summer background music loop, instrumental", "duracion": 20, "loop": true },
+    { "id": "whoosh", "texto": "Quick soft airy whoosh transition", "duracion": 1 },
+    { "id": "pop", "texto": "Single cute bubbly pop sound", "duracion": 0.5 },
+    { "id": "brillo", "texto": "Magical bright sparkle shimmer chime", "duracion": 1.5 },
+    { "id": "latido", "texto": "Two soft clear heartbeats", "duracion": 1.2 },
+    { "id": "energia", "texto": "Short positive electric power-up zap", "duracion": 1 },
+    { "id": "aplausos", "texto": "Small group of coworkers cheering and clapping briefly", "duracion": 2 },
+    { "id": "desinflar", "texto": "Tired descending cartoon deflating sound", "duracion": 1.5 },
+    { "id": "mensaje", "texto": "Friendly phone message notification ding", "duracion": 0.8 },
+    { "id": "mordida", "texto": "Crunchy bite into a fresh apple", "duracion": 0.8 },
+    { "id": "clic", "texto": "Single crisp mouse click", "duracion": 0.5 }
+  ]
+}

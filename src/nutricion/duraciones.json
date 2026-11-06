@@ -1,0 +1,24 @@
+{
+  "voz": {
+    "gancho": 2.45551,
+    "problema": 6.635102,
+    "marca": 9.926531,
+    "servicios": 7.523265,
+    "beneficios": 5.877551,
+    "productividad": 7.105306,
+    "contacto": 8.803265
+  },
+  "sfx": {
+    "musica": 20.035918,
+    "whoosh": 1.044898,
+    "pop": 0.522449,
+    "brillo": 1.515102,
+    "latido": 1.227755,
+    "energia": 1.044898,
+    "aplausos": 2.037551,
+    "desinflar": 1.515102,
+    "mensaje": 0.835918,
+    "mordida": 0.835918,
+    "clic": 0.522449
+  }
+}
