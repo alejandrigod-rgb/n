@@ -2,6 +2,10 @@ import { Composition } from "remotion";
 import { Celulas, DURACION_CELULAS } from "./celulas/Celulas";
 import { HelloWorld } from "./HelloWorld";
 import {
+  ComoFuncionaLaProgramacion,
+  DURACION_PROGRAMACION,
+} from "./programacion/ComoFuncionaLaProgramacion";
+import {
   AlimentacionEquilibrio,
   DURACION_NUTRICION,
 } from "./nutricion/AlimentacionEquilibrio";
@@ -9,6 +13,14 @@ import {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="ComoFuncionaLaProgramacion"
+        component={ComoFuncionaLaProgramacion}
+        durationInFrames={DURACION_PROGRAMACION}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
       <Composition
         id="AlimentacionEquilibrio"
         component={AlimentacionEquilibrio}

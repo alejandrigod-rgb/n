@@ -1,0 +1,1131 @@
+{
+ "voz": {
+  "intro": {
+   "texto": "¿Alguna vez te preguntaste cómo funcionan las aplicaciones, los videojuegos o las páginas web? Todo empieza con la programación.",
+   "duracion": 8.124082,
+   "palabras": [
+    {
+     "p": "¿Alguna",
+     "ini": 0,
+     "fin": 0.383
+    },
+    {
+     "p": "vez",
+     "ini": 0.418,
+     "fin": 0.534
+    },
+    {
+     "p": "te",
+     "ini": 0.592,
+     "fin": 0.65
+    },
+    {
+     "p": "preguntaste",
+     "ini": 0.685,
+     "fin": 1.196
+    },
+    {
+     "p": "cómo",
+     "ini": 1.242,
+     "fin": 1.428
+    },
+    {
+     "p": "funcionan",
+     "ini": 1.474,
+     "fin": 1.916
+    },
+    {
+     "p": "las",
+     "ini": 1.962,
+     "fin": 2.067
+    },
+    {
+     "p": "aplicaciones,",
+     "ini": 2.125,
+     "fin": 3.111
+    },
+    {
+     "p": "los",
+     "ini": 3.286,
+     "fin": 3.413
+    },
+    {
+     "p": "videojuegos",
+     "ini": 3.471,
+     "fin": 4.203
+    },
+    {
+     "p": "o",
+     "ini": 4.272,
+     "fin": 4.296
+    },
+    {
+     "p": "las",
+     "ini": 4.354,
+     "fin": 4.447
+    },
+    {
+     "p": "páginas",
+     "ini": 4.493,
+     "fin": 4.841
+    },
+    {
+     "p": "web?",
+     "ini": 4.899,
+     "fin": 5.283
+    },
+    {
+     "p": "Todo",
+     "ini": 6.095,
+     "fin": 6.385
+    },
+    {
+     "p": "empieza",
+     "ini": 6.432,
+     "fin": 6.792
+    },
+    {
+     "p": "con",
+     "ini": 6.827,
+     "fin": 6.92
+    },
+    {
+     "p": "la",
+     "ini": 6.954,
+     "fin": 7.012
+    },
+    {
+     "p": "programación.",
+     "ini": 7.059,
+     "fin": 8.081
+    }
+   ]
+  },
+  "que": {
+   "texto": "Programar es darle instrucciones a una computadora. Pero la computadora no entiende indirectas: hay que decirle exactamente qué hacer, paso a paso.",
+   "duracion": 10.527347,
+   "palabras": [
+    {
+     "p": "Programar",
+     "ini": 0,
+     "fin": 0.604
+    },
+    {
+     "p": "es",
+     "ini": 0.697,
+     "fin": 0.848
+    },
+    {
+     "p": "darle",
+     "ini": 0.906,
+     "fin": 1.138
+    },
+    {
+     "p": "instrucciones",
+     "ini": 1.161,
+     "fin": 1.892
+    },
+    {
+     "p": "a",
+     "ini": 1.974,
+     "fin": 1.997
+    },
+    {
+     "p": "una",
+     "ini": 2.078,
+     "fin": 2.241
+    },
+    {
+     "p": "computadora.",
+     "ini": 2.287,
+     "fin": 3.1
+    },
+    {
+     "p": "Pero",
+     "ini": 3.541,
+     "fin": 3.727
+    },
+    {
+     "p": "la",
+     "ini": 3.773,
+     "fin": 3.831
+    },
+    {
+     "p": "computadora",
+     "ini": 3.878,
+     "fin": 4.47
+    },
+    {
+     "p": "no",
+     "ini": 4.528,
+     "fin": 4.621
+    },
+    {
+     "p": "entiende",
+     "ini": 4.667,
+     "fin": 5.155
+    },
+    {
+     "p": "indirectas:",
+     "ini": 5.19,
+     "fin": 5.956
+    },
+    {
+     "p": "hay",
+     "ini": 6.56,
+     "fin": 6.687
+    },
+    {
+     "p": "que",
+     "ini": 6.745,
+     "fin": 6.827
+    },
+    {
+     "p": "decirle",
+     "ini": 6.885,
+     "fin": 7.338
+    },
+    {
+     "p": "exactamente",
+     "ini": 7.361,
+     "fin": 8.208
+    },
+    {
+     "p": "qué",
+     "ini": 8.278,
+     "fin": 8.394
+    },
+    {
+     "p": "hacer,",
+     "ini": 8.417,
+     "fin": 8.916
+    },
+    {
+     "p": "paso",
+     "ini": 9.427,
+     "fin": 9.752
+    },
+    {
+     "p": "a",
+     "ini": 9.787,
+     "fin": 9.81
+    },
+    {
+     "p": "paso.",
+     "ini": 9.857,
+     "fin": 10.495
+    }
+   ]
+  },
+  "algoritmo": {
+   "texto": "A esa lista de pasos se le llama algoritmo. Es como una receta: primero calientas el agua, luego agregas el café, y al final lo sirves.",
+   "duracion": 8.306939,
+   "palabras": [
+    {
+     "p": "A",
+     "ini": 0,
+     "fin": 0.081
+    },
+    {
+     "p": "esa",
+     "ini": 0.197,
+     "fin": 0.372
+    },
+    {
+     "p": "lista",
+     "ini": 0.418,
+     "fin": 0.697
+    },
+    {
+     "p": "de",
+     "ini": 0.743,
+     "fin": 0.813
+    },
+    {
+     "p": "pasos",
+     "ini": 0.859,
+     "fin": 1.196
+    },
+    {
+     "p": "se",
+     "ini": 1.242,
+     "fin": 1.324
+    },
+    {
+     "p": "le",
+     "ini": 1.37,
+     "fin": 1.451
+    },
+    {
+     "p": "llama",
+     "ini": 1.474,
+     "fin": 1.776
+    },
+    {
+     "p": "algoritmo.",
+     "ini": 1.846,
+     "fin": 2.624
+    },
+    {
+     "p": "Es",
+     "ini": 2.949,
+     "fin": 3.088
+    },
+    {
+     "p": "como",
+     "ini": 3.135,
+     "fin": 3.286
+    },
+    {
+     "p": "una",
+     "ini": 3.32,
+     "fin": 3.437
+    },
+    {
+     "p": "receta:",
+     "ini": 3.506,
+     "fin": 4.052
+    },
+    {
+     "p": "primero",
+     "ini": 4.331,
+     "fin": 4.667
+    },
+    {
+     "p": "calientas",
+     "ini": 4.702,
+     "fin": 5.12
+    },
+    {
+     "p": "el",
+     "ini": 5.178,
+     "fin": 5.248
+    },
+    {
+     "p": "agua,",
+     "ini": 5.364,
+     "fin": 5.654
+    },
+    {
+     "p": "luego",
+     "ini": 5.677,
+     "fin": 5.944
+    },
+    {
+     "p": "agregas",
+     "ini": 5.979,
+     "fin": 6.351
+    },
+    {
+     "p": "el",
+     "ini": 6.409,
+     "fin": 6.467
+    },
+    {
+     "p": "café,",
+     "ini": 6.513,
+     "fin": 6.908
+    },
+    {
+     "p": "y",
+     "ini": 6.931,
+     "fin": 6.954
+    },
+    {
+     "p": "al",
+     "ini": 7.001,
+     "fin": 7.059
+    },
+    {
+     "p": "final",
+     "ini": 7.105,
+     "fin": 7.361
+    },
+    {
+     "p": "lo",
+     "ini": 7.384,
+     "fin": 7.477
+    },
+    {
+     "p": "sirves.",
+     "ini": 7.523,
+     "fin": 8.266
+    }
+   ]
+  },
+  "lenguajes": {
+   "texto": "Esas instrucciones se escriben en lenguajes de programación, como Python o JavaScript. Las personas pueden leerlos, y la computadora los puede traducir.",
+   "duracion": 9.012245,
+   "palabras": [
+    {
+     "p": "Esas",
+     "ini": 0,
+     "fin": 0.29
+    },
+    {
+     "p": "instrucciones",
+     "ini": 0.36,
+     "fin": 0.987
+    },
+    {
+     "p": "se",
+     "ini": 1.01,
+     "fin": 1.115
+    },
+    {
+     "p": "escriben",
+     "ini": 1.161,
+     "fin": 1.567
+    },
+    {
+     "p": "en",
+     "ini": 1.637,
+     "fin": 1.683
+    },
+    {
+     "p": "lenguajes",
+     "ini": 1.741,
+     "fin": 2.287
+    },
+    {
+     "p": "de",
+     "ini": 2.31,
+     "fin": 2.357
+    },
+    {
+     "p": "programación,",
+     "ini": 2.415,
+     "fin": 3.251
+    },
+    {
+     "p": "como",
+     "ini": 3.425,
+     "fin": 3.646
+    },
+    {
+     "p": "Python",
+     "ini": 3.738,
+     "fin": 4.11
+    },
+    {
+     "p": "o",
+     "ini": 4.168,
+     "fin": 4.191
+    },
+    {
+     "p": "JavaScript.",
+     "ini": 4.261,
+     "fin": 5.027
+    },
+    {
+     "p": "Las",
+     "ini": 5.271,
+     "fin": 5.433
+    },
+    {
+     "p": "personas",
+     "ini": 5.492,
+     "fin": 5.851
+    },
+    {
+     "p": "pueden",
+     "ini": 5.898,
+     "fin": 6.095
+    },
+    {
+     "p": "leerlos,",
+     "ini": 6.142,
+     "fin": 6.722
+    },
+    {
+     "p": "y",
+     "ini": 6.78,
+     "fin": 6.838
+    },
+    {
+     "p": "la",
+     "ini": 6.92,
+     "fin": 6.989
+    },
+    {
+     "p": "computadora",
+     "ini": 7.036,
+     "fin": 7.639
+    },
+    {
+     "p": "los",
+     "ini": 7.686,
+     "fin": 7.814
+    },
+    {
+     "p": "puede",
+     "ini": 7.86,
+     "fin": 8.034
+    },
+    {
+     "p": "traducir.",
+     "ini": 8.081,
+     "fin": 8.963
+    }
+   ]
+  },
+  "binario": {
+   "texto": "Al final, todo se convierte en ceros y unos: el idioma del procesador, que ejecuta millones de instrucciones cada segundo.",
+   "duracion": 6.635102,
+   "palabras": [
+    {
+     "p": "Al",
+     "ini": 0,
+     "fin": 0.128
+    },
+    {
+     "p": "final,",
+     "ini": 0.186,
+     "fin": 0.464
+    },
+    {
+     "p": "todo",
+     "ini": 0.488,
+     "fin": 0.65
+    },
+    {
+     "p": "se",
+     "ini": 0.697,
+     "fin": 0.766
+    },
+    {
+     "p": "convierte",
+     "ini": 0.813,
+     "fin": 1.184
+    },
+    {
+     "p": "en",
+     "ini": 1.207,
+     "fin": 1.265
+    },
+    {
+     "p": "ceros",
+     "ini": 1.335,
+     "fin": 1.66
+    },
+    {
+     "p": "y",
+     "ini": 1.741,
+     "fin": 1.765
+    },
+    {
+     "p": "unos:",
+     "ini": 1.846,
+     "fin": 2.218
+    },
+    {
+     "p": "el",
+     "ini": 2.287,
+     "fin": 2.403
+    },
+    {
+     "p": "idioma",
+     "ini": 2.473,
+     "fin": 2.775
+    },
+    {
+     "p": "del",
+     "ini": 2.798,
+     "fin": 2.902
+    },
+    {
+     "p": "procesador,",
+     "ini": 2.949,
+     "fin": 3.68
+    },
+    {
+     "p": "que",
+     "ini": 3.855,
+     "fin": 3.947
+    },
+    {
+     "p": "ejecuta",
+     "ini": 3.971,
+     "fin": 4.4
+    },
+    {
+     "p": "millones",
+     "ini": 4.447,
+     "fin": 4.876
+    },
+    {
+     "p": "de",
+     "ini": 4.899,
+     "fin": 4.946
+    },
+    {
+     "p": "instrucciones",
+     "ini": 4.992,
+     "fin": 5.619
+    },
+    {
+     "p": "cada",
+     "ini": 5.666,
+     "fin": 5.851
+    },
+    {
+     "p": "segundo.",
+     "ini": 5.886,
+     "fin": 6.594
+    }
+   ]
+  },
+  "variables": {
+   "texto": "Los programas guardan información en variables, que son como cajas con nombre. Por ejemplo, una caja llamada edad puede guardar el número quince.",
+   "duracion": 8.672653,
+   "palabras": [
+    {
+     "p": "Los",
+     "ini": 0,
+     "fin": 0.186
+    },
+    {
+     "p": "programas",
+     "ini": 0.232,
+     "fin": 0.673
+    },
+    {
+     "p": "guardan",
+     "ini": 0.72,
+     "fin": 1.01
+    },
+    {
+     "p": "información",
+     "ini": 1.057,
+     "fin": 1.66
+    },
+    {
+     "p": "en",
+     "ini": 1.718,
+     "fin": 1.765
+    },
+    {
+     "p": "variables,",
+     "ini": 1.811,
+     "fin": 2.554
+    },
+    {
+     "p": "que",
+     "ini": 2.798,
+     "fin": 2.902
+    },
+    {
+     "p": "son",
+     "ini": 2.949,
+     "fin": 3.077
+    },
+    {
+     "p": "como",
+     "ini": 3.123,
+     "fin": 3.309
+    },
+    {
+     "p": "cajas",
+     "ini": 3.355,
+     "fin": 3.669
+    },
+    {
+     "p": "con",
+     "ini": 3.727,
+     "fin": 3.855
+    },
+    {
+     "p": "nombre.",
+     "ini": 3.924,
+     "fin": 4.377
+    },
+    {
+     "p": "Por",
+     "ini": 4.586,
+     "fin": 4.737
+    },
+    {
+     "p": "ejemplo,",
+     "ini": 4.76,
+     "fin": 5.097
+    },
+    {
+     "p": "una",
+     "ini": 5.143,
+     "fin": 5.306
+    },
+    {
+     "p": "caja",
+     "ini": 5.352,
+     "fin": 5.584
+    },
+    {
+     "p": "llamada",
+     "ini": 5.608,
+     "fin": 6.026
+    },
+    {
+     "p": "edad",
+     "ini": 6.118,
+     "fin": 6.618
+    },
+    {
+     "p": "puede",
+     "ini": 6.827,
+     "fin": 7.07
+    },
+    {
+     "p": "guardar",
+     "ini": 7.117,
+     "fin": 7.407
+    },
+    {
+     "p": "el",
+     "ini": 7.465,
+     "fin": 7.523
+    },
+    {
+     "p": "número",
+     "ini": 7.57,
+     "fin": 7.86
+    },
+    {
+     "p": "quince.",
+     "ini": 7.918,
+     "fin": 8.638
+    }
+   ]
+  },
+  "condiciones": {
+   "texto": "Con las condiciones, el programa toma decisiones. Si llueve, lleva paraguas. Si no, lleva lentes de sol.",
+   "duracion": 6.4,
+   "palabras": [
+    {
+     "p": "Con",
+     "ini": 0,
+     "fin": 0.174
+    },
+    {
+     "p": "las",
+     "ini": 0.221,
+     "fin": 0.313
+    },
+    {
+     "p": "condiciones,",
+     "ini": 0.372,
+     "fin": 1.115
+    },
+    {
+     "p": "el",
+     "ini": 1.184,
+     "fin": 1.277
+    },
+    {
+     "p": "programa",
+     "ini": 1.324,
+     "fin": 1.695
+    },
+    {
+     "p": "toma",
+     "ini": 1.753,
+     "fin": 1.95
+    },
+    {
+     "p": "decisiones.",
+     "ini": 1.985,
+     "fin": 2.717
+    },
+    {
+     "p": "Si",
+     "ini": 2.961,
+     "fin": 3.123
+    },
+    {
+     "p": "llueve,",
+     "ini": 3.158,
+     "fin": 3.518
+    },
+    {
+     "p": "lleva",
+     "ini": 3.541,
+     "fin": 3.785
+    },
+    {
+     "p": "paraguas.",
+     "ini": 3.843,
+     "fin": 4.47
+    },
+    {
+     "p": "Si",
+     "ini": 4.586,
+     "fin": 4.748
+    },
+    {
+     "p": "no,",
+     "ini": 4.818,
+     "fin": 5.016
+    },
+    {
+     "p": "lleva",
+     "ini": 5.039,
+     "fin": 5.271
+    },
+    {
+     "p": "lentes",
+     "ini": 5.329,
+     "fin": 5.642
+    },
+    {
+     "p": "de",
+     "ini": 5.666,
+     "fin": 5.712
+    },
+    {
+     "p": "sol.",
+     "ini": 5.759,
+     "fin": 6.362
+    }
+   ]
+  },
+  "bucles": {
+   "texto": "Y con los bucles, repite tareas sin cansarse. Por ejemplo, enviar un mensaje a mil personas en un instante.",
+   "duracion": 7.131429,
+   "palabras": [
+    {
+     "p": "Y",
+     "ini": 0,
+     "fin": 0.093
+    },
+    {
+     "p": "con",
+     "ini": 0.174,
+     "fin": 0.29
+    },
+    {
+     "p": "los",
+     "ini": 0.325,
+     "fin": 0.476
+    },
+    {
+     "p": "bucles,",
+     "ini": 0.546,
+     "fin": 1.196
+    },
+    {
+     "p": "repite",
+     "ini": 1.44,
+     "fin": 1.776
+    },
+    {
+     "p": "tareas",
+     "ini": 1.834,
+     "fin": 2.241
+    },
+    {
+     "p": "sin",
+     "ini": 2.264,
+     "fin": 2.438
+    },
+    {
+     "p": "cansarse.",
+     "ini": 2.485,
+     "fin": 3.17
+    },
+    {
+     "p": "Por",
+     "ini": 3.68,
+     "fin": 3.843
+    },
+    {
+     "p": "ejemplo,",
+     "ini": 3.866,
+     "fin": 4.249
+    },
+    {
+     "p": "enviar",
+     "ini": 4.272,
+     "fin": 4.493
+    },
+    {
+     "p": "un",
+     "ini": 4.54,
+     "fin": 4.586
+    },
+    {
+     "p": "mensaje",
+     "ini": 4.621,
+     "fin": 5.155
+    },
+    {
+     "p": "a",
+     "ini": 5.213,
+     "fin": 5.236
+    },
+    {
+     "p": "mil",
+     "ini": 5.294,
+     "fin": 5.445
+    },
+    {
+     "p": "personas",
+     "ini": 5.503,
+     "fin": 5.921
+    },
+    {
+     "p": "en",
+     "ini": 5.979,
+     "fin": 6.037
+    },
+    {
+     "p": "un",
+     "ini": 6.13,
+     "fin": 6.188
+    },
+    {
+     "p": "instante.",
+     "ini": 6.269,
+     "fin": 7.105
+    }
+   ]
+  },
+  "bugs": {
+   "texto": "Cuando algo falla, aparece un bug: un error en el código. Encontrarlo y corregirlo también es parte de programar.",
+   "duracion": 6.765714,
+   "palabras": [
+    {
+     "p": "Cuando",
+     "ini": 0,
+     "fin": 0.29
+    },
+    {
+     "p": "algo",
+     "ini": 0.313,
+     "fin": 0.488
+    },
+    {
+     "p": "falla,",
+     "ini": 0.557,
+     "fin": 0.94
+    },
+    {
+     "p": "aparece",
+     "ini": 0.975,
+     "fin": 1.393
+    },
+    {
+     "p": "un",
+     "ini": 1.44,
+     "fin": 1.486
+    },
+    {
+     "p": "bug:",
+     "ini": 1.533,
+     "fin": 1.846
+    },
+    {
+     "p": "un",
+     "ini": 2.171,
+     "fin": 2.287
+    },
+    {
+     "p": "error",
+     "ini": 2.334,
+     "fin": 2.589
+    },
+    {
+     "p": "en",
+     "ini": 2.635,
+     "fin": 2.705
+    },
+    {
+     "p": "el",
+     "ini": 2.763,
+     "fin": 2.833
+    },
+    {
+     "p": "código.",
+     "ini": 2.891,
+     "fin": 3.367
+    },
+    {
+     "p": "Encontrarlo",
+     "ini": 3.75,
+     "fin": 4.4
+    },
+    {
+     "p": "y",
+     "ini": 4.423,
+     "fin": 4.447
+    },
+    {
+     "p": "corregirlo",
+     "ini": 4.493,
+     "fin": 5.027
+    },
+    {
+     "p": "también",
+     "ini": 5.085,
+     "fin": 5.364
+    },
+    {
+     "p": "es",
+     "ini": 5.399,
+     "fin": 5.457
+    },
+    {
+     "p": "parte",
+     "ini": 5.503,
+     "fin": 5.747
+    },
+    {
+     "p": "de",
+     "ini": 5.782,
+     "fin": 5.851
+    },
+    {
+     "p": "programar.",
+     "ini": 5.898,
+     "fin": 6.734
+    }
+   ]
+  },
+  "final": {
+   "texto": "Instrucciones, decisiones y repeticiones. Con estas piezas se construye todo el software del mundo. ¿Te animas a escribir tu primera línea de código?",
+   "duracion": 8.542041,
+   "palabras": [
+    {
+     "p": "Instrucciones,",
+     "ini": 0,
+     "fin": 0.859
+    },
+    {
+     "p": "decisiones",
+     "ini": 0.882,
+     "fin": 1.405
+    },
+    {
+     "p": "y",
+     "ini": 1.451,
+     "fin": 1.474
+    },
+    {
+     "p": "repeticiones.",
+     "ini": 1.544,
+     "fin": 2.415
+    },
+    {
+     "p": "Con",
+     "ini": 2.624,
+     "fin": 2.763
+    },
+    {
+     "p": "estas",
+     "ini": 2.81,
+     "fin": 3.019
+    },
+    {
+     "p": "piezas",
+     "ini": 3.077,
+     "fin": 3.402
+    },
+    {
+     "p": "se",
+     "ini": 3.448,
+     "fin": 3.529
+    },
+    {
+     "p": "construye",
+     "ini": 3.587,
+     "fin": 4.063
+    },
+    {
+     "p": "todo",
+     "ini": 4.156,
+     "fin": 4.423
+    },
+    {
+     "p": "el",
+     "ini": 4.458,
+     "fin": 4.528
+    },
+    {
+     "p": "software",
+     "ini": 4.609,
+     "fin": 5.039
+    },
+    {
+     "p": "del",
+     "ini": 5.062,
+     "fin": 5.178
+    },
+    {
+     "p": "mundo.",
+     "ini": 5.236,
+     "fin": 5.631
+    },
+    {
+     "p": "¿Te",
+     "ini": 5.84,
+     "fin": 6.049
+    },
+    {
+     "p": "animas",
+     "ini": 6.072,
+     "fin": 6.374
+    },
+    {
+     "p": "a",
+     "ini": 6.42,
+     "fin": 6.444
+    },
+    {
+     "p": "escribir",
+     "ini": 6.478,
+     "fin": 6.873
+    },
+    {
+     "p": "tu",
+     "ini": 6.92,
+     "fin": 7.012
+    },
+    {
+     "p": "primera",
+     "ini": 7.059,
+     "fin": 7.396
+    },
+    {
+     "p": "línea",
+     "ini": 7.442,
+     "fin": 7.674
+    },
+    {
+     "p": "de",
+     "ini": 7.709,
+     "fin": 7.767
+    },
+    {
+     "p": "código?",
+     "ini": 7.814,
+     "fin": 8.499
+    }
+   ]
+  }
+ },
+ "sfx": {
+  "musica": 22.047347,
+  "whoosh": 0.835918,
+  "pop": 0.522449,
+  "teclado": 3.030204,
+  "clic": 0.522449,
+  "exito": 1.044898,
+  "error": 0.731429,
+  "datos": 2.507755,
+  "encendido": 1.515102,
+  "bicho": 1.227755,
+  "cafe": 1.515102,
+  "lluvia": 1.515102,
+  "envio": 0.835918,
+  "tic": 0.522449,
+  "brillo": 1.227755
+ }
+}

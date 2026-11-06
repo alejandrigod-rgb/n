@@ -46,3 +46,17 @@ Las duraciones de la voz ajustan automáticamente la duración de cada escena.
 
   `@remotion/install-whisper-cpp` y `@remotion/captions` están instalados para
   usar las transcripciones como subtítulos en Remotion.
+
+## Video: ¿Cómo funciona la programación?
+
+Video explicativo horizontal (1920×1080, ~93 s) en `src/programacion/`: narrador,
+efectos de sonido, música y subtítulos palabra por palabra.
+
+```bash
+npm run audio:programacion   # genera voz (con marcas de tiempo) y efectos
+npm run build:programacion   # renderiza y normaliza el audio a -14 LUFS
+```
+
+Las animaciones se sincronizan con las palabras del narrador (`marcas("escena")("palabra")`),
+así que si cambias el guion en `guion.json` y regeneras el audio, todo se reacomoda.
+`scripts/normalizar-audio.sh` deja cualquier video al volumen estándar de YouTube y redes.

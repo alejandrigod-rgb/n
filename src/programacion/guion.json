@@ -1,0 +1,34 @@
+{
+  "voz": "cjVigY5qzO86Huf0OWal",
+  "modelo": "eleven_multilingual_v2",
+  "carpeta": "programacion",
+  "escenas": [
+    { "id": "intro", "texto": "¿Alguna vez te preguntaste cómo funcionan las aplicaciones, los videojuegos o las páginas web? Todo empieza con la programación." },
+    { "id": "que", "texto": "Programar es darle instrucciones a una computadora. Pero la computadora no entiende indirectas: hay que decirle exactamente qué hacer, paso a paso." },
+    { "id": "algoritmo", "texto": "A esa lista de pasos se le llama algoritmo. Es como una receta: primero calientas el agua, luego agregas el café, y al final lo sirves." },
+    { "id": "lenguajes", "texto": "Esas instrucciones se escriben en lenguajes de programación, como Python o JavaScript. Las personas pueden leerlos, y la computadora los puede traducir." },
+    { "id": "binario", "texto": "Al final, todo se convierte en ceros y unos: el idioma del procesador, que ejecuta millones de instrucciones cada segundo." },
+    { "id": "variables", "texto": "Los programas guardan información en variables, que son como cajas con nombre. Por ejemplo, una caja llamada edad puede guardar el número quince." },
+    { "id": "condiciones", "texto": "Con las condiciones, el programa toma decisiones. Si llueve, lleva paraguas. Si no, lleva lentes de sol." },
+    { "id": "bucles", "texto": "Y con los bucles, repite tareas sin cansarse. Por ejemplo, enviar un mensaje a mil personas en un instante." },
+    { "id": "bugs", "texto": "Cuando algo falla, aparece un bug: un error en el código. Encontrarlo y corregirlo también es parte de programar." },
+    { "id": "final", "texto": "Instrucciones, decisiones y repeticiones. Con estas piezas se construye todo el software del mundo. ¿Te animas a escribir tu primera línea de código?" }
+  ],
+  "sfx": [
+    { "id": "musica", "texto": "Chill lofi electronic beat with soft synth pads, calm and curious, educational background music loop, instrumental", "duracion": 22, "loop": true },
+    { "id": "whoosh", "texto": "Quick clean digital whoosh transition", "duracion": 0.8 },
+    { "id": "pop", "texto": "Loud crisp single bubble pop, close-up, clean UI sound", "duracion": 0.5 },
+    { "id": "teclado", "texto": "Fast typing on a mechanical keyboard", "duracion": 3 },
+    { "id": "clic", "texto": "Single crisp mouse click", "duracion": 0.5 },
+    { "id": "exito", "texto": "Pleasant bright success chime, two notes ascending", "duracion": 1 },
+    { "id": "error", "texto": "Short low digital error buzz", "duracion": 0.7 },
+    { "id": "datos", "texto": "Fast digital data processing beeps and computer chirps", "duracion": 2.5 },
+    { "id": "encendido", "texto": "Futuristic computer power on hum rising", "duracion": 1.5 },
+    { "id": "bicho", "texto": "Tiny cartoon bug scuttling quickly", "duracion": 1.2 },
+    { "id": "cafe", "texto": "Pouring hot coffee into a ceramic cup", "duracion": 1.5 },
+    { "id": "lluvia", "texto": "Light rain shower starting", "duracion": 1.5 },
+    { "id": "envio", "texto": "Message sent swoosh notification", "duracion": 0.8 },
+    { "id": "tic", "texto": "Single soft digital tick", "duracion": 0.5 },
+    { "id": "brillo", "texto": "Magical sparkle shimmer chime", "duracion": 1.2 }
+  ]
+}
