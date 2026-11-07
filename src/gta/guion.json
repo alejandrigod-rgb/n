@@ -1,0 +1,30 @@
+{
+  "voz": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelo": "eleven_v3",
+  "prefijo": "[acento de España, castellano de Madrid, tono enérgico y curioso, ritmo rápido]",
+  "carpeta": "gta",
+  "escenas": [
+    { "id": "gancho", "texto": "GTA seis pesa hasta doscientos doce gigas. Más que cuarenta pelis en HD. ¿Por qué tanto?" },
+    { "id": "texturas", "texto": "Primero, las texturas: cada pared, cada coche y cada cara están pintados con muchísimo detalle." },
+    { "id": "sonido", "texto": "Luego, el sonido: diálogos en varios idiomas, emisoras de radio enteras y miles de efectos." },
+    { "id": "mapa", "texto": "Y el mapa: una ciudad enorme que recorres sin pantallas de carga." },
+    { "id": "giro", "texto": "Pero lo curioso es esto: algunos juegos guardan archivos sin comprimir, a propósito. Así la consola no pierde tiempo descomprimiendo, y todo carga más rápido." },
+    { "id": "remate", "texto": "O sea: pagas en espacio lo que ganas en velocidad." },
+    { "id": "pregunta", "texto": "Sale el diecinueve de noviembre. ¿Te cabe en la consola? Te leo en comentarios." }
+  ],
+  "sfx": [
+    { "id": "musica", "texto": "Nocturnal synthwave pulse, curious and mysterious, soft arpeggiator and deep bass, cinematic city night, instrumental loop", "duracion": 22, "loop": true },
+    { "id": "cascabel", "texto": "Small cat collar bell jingle, bright and clean, single shake", "duracion": 1 },
+    { "id": "whoosh", "texto": "Quick clean digital whoosh transition", "duracion": 0.8 },
+    { "id": "pop", "texto": "Loud crisp single bubble pop, close-up, clean UI sound", "duracion": 0.5 },
+    { "id": "golpe", "texto": "Deep cinematic bass hit impact, short", "duracion": 1.2 },
+    { "id": "descarga", "texto": "Fast digital download progress beeps rising, futuristic", "duracion": 1.5 },
+    { "id": "lupa", "texto": "Magical zoom in swoosh with sparkle", "duracion": 1 },
+    { "id": "radio", "texto": "Old radio tuning static sweep between stations, short", "duracion": 1.5 },
+    { "id": "motor", "texto": "Sports car engine revving and passing by fast", "duracion": 2 },
+    { "id": "comprimir", "texto": "Mechanical squish compress sound effect, cartoon", "duracion": 0.8 },
+    { "id": "rapido", "texto": "Fast rising zip whoosh, speed up", "duracion": 0.8 },
+    { "id": "exito", "texto": "Pleasant bright success chime, two notes ascending", "duracion": 1 },
+    { "id": "tic", "texto": "Single soft digital tick", "duracion": 0.5 }
+  ]
+}

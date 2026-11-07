@@ -20,7 +20,6 @@ export const SITIOS: Record<Lado, Sitio> = {
 
 export type Tramo = { inicio: number; fin: number; lado: Lado };
 
-const SALIDA = 10;
 
 export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (ancho: number) => React.ReactNode }> = ({
   tramos,
@@ -34,7 +33,8 @@ export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (anch
   const s = SITIOS[t.lado];
   const entra = spring({ frame: frame - t.inicio, fps, config: { damping: 14, mass: 0.8 } });
   const esUltimo = i === tramos.length - 1;
-  const sale = esUltimo ? 0 : interpolate(frame, [t.fin - SALIDA, t.fin], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const salida = Math.round(fps / 3);
+  const sale = esUltimo ? 0 : interpolate(frame, [t.fin - salida, t.fin], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   const fuera = Math.max(1 - entra, sale);
   const x = s.x + s.desdeX * fuera;
   const y = s.y + s.desdeY * fuera;

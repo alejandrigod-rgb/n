@@ -7,6 +7,10 @@
 **Estilo visual base:** el video de las células (`videos/celulas.mp4`): noche azul, burbujas, brillo neón y fluidez total.
 **Fórmula de formato** (estudiada en reels de @gooldeoroo_ e @inframundo3d): gancho inmediato, un objeto por frase, subtítulos palabra a palabra, cifras que cuentan y un cierre que invita a compartir. Se toma la fórmula, **no** su estética. No usar recuadros azules de "selección", cifras doradas con brillo ni el logo de Instagram como firma.
 
+## Kit de marca (código)
+- `src/marca/tema.ts`: colores, fuentes y 60 fps. `src/marca/kit.tsx`: `Fondo` con burbujas, `Titulo` de escena, `Subtitulos` en caja con subrayado menta en las palabras clave, `Contador`, `Brillo`, `Respira`, `Plano` (zoom lento y golpes de zoom), `Rafaga`, `Pop` y `Sfx`. `src/marca/linea.ts`: línea de tiempo a partir de la narración (`marcas` para sincronizar con palabras y `aperturaBoca` para la boca de Nyxar).
+- Ejemplo completo: `src/gta/` (composición `GtaVI`).
+
 ## Nyxar (personaje original del usuario)
 - Gato morado con pelo de punta y rayas, un rizo a la derecha, orejas con interior rosa, ojos grandes y afilados con pupila azul, nariz azul, boca `:3`, pañuelo rojo y cascabel dorado.
 - Componente: `src/personajes/Nyxar.tsx`, en vector. **No usar el PNG recortado del dibujo.** Recibe `pose`, `boca` (0-1) y `frame`. Parpadea, mueve las orejas, respira y mueve la cola solo.
