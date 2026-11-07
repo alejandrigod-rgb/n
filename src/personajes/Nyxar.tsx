@@ -5,6 +5,7 @@
  * y cada video decide cómo se mueve.
  */
 import { random } from "remotion";
+import { OBJETOS, TipoObjeto } from "./objetos";
 
 export type PoseNyxar = {
   /** Ángulos de brazo: 0 = colgando, 90 = hacia fuera, 160 = arriba. Negativo = hacia dentro. */
@@ -20,11 +21,13 @@ export type PoseNyxar = {
   sombrero: number;
   cascos: number;
   carta: number;
+  /** 0-1: cuánto se ve el objeto que sostiene (aparece con un pop). */
+  objeto: number;
 };
 
 export const POSE_BASE: PoseNyxar = {
   brazoI: 12, brazoD: 12, cabeza: 0, inclinar: 0, salto: 0, x: 0,
-  mirarX: 0, mirarY: 0, sombrero: 0, cascos: 0, carta: 0,
+  mirarX: 0, mirarY: 0, sombrero: 0, cascos: 0, carta: 0, objeto: 0,
 };
 
 export const mezclarPoses = (a: PoseNyxar, b: PoseNyxar, t: number): PoseNyxar => {
@@ -185,7 +188,9 @@ export const Nyxar: React.FC<{
   fps?: number;
   /** Identificador único si hay varios Nyxar en pantalla. */
   id?: string;
-}> = ({ ancho, pose: p, boca, frame, fps = 30, id = "nyxar" }) => {
+  /** Objeto relacionado con el tema que sostiene delante del pecho (portátil, móvil, mando...). */
+  objeto?: TipoObjeto;
+}> = ({ ancho, pose: p, boca, frame, fps = 30, id = "nyxar", objeto }) => {
   const f = (frame * 30) / fps; // las oscilaciones van en tiempo, no en fotogramas
   const respira = Math.sin(f / 22);
   const colaOnda = Math.sin(f / 14);
@@ -249,6 +254,15 @@ export const Nyxar: React.FC<{
             </g>
           ) : null}
         </g>
+        {/* Objeto del tema, detrás de las patas: los brazos colgando lo sujetan por los lados */}
+        {objeto && p.objeto > 0.01 ? (() => {
+          const Obj = OBJETOS[objeto];
+          return (
+            <g transform={`translate(280 ${458 + Math.sin(f / 18) * 3}) scale(${p.objeto * 1.4}) rotate(${(1 - p.objeto) * -25})`}>
+              <Obj frame={f} />
+            </g>
+          );
+        })() : null}
         {/* Brazos */}
         <Brazo x={228} y={368} angulo={p.brazoI}>
           {p.carta > 0.01 ? (

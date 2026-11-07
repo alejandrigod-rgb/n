@@ -11,7 +11,9 @@
 - Gato morado con pelo de punta y rayas, un rizo a la derecha, orejas con interior rosa, ojos grandes y afilados con pupila azul, nariz azul, boca `:3`, pañuelo rojo y cascabel dorado.
 - Componente: `src/personajes/Nyxar.tsx`, en vector. **No usar el PNG recortado del dibujo.** Recibe `pose`, `boca` (0-1) y `frame`. Parpadea, mueve las orejas, respira y mueve la cola solo.
 - La boca se sincroniza con las marcas de tiempo por letra de ElevenLabs (ver `aperturaBoca` en `src/pirateria/linea.ts`).
-- Posición: abajo a la izquierda, ~40 % del ancho, fuera de las zonas que tapa TikTok. Aparece en el gancho y reacciona en los momentos clave.
+- **Inmersivo: Nyxar cambia de sitio en cada escena** con `src/personajes/Escenario.tsx`. Sitios: `izquierda`, `derecha` (girado hacia el centro), `centro`, `asomadoIzquierda` (grande, asomándose por el borde) y `asomadoDerecha` (arriba a la derecha). Entra deslizándose desde fuera de la pantalla (muelle de ~0,5 s) y sale por su lado justo antes del cambio de escena. **Nunca repite el mismo sitio dos escenas seguidas**, y todos los sitios dejan libres las zonas que tapa TikTok.
+- **Objetos del tema:** cuando la escena habla de algo concreto, Nyxar lo sostiene: portátil (cómputo, programación, internet), móvil (redes, apps), mando (videojuegos), libro (historia, leyes), lupa (investigar, descubrir) y bombilla (ideas, inventos). Están en `src/personajes/objetos.tsx`; si un tema necesita un objeto nuevo, se dibuja en el mismo estilo y se añade ahí. Se activan con la prop `objeto` y `pose.objeto` (0-1) para que aparezca con un pop. También tiene sombrero pirata, cascos y carta (`pose.sombrero`, `pose.cascos`, `pose.carta`).
+- Aparece en el gancho y reacciona en los momentos clave.
 - Pasa de una pose a otra con un muelle (`mezclarPoses`). Nyxar y el fondo viven **fuera** de las transiciones para no cortarse.
 - Retrato transparente: `public/marca/nyxar.png` (composición `RetratoNyxar`).
 
