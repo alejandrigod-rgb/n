@@ -22,7 +22,11 @@ export type Tramo = { inicio: number; fin: number; lado: Lado };
 
 const SALIDA = 10;
 
-export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (ancho: number) => React.ReactNode }> = ({ tramos, fps, children }) => {
+export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (ancho: number) => React.ReactNode }> = ({
+  tramos,
+  fps,
+  children,
+}) => {
   const frame = useCurrentFrame();
   let i = 0;
   for (let k = 0; k < tramos.length; k++) if (frame >= tramos[k].inicio) i = k;

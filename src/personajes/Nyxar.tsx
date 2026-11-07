@@ -5,7 +5,7 @@
  * y cada video decide cómo se mueve.
  */
 import { random } from "remotion";
-import { OBJETOS, TipoObjeto } from "./objetos";
+import { AGARRES, OBJETOS, TipoObjeto } from "./objetos";
 
 export type PoseNyxar = {
   /** Ángulos de brazo: 0 = colgando, 90 = hacia fuera, 160 = arriba. Negativo = hacia dentro. */
@@ -26,8 +26,18 @@ export type PoseNyxar = {
 };
 
 export const POSE_BASE: PoseNyxar = {
-  brazoI: 12, brazoD: 12, cabeza: 0, inclinar: 0, salto: 0, x: 0,
-  mirarX: 0, mirarY: 0, sombrero: 0, cascos: 0, carta: 0, objeto: 0,
+  brazoI: 12,
+  brazoD: 12,
+  cabeza: 0,
+  inclinar: 0,
+  salto: 0,
+  x: 0,
+  mirarX: 0,
+  mirarY: 0,
+  sombrero: 0,
+  cascos: 0,
+  carta: 0,
+  objeto: 0,
 };
 
 export const mezclarPoses = (a: PoseNyxar, b: PoseNyxar, t: number): PoseNyxar => {
@@ -66,16 +76,39 @@ const ticOreja = (frame: number, lado: string) => {
   return Math.sin((d / 10) * Math.PI) * 9;
 };
 
-const Brazo: React.FC<{ x: number; y: number; angulo: number; children?: React.ReactNode }> = ({ x, y, angulo, children }) => (
+/** Brazo con pata. `enMano` se dibuja entre el brazo y la pata, para que la pata lo agarre. */
+const Brazo: React.FC<{
+  x: number;
+  y: number;
+  angulo: number;
+  children?: React.ReactNode;
+  enMano?: React.ReactNode;
+  /** "brazo" o "pata" dibujan solo esa parte (para meter un objeto entre ambas). */
+  parte?: "todo" | "brazo" | "pata";
+}> = ({ x, y, angulo, children, enMano, parte = "todo" }) => (
   <g transform={`translate(${x} ${y}) rotate(${angulo})`}>
-    <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={PIEL} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
-    <circle cx={0} cy={110} r={23} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
-    <path d="M-8 122 L-8 130 M0 124 L0 133 M8 122 L8 130" stroke={LINEA} strokeWidth={3} strokeLinecap="round" />
+    {parte !== "pata" ? (
+      <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={PIEL} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+    ) : null}
+    {enMano}
+    {parte !== "brazo" ? (
+      <>
+        <circle cx={0} cy={110} r={23} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
+        <path d="M-8 122 L-8 130 M0 124 L0 133 M8 122 L8 130" stroke={LINEA} strokeWidth={3} strokeLinecap="round" />
+      </>
+    ) : null}
     {children}
   </g>
 );
 
-const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: number; mirarY: number; id: string }> = ({ frame, boca, parpadeo, mirarX, mirarY, id }) => {
+const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: number; mirarY: number; id: string }> = ({
+  frame,
+  boca,
+  parpadeo,
+  mirarX,
+  mirarY,
+  id,
+}) => {
   const anchoBoca = 13 + 9 * boca;
   const altoBoca = 4 + 30 * boca;
   const px = mirarX * 9;
@@ -98,8 +131,12 @@ const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: 
           <stop offset="0" stopColor="#d06a9a" stopOpacity="0.35" />
           <stop offset="1" stopColor="#d06a9a" stopOpacity="0" />
         </radialGradient>
-        <clipPath id={`${id}-ojoI`}><path d={OJO_I} /></clipPath>
-        <clipPath id={`${id}-ojoD`}><path d={OJO_D} /></clipPath>
+        <clipPath id={`${id}-ojoI`}>
+          <path d={OJO_I} />
+        </clipPath>
+        <clipPath id={`${id}-ojoD`}>
+          <path d={OJO_D} />
+        </clipPath>
       </defs>
       {/* Orejas */}
       <g transform={`rotate(${-ticOreja(frame, "i")} 180 160)`}>
@@ -151,7 +188,12 @@ const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: 
       <path d={OJO_I} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
       <path d={OJO_D} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
       {/* Nariz */}
-      <path d="M266 268 C276 263 294 263 302 269 C298 278 286 282 279 285 C272 281 266 275 266 268 Z" fill="#1d3a7a" stroke="#0f1d44" strokeWidth={2} />
+      <path
+        d="M266 268 C276 263 294 263 302 269 C298 278 286 282 279 285 C272 281 266 275 266 268 Z"
+        fill="#1d3a7a"
+        stroke="#0f1d44"
+        strokeWidth={2}
+      />
       {/* Boca: :3 cerrada, se abre al hablar */}
       {boca > 0.08 ? (
         <g>
@@ -190,8 +232,24 @@ export const Nyxar: React.FC<{
   id?: string;
   /** Objeto relacionado con el tema que sostiene delante del pecho (portátil, móvil, mando...). */
   objeto?: TipoObjeto;
-}> = ({ ancho, pose: p, boca, frame, fps = 30, id = "nyxar", objeto }) => {
+}> = ({ ancho, pose: entrada, boca, frame, fps = 30, id = "nyxar", objeto }) => {
   const f = (frame * 30) / fps; // las oscilaciones van en tiempo, no en fotogramas
+  // Con un objeto, los brazos, la mirada y la cabeza van hacia la postura de agarre.
+  const agarre = objeto ? AGARRES[objeto] : null;
+  const t = agarre ? Math.min(1, Math.max(0, entrada.objeto)) : 0;
+  const mez = (a: number, b: number) => a + (b - a) * t;
+  const p: PoseNyxar = agarre
+    ? {
+        ...entrada,
+        brazoI: mez(entrada.brazoI, agarre.brazoI),
+        brazoD: mez(entrada.brazoD, agarre.brazoD),
+        mirarX: mez(entrada.mirarX, agarre.mirarX),
+        mirarY: mez(entrada.mirarY, agarre.mirarY),
+        cabeza: mez(entrada.cabeza, agarre.cabeza),
+      }
+    : entrada;
+  const Obj = objeto ? OBJETOS[objeto] : null;
+  const verObjeto = agarre && Obj && p.objeto > 0.01;
   const respira = Math.sin(f / 22);
   const colaOnda = Math.sin(f / 14);
   const cascabel = Math.sin(f / 7) * 12 + p.salto * 0.2;
@@ -218,13 +276,24 @@ export const Nyxar: React.FC<{
         <ellipse cx={320} cy={575} rx={40} ry={21} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
         {/* Torso */}
         <g transform={`translate(280 560) scale(${1 + respira * 0.012} ${1 - respira * 0.012}) translate(-280 -560)`}>
-          <path d="M235 316 C198 360 184 440 191 500 C197 556 250 574 280 574 C310 574 363 556 369 500 C376 440 362 360 325 316 Z" fill={`url(#${id}-cuerpo)`} stroke={LINEA} strokeWidth={6} />
+          <path
+            d="M235 316 C198 360 184 440 191 500 C197 556 250 574 280 574 C310 574 363 556 369 500 C376 440 362 360 325 316 Z"
+            fill={`url(#${id}-cuerpo)`}
+            stroke={LINEA}
+            strokeWidth={6}
+          />
           <ellipse cx={280} cy={478} rx={52} ry={66} fill="#7a66b8" opacity={0.45} />
           <path d="M252 560 L252 540 M308 560 L308 540" stroke={LINEA} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
         </g>
         {/* Pañuelo y cascabel */}
         <path d="M206 318 L354 318 L292 398 Z" fill="#8b2332" stroke={LINEA} strokeWidth={5} strokeLinejoin="round" />
-        <path d="M206 318 L170 300 L178 334 Z M206 318 L176 344 L200 352 Z" fill="#7a1d2b" stroke={LINEA} strokeWidth={4} strokeLinejoin="round" />
+        <path
+          d="M206 318 L170 300 L178 334 Z M206 318 L176 344 L200 352 Z"
+          fill="#7a1d2b"
+          stroke={LINEA}
+          strokeWidth={4}
+          strokeLinejoin="round"
+        />
         <circle cx={208} cy={322} r={10} fill="#a12b3c" stroke={LINEA} strokeWidth={4} />
         <g transform={`rotate(${cascabel} 288 352)`}>
           <line x1={288} y1={340} x2={288} y2={354} stroke={LINEA} strokeWidth={4} />
@@ -236,7 +305,12 @@ export const Nyxar: React.FC<{
           <Cabeza frame={frame} boca={boca} parpadeo={parpadeo} mirarX={p.mirarX} mirarY={p.mirarY} id={id} />
           {p.sombrero > 0.01 ? (
             <g transform={`translate(280 70) scale(${p.sombrero}) rotate(${-8 + (1 - p.sombrero) * 30})`}>
-              <path d="M-150 20 C-110 -50 -60 -80 0 -82 C60 -80 110 -50 150 20 C90 0 -90 0 -150 20 Z" fill="#14121c" stroke="#000" strokeWidth={5} />
+              <path
+                d="M-150 20 C-110 -50 -60 -80 0 -82 C60 -80 110 -50 150 20 C90 0 -90 0 -150 20 Z"
+                fill="#14121c"
+                stroke="#000"
+                strokeWidth={5}
+              />
               <path d="M-150 20 C-90 0 90 0 150 20" stroke="#ffd23f" strokeWidth={8} fill="none" />
               <circle cx={0} cy={-36} r={20} fill="#f1f1f1" />
               <rect x={-10} y={-22} width={20} height={10} rx={3} fill="#f1f1f1" />
@@ -254,27 +328,65 @@ export const Nyxar: React.FC<{
             </g>
           ) : null}
         </g>
-        {/* Objeto del tema, detrás de las patas: los brazos colgando lo sujetan por los lados */}
-        {objeto && p.objeto > 0.01 ? (() => {
-          const Obj = OBJETOS[objeto];
-          return (
-            <g transform={`translate(280 ${458 + Math.sin(f / 18) * 3}) scale(${p.objeto * 1.4}) rotate(${(1 - p.objeto) * -25})`}>
+        {/* Brazos. Con un objeto de dos manos: brazos, luego el objeto y encima las patas que lo agarran. */}
+        {verObjeto && agarre.manos === "dos" ? (
+          <>
+            <Brazo x={228} y={368} angulo={p.brazoI} parte="brazo" />
+            <Brazo x={332} y={368} angulo={-p.brazoD} parte="brazo" />
+            <g
+              transform={`translate(${agarre.x} ${(agarre.y ?? 0) + Math.sin(f / 18) * 2}) scale(${agarre.escala * p.objeto}) rotate(${agarre.giro + (1 - p.objeto) * -20})`}
+            >
               <Obj frame={f} />
             </g>
-          );
-        })() : null}
-        {/* Brazos */}
-        <Brazo x={228} y={368} angulo={p.brazoI}>
-          {p.carta > 0.01 ? (
-            <g opacity={p.carta} transform={`translate(0 120) rotate(${-p.brazoI + 8}) scale(${p.carta})`}>
-              <rect x={-55} y={-120} width={110} height={140} rx={6} fill="#fdf6e3" stroke={LINEA} strokeWidth={5} />
-              {[0, 1, 2, 3, 4].map((k) => (
-                <line key={k} x1={-38} y1={-95 + k * 22} x2={38 - (k % 2) * 18} y2={-95 + k * 22} stroke="#9a8f7a" strokeWidth={5} strokeLinecap="round" />
-              ))}
-            </g>
-          ) : null}
-        </Brazo>
-        <Brazo x={332} y={368} angulo={-p.brazoD} />
+            <Brazo x={228} y={368} angulo={p.brazoI} parte="pata" />
+            <Brazo x={332} y={368} angulo={-p.brazoD} parte="pata" />
+          </>
+        ) : null}
+        {!(verObjeto && agarre.manos === "dos") ? (
+          <>
+            <Brazo x={228} y={368} angulo={p.brazoI}>
+              {p.carta > 0.01 ? (
+                <g opacity={p.carta} transform={`translate(0 120) rotate(${-p.brazoI + 8}) scale(${p.carta})`}>
+                  <rect x={-55} y={-120} width={110} height={140} rx={6} fill="#fdf6e3" stroke={LINEA} strokeWidth={5} />
+                  {[0, 1, 2, 3, 4].map((k) => (
+                    <line
+                      key={k}
+                      x1={-38}
+                      y1={-95 + k * 22}
+                      x2={38 - (k % 2) * 18}
+                      y2={-95 + k * 22}
+                      stroke="#9a8f7a"
+                      strokeWidth={5}
+                      strokeLinecap="round"
+                    />
+                  ))}
+                </g>
+              ) : null}
+            </Brazo>
+            <Brazo
+              x={332}
+              y={368}
+              angulo={-p.brazoD}
+              enMano={
+                verObjeto && agarre.manos === "derecha" ? (
+                  <g
+                    transform={`translate(0 110) rotate(${p.brazoD + agarre.giro}) translate(${agarre.dx ?? 0} ${agarre.dy ?? 0}) scale(${agarre.escala * p.objeto})`}
+                  >
+                    <Obj frame={f} />
+                  </g>
+                ) : null
+              }
+            />
+          </>
+        ) : null}
+        {/* Objeto que aparece sobre la cabeza (la bombilla de la idea) */}
+        {verObjeto && agarre.manos === "encima" ? (
+          <g
+            transform={`translate(${agarre.x} ${(agarre.y ?? 0) + Math.sin(f / 10) * 6}) scale(${agarre.escala * p.objeto}) rotate(${agarre.giro})`}
+          >
+            <Obj frame={f} />
+          </g>
+        ) : null}
       </g>
     </svg>
   );
