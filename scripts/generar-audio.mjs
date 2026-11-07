@@ -52,15 +52,33 @@ for (const e of guion.escenas) {
   const archivo = `${SALIDA}/voz-${e.id}.mp3`;
   const previo = previos.voz[e.id];
   if (forzar || !existsSync(archivo) || !previo || previo.texto !== e.texto) {
+    const prefijo = guion.prefijo ? `${guion.prefijo} ` : "";
     const res = await post(`/text-to-speech/${guion.voz}/with-timestamps?output_format=mp3_44100_128`, {
-      text: e.texto,
+      text: prefijo + e.texto,
       model_id: guion.modelo,
       language_code: "es",
-      voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.3, use_speaker_boost: true },
+      ...(guion.modelo === "eleven_v3"
+        ? {}
+        : { voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.3, use_speaker_boost: true } }),
     });
     const d = await res.json();
     writeFileSync(archivo, Buffer.from(d.audio_base64, "base64"));
-    tiempos.voz[e.id] = { texto: e.texto, duracion: duracion(archivo), palabras: palabras(d.alignment) };
+    // Quita la etiqueta de estilo (no se pronuncia) de la alineación.
+    const n = prefijo.length;
+    const al = {
+      characters: d.alignment.characters.slice(n),
+      character_start_times_seconds: d.alignment.character_start_times_seconds.slice(n),
+      character_end_times_seconds: d.alignment.character_end_times_seconds.slice(n),
+    };
+    tiempos.voz[e.id] = {
+      texto: e.texto,
+      duracion: duracion(archivo),
+      palabras: palabras(al),
+      // Letra a letra, para animar la boca.
+      letras: al.characters.join(""),
+      ini: al.character_start_times_seconds.map((x) => Math.round(x * 1000) / 1000),
+      fin: al.character_end_times_seconds.map((x) => Math.round(x * 1000) / 1000),
+    };
     console.log("✓", archivo);
   } else {
     tiempos.voz[e.id] = previo;

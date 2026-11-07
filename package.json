@@ -12,7 +12,9 @@
     "audio:nutricion": "NODE_USE_ENV_PROXY=1 node scripts/generar-audio-nutricion.mjs",
     "transcribir": "hyperframes transcribe --engine whisper --model small --language es",
     "audio:programacion": "NODE_USE_ENV_PROXY=1 node scripts/generar-audio.mjs programacion",
-    "build:programacion": "remotion render ComoFuncionaLaProgramacion out/programacion-crudo.mp4 && scripts/normalizar-audio.sh out/programacion-crudo.mp4 out/como-funciona-la-programacion.mp4"
+    "build:programacion": "remotion render ComoFuncionaLaProgramacion out/programacion-crudo.mp4 && scripts/normalizar-audio.sh out/programacion-crudo.mp4 out/como-funciona-la-programacion.mp4",
+    "audio:pirateria": "NODE_USE_ENV_PROXY=1 node scripts/generar-audio.mjs pirateria && scripts/igualar-sfx.sh public/pirateria",
+    "build:pirateria": "remotion render Pirateria out/pirateria-crudo.mp4 && scripts/normalizar-audio.sh out/pirateria-crudo.mp4 out/que-es-la-pirateria.mp4"
   },
   "dependencies": {
     "@fontsource/baloo-2": "5.3.0",

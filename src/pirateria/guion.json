@@ -1,0 +1,40 @@
+{
+  "voz": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelo": "eleven_v3",
+  "prefijo": "[acento de España, castellano de Madrid, tono alegre y cercano]",
+  "carpeta": "pirateria",
+  "escenas": [
+    { "id": "intro", "texto": "¡Hola, chavales! Hoy os cuento qué es la piratería y cómo empezó todo. Spoiler: es mucho más antigua que internet." },
+    { "id": "que", "texto": "Piratear es copiar o compartir algo que tiene dueño, como una peli, una canción o un videojuego, sin el permiso de quien lo creó." },
+    { "id": "nombre", "texto": "¿Y por qué se llama así? Pues porque, igual que los piratas del mar se quedaban con lo ajeno, a quienes copiaban sin permiso se les empezó a llamar piratas." },
+    { "id": "imprenta", "texto": "Todo empezó con la imprenta, en el siglo quince. De repente, copiar libros era facilísimo, y aparecieron imprentas que los reimprimían sin permiso." },
+    { "id": "ley", "texto": "Por eso, en mil setecientos diez, Gran Bretaña aprobó la primera ley de derechos de autor: el Estatuto de la Reina Ana." },
+    { "id": "cintas", "texto": "Siglos después llegaron las cintas de casete. La gente grababa canciones de la radio y se pasaba copias con los amigos." },
+    { "id": "software", "texto": "En mil novecientos setenta y seis, un jovencísimo Bill Gates escribió una carta pidiendo que dejaran de copiar su programa sin pagar." },
+    { "id": "internet", "texto": "Pero el gran salto llegó con internet. En mil novecientos noventa y nueve apareció Napster, y millones de personas empezaron a compartir música gratis." },
+    { "id": "cierre", "texto": "Las discográficas lo llevaron a juicio, y Napster cerró en dos mil uno. Pero ya era tarde: surgieron otras formas de compartir, como BitTorrent." },
+    { "id": "streaming", "texto": "¿Y qué la frenó? En gran parte, el streaming. Cuando ver o escuchar algo de forma legal se volvió fácil y barato, mucha gente dejó de piratear." },
+    { "id": "riesgos", "texto": "Eso sí: piratear sigue siendo ilegal en muchos países, puede colarte un virus en el ordenador, y deja sin ingresos a quienes crean lo que te gusta." },
+    { "id": "final", "texto": "Así que ya lo sabes: si algo te mola, apoya a quien lo hace. ¡Nos vemos en el próximo vídeo!" }
+  ],
+  "sfx": [
+    { "id": "musica", "texto": "Playful mischievous cartoon background music, light pizzicato strings, marimba and soft percussion, curious and fun, instrumental loop", "duracion": 22, "loop": true },
+    { "id": "whoosh", "texto": "Quick clean whoosh transition", "duracion": 0.8 },
+    { "id": "pop", "texto": "Loud crisp single bubble pop, close-up, clean cartoon sound", "duracion": 0.5 },
+    { "id": "boing", "texto": "Short cartoon boing spring jump", "duracion": 0.7 },
+    { "id": "sello", "texto": "Heavy rubber stamp slam on paper", "duracion": 0.6 },
+    { "id": "olas", "texto": "Ocean waves and wooden ship creaking, short", "duracion": 2 },
+    { "id": "imprenta", "texto": "Old mechanical printing press stamping rhythmically", "duracion": 2.5 },
+    { "id": "mazo", "texto": "Loud wooden judge gavel bang, single hard hit, close-up", "duracion": 0.8 },
+    { "id": "casete", "texto": "Cassette tape inserted, play button click and tape rolling", "duracion": 1.5 },
+    { "id": "escribir", "texto": "Pen writing quickly on paper", "duracion": 1.5 },
+    { "id": "modem", "texto": "Short retro dial-up modem connection sound", "duracion": 2 },
+    { "id": "notas", "texto": "Bright magical musical chime notes flying", "duracion": 1.2 },
+    { "id": "glitch", "texto": "Short digital virus glitch error sound", "duracion": 0.8 },
+    { "id": "monedas", "texto": "Coins falling and draining away, descending", "duracion": 1 },
+    { "id": "exito", "texto": "Pleasant bright success chime, two notes ascending", "duracion": 1 },
+    { "id": "brillo", "texto": "Magical sparkle shimmer chime", "duracion": 1.2 },
+    { "id": "pergamino", "texto": "Old paper scroll unrolling", "duracion": 1 },
+    { "id": "corazon", "texto": "Loud cute cartoon pop with bright warm chime", "duracion": 0.8 }
+  ]
+}

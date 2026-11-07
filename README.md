@@ -60,3 +60,21 @@ npm run build:programacion   # renderiza y normaliza el audio a -14 LUFS
 Las animaciones se sincronizan con las palabras del narrador (`marcas("escena")("palabra")`),
 así que si cambias el guion en `guion.json` y regeneras el audio, todo se reacomoda.
 `scripts/normalizar-audio.sh` deja cualquier video al volumen estándar de YouTube y redes.
+
+## Video: ¿Qué es la piratería? (con el gato)
+
+Video vertical para TikTok (1080×1920, ~110 s) en `src/pirateria/`, presentado por el gato morado.
+
+- **Personaje** (`Gato.tsx`): la cabeza es el dibujo original (`public/pirateria/cabeza.png`,
+  preparado con `scripts/preparar-gato.py`, que quita el fondo y borra la boca). El cuerpo,
+  brazos, cola, pañuelo y accesorios (sombrero pirata, cascos, carta) son vectoriales.
+- **Boca**: se abre según la letra que suena en cada momento (marcas de tiempo por letra de
+  ElevenLabs): vocales abiertas, labiales cerradas. Parpadea solo y cabecea al hablar.
+- **Poses**: cada escena define una postura (`POSES` en `Gato.tsx`) y el gato pasa de una a
+  otra con suavidad.
+- **Voz**: modelo `eleven_v3` con etiqueta de acento castellano (ver `prefijo` en `guion.json`).
+
+```bash
+npm run audio:pirateria   # voz + efectos (y sube el volumen de los efectos flojos)
+npm run build:pirateria   # renderiza y normaliza a -14 LUFS
+```
