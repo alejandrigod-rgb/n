@@ -3,6 +3,7 @@ import { Celulas, DURACION_CELULAS } from "./celulas/Celulas";
 import { HelloWorld } from "./HelloWorld";
 import { DURACION_TOTAL } from "./pirateria/linea";
 import { Pirateria } from "./pirateria/Pirateria";
+import { RetratoNyxar } from "./personajes/RetratoNyxar";
 import {
   ComoFuncionaLaProgramacion,
   DURACION_PROGRAMACION,
@@ -15,6 +16,7 @@ import {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="RetratoNyxar" component={RetratoNyxar} durationInFrames={120} fps={30} width={900} height={1100} />
       <Composition
         id="Pirateria"
         component={Pirateria}

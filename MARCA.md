@@ -1,0 +1,76 @@
+# Guía de marca AEZ: aprobada
+
+> Aprobada por el usuario el 7 de noviembre de 2026. **Seguirla en cada video que se edite para AEZ.**
+> Hoja visual: https://claude.ai/artifact/RerKSj19Dum9ifeeTzXhqH
+
+**Canal:** AEZ (TikTok @ithnoir). Curiosidades de tecnología, internet e historia, contadas por **Nyxar**.
+**Estilo visual base:** el video de las células (`videos/celulas.mp4`): noche azul, burbujas, brillo neón y fluidez total.
+**Fórmula de formato** (estudiada en reels de @gooldeoroo_ e @inframundo3d): gancho inmediato, un objeto por frase, subtítulos palabra a palabra, cifras que cuentan y un cierre que invita a compartir. Se toma la fórmula, **no** su estética. No usar recuadros azules de "selección", cifras doradas con brillo ni el logo de Instagram como firma.
+
+## Nyxar (personaje original del usuario)
+- Gato morado con pelo de punta y rayas, un rizo a la derecha, orejas con interior rosa, ojos grandes y afilados con pupila azul, nariz azul, boca `:3`, pañuelo rojo y cascabel dorado.
+- Componente: `src/personajes/Nyxar.tsx`, en vector. **No usar el PNG recortado del dibujo.** Recibe `pose`, `boca` (0-1) y `frame`. Parpadea, mueve las orejas, respira y mueve la cola solo.
+- La boca se sincroniza con las marcas de tiempo por letra de ElevenLabs (ver `aperturaBoca` en `src/pirateria/linea.ts`).
+- Posición: abajo a la izquierda, ~40 % del ancho, fuera de las zonas que tapa TikTok. Aparece en el gancho y reacciona en los momentos clave.
+- Pasa de una pose a otra con un muelle (`mezclarPoses`). Nyxar y el fondo viven **fuera** de las transiciones para no cortarse.
+- Retrato transparente: `public/marca/nyxar.png` (composición `RetratoNyxar`).
+
+## Color
+| Nombre | Hex | Uso |
+|---|---|---|
+| Noche | `#071733` → `#020814` | Fondo, en degradado radial |
+| Pelaje | `#6B4FB3` | Luces de ambiente, sombras de color |
+| Menta neón | `#5EE7C4` | Brillos, palabra clave, cifras. Solo una cosa a la vez |
+| Cascabel | `#FFB547` | Dinero, récords, premios |
+| Pañuelo | `#C2334D` | Errores, peligro, "prohibido" |
+| Hueso | `#F1F5FF` | Texto, palabra que suena |
+
+Proporción aproximada: 62 % noche, 20 % pelaje, 10 % hueso, 5 % menta, 2 % cascabel y 1 % pañuelo.
+
+## Tipografía
+- **Baloo 2 ExtraBold**: gancho y títulos de escena, con una etiqueta pequeña en mayúsculas encima ("1 · LA IMPRENTA").
+- **Lexend**: subtítulos. Palabras ya dichas en Light al 45 %; la que suena en SemiBold blanco.
+- **JetBrains Mono Bold**: cifras y datos (`tabular-nums`), en menta o cascabel con brillo suave.
+- Paquetes: `@fontsource/baloo-2`, `@fontsource/jetbrains-mono` (añadir `@fontsource/lexend`). Esperar a las fuentes con `delayRender`.
+
+## Composición (vertical 1080×1920)
+- **Subtítulos:** arriba, al 17 % de la altura, dentro de una caja oscura translúcida (`#020814` al ~72 %) con borde menta fino y esquinas de 12-16 px. Una o dos líneas, máximo 5 palabras.
+- **Palabra clave:** una por frase como mucho, con un **subrayado de rotulador menta** detrás (ligeramente torcido) que entra de izquierda a derecha.
+- **Objeto protagonista:** en el centro, formas planas con contorno de color que brilla y late, como la célula. Nada de fotos ni personas reconocibles.
+- **Firma:** bolita morada + `@ithnoir`, arriba a la izquierda, al 55 % de opacidad.
+- **Zonas prohibidas** (las tapa TikTok): el 19 % inferior y el 15 % derecho desde la mitad hacia abajo.
+
+## Cortes y ritmo
+- Duración: **35–50 s**. Si el tema da para más, se divide en Parte 1 y Parte 2.
+- Estructura: **gancho** (0–2 s), **contexto** (2–14 s), **giro** (14–28 s), **remate** (28–38 s), **pregunta** (38–45 s) y **firma**.
+- Gancho: pregunta o dato que choca, **nunca un saludo**. El texto está en pantalla desde el primer fotograma, sin fundido de entrada.
+- Un corte por frase; planos de 2,5–5 s. Voz a ~3 palabras por segundo, con frases cortas.
+
+## Fluidez (como el video de las células)
+- **60 fps.** Las animaciones se calculan en segundos, no en fotogramas, para que no cambien de velocidad.
+- **Todo respira:** las formas laten (±3 %), flotan y sus contornos ondulan. Nunca hay un fotograma totalmente quieto.
+- **Fondo vivo:** 15–25 burbujas menta y moradas que suben despacio, al 5–10 % de opacidad.
+- **Brillo neón** que late en un ciclo de 1,5 s en el objeto protagonista.
+- **Entradas con muelle, salidas con fundido** de 0,5 s. Nada a velocidad constante.
+
+## Motion graphics
+| Efecto | Cuándo | Cómo |
+|---|---|---|
+| Zoom lento | Siempre | 1,00 → 1,06 a lo largo del plano |
+| Golpe de zoom | Palabra clave | +8 % en 0,2 s, con frenado suave |
+| Entrada de objetos | Cuando se nombran | Muelle con un pequeño pasado |
+| Contador | Dinero, años, récords | Sube durante 0,8 s sobre una píldora oscura |
+| Transición | Cambio de escena | Fundido cruzado de 0,5 s; barrido con desenfoque solo si cambia el tema |
+| Partículas | Remate | Una ráfaga de chispas menta, una vez por video |
+
+## Música y sonido
+- **Voz** al frente; el video final se normaliza a **−14 LUFS** con `scripts/normalizar-audio.sh`.
+- **Efectos** a ~−20 dB, uno por cada cosa que aparece y nunca dos a la vez. Subir los efectos flojos con `scripts/igualar-sfx.sh`.
+- **Música:** sintetizador nocturno con curiosidad, sin letra, a ~−28 dB (volumen 0,05–0,07). Sube un poco en la firma.
+- **Firma sonora:** **el cascabel de Nyxar**, en el gancho y en la firma final.
+- Narración y efectos con ElevenLabs (`scripts/generar-audio.mjs`). El texto de la voz y las marcas de tiempo quedan en `tiempos.json`.
+- Después de renderizar, comprobar el audio con Whisper y medir el volumen.
+
+## Cierre
+- Pregunta concreta para comentar, por ejemplo: "Comenta 🐾 si no lo sabías", o "Envíaselo a ese amigo que…".
+- Firma de 2 s: Nyxar saludando, `@ithnoir` y el cascabel.
