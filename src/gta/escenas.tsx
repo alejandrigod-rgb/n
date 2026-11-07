@@ -27,17 +27,17 @@ export const Gancho: React.FC = () => {
           </div>
           <div style={{ fontFamily: F.cifra, fontWeight: 700, fontSize: 30, color: relleno > 0.95 ? "#ff8da1" : C.niebla }}>{relleno > 0.95 ? "ALMACENAMIENTO LLENO" : "descargando…"}</div>
         </div>
-        <div style={{ position: "absolute", top: 300, display: "grid", gridTemplateColumns: "repeat(10, 64px)", gap: 14 }}>
+        <div style={{ position: "absolute", top: 262, display: "grid", gridTemplateColumns: "repeat(10, 64px)", gap: 12 }}>
           {new Array(40).fill(0).map((_, k) => (
             <Pop key={k} desde={m("cuarenta") + k * Math.round(fps * 0.018)}>
-              <svg width={64} height={50} viewBox="0 0 64 50">
+              <svg width={64} height={50} viewBox="0 0 64 50" style={{ display: "block" }}>
                 <rect x={3} y={3} width={58} height={44} rx={7} fill="#0c2f3a" stroke={C.menta} strokeWidth={3} />
                 <polygon points="26,15 42,25 26,35" fill={C.cascabel} />
               </svg>
             </Pop>
           ))}
         </div>
-        <div style={{ position: "absolute", top: 580 }}>
+        <div style={{ position: "absolute", top: 548 }}>
           <Pop desde={m("pelis")}>
             <Chip texto="= 40 películas en HD" color={C.cascabel} />
           </Pop>
@@ -250,6 +250,15 @@ export const Giro: React.FC = () => {
   );
   return (
     <Escena id="giro" etiqueta="EL GIRO" titulo="Lo curioso: a propósito" claves={["comprimir", "rapido"]} golpes={[m("curioso"), m("comprimir"), m("rapido")]}>
+      <div style={{ position: "absolute", display: "flex", justifyContent: "center" }}>
+        <Pop desde={m("curioso") - 4} hasta={m("algunos") - 10} giro={-15}>
+          <Respira amp={0.06}>
+            <Brillo color={C.cascabel}>
+              <div style={{ fontFamily: F.titulo, fontWeight: 800, fontSize: 260, color: C.cascabel, lineHeight: 1 }}>¿?</div>
+            </Brillo>
+          </Respira>
+        </Pop>
+      </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 30, alignItems: "center" }}>
         <Pop desde={m("algunos")} giro={-6}>
           <Carril titulo="Comprimido" color={C.cascabel} progreso={lento} estado={frame >= salida ? "descomprimiendo…" : "ocupa menos"} icono={caja} />
