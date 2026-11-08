@@ -344,11 +344,25 @@ export const Retrasos: React.FC = () => {
       claves={["retrasaron", "noviembre"]}
       golpes={[m("mayo"), m("noviembre")]}
     >
-      <div style={{ display: "flex", gap: 22, alignItems: "center" }}>
-        <Fecha texto={"Otoño\n2025"} tachada desde={m("veinticinco") - 10} selloEn={m("mayo")} />
-        <Fecha texto={"Mayo\n2026"} tachada desde={m("mayo")} selloEn={m("noviembre")} />
-        <Fecha texto={"19 NOV\n2026"} tachada={false} desde={m("noviembre")} buena />
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 40 }}>
+        <div style={{ display: "flex", gap: 30, alignItems: "center", minHeight: 130 }}>
+          <Pop desde={m("anunciaron")}>
+            <Chip texto="Tráiler · dic 2023" color={C.azul} tamano={44} />
+          </Pop>
+          <Pop desde={m("retrasaron")} giro={-15}>
+            <Brillo color={C.panuelo}>
+              <div style={{ fontFamily: F.cifra, fontWeight: 700, fontSize: 110, color: "#ff8da1", lineHeight: 1 }}>×2</div>
+            </Brillo>
+          </Pop>
+        </div>
+        <div style={{ display: "flex", gap: 22, alignItems: "center" }}>
+          <Fecha texto={"Otoño\n2025"} tachada desde={m("veinticinco") - 10} selloEn={m("mayo")} />
+          <Fecha texto={"Mayo\n2026"} tachada desde={m("mayo")} selloEn={m("noviembre")} />
+          <Fecha texto={"19 NOV\n2026"} tachada={false} desde={m("noviembre")} buena />
+        </div>
       </div>
+      <S id="pop" en={m("anunciaron")} volumen={0.3} />
+      <S id="golpe" en={m("retrasaron")} volumen={0.3} />
       <S id="pop" en={m("veinticinco") - 10} volumen={0.3} />
       <S id="sello" en={m("mayo")} volumen={0.45} />
       <S id="sello" en={m("noviembre")} volumen={0.45} />
