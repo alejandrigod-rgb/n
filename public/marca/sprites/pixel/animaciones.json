@@ -1,0 +1,36 @@
+{
+ "fps": 10,
+ "escala_ampliada": 6,
+ "animaciones": {
+  "quieto": {
+   "archivo": "anim-quieto.png",
+   "cuadros": 12,
+   "ancho": 57,
+   "alto": 96
+  },
+  "hablar": {
+   "archivo": "anim-hablar.png",
+   "cuadros": 8,
+   "ancho": 57,
+   "alto": 96
+  },
+  "saludar": {
+   "archivo": "anim-saludar.png",
+   "cuadros": 12,
+   "ancho": 57,
+   "alto": 96
+  },
+  "saltar": {
+   "archivo": "anim-saltar.png",
+   "cuadros": 12,
+   "ancho": 57,
+   "alto": 96
+  },
+  "celebrar": {
+   "archivo": "anim-celebrar.png",
+   "cuadros": 8,
+   "ancho": 57,
+   "alto": 96
+  }
+ }
+}

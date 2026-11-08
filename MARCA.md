@@ -21,6 +21,8 @@
 - Aparece en el gancho y reacciona en los momentos clave.
 - Pasa de una pose a otra con un muelle (`mezclarPoses`). Nyxar y el fondo viven **fuera** de las transiciones para no cortarse.
 - Retrato transparente: `public/marca/nyxar.png` (composición `RetratoNyxar`).
+- **Expresiones** (`expresion` en `Nyxar`): `normal`, `feliz`, `sorprendido`, `enfadado`, `pensativo`, `guino` y `triste`. Úsalas para reaccionar al guion (por ejemplo, sorprendido en el gancho y feliz en el remate).
+- **Sprites** en `public/marca/sprites/` (paquete: `public/marca/sprites-nyxar.zip`): PNGTuber (7 expresiones × boca cerrada/abierta × ojos abiertos/cerrados, alineados), caras, 12 poses, hoja de personaje, stickers 512×512 (PNG y WebP) y pixel art (caras, poses y 5 animaciones en tiras con JSON y GIF). Se regeneran con la composición `SpritesNyxar` (lista en `src/personajes/sprites.json`) y `scripts/sprites-nyxar.py`.
 
 ## Color
 | Nombre | Hex | Uso |

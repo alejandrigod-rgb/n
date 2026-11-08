@@ -4,6 +4,7 @@ import { HelloWorld } from "./HelloWorld";
 import { DURACION_TOTAL } from "./pirateria/linea";
 import { Pirateria } from "./pirateria/Pirateria";
 import { RetratoNyxar } from "./personajes/RetratoNyxar";
+import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import {
   ComoFuncionaLaProgramacion,
@@ -17,6 +18,7 @@ import {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="SpritesNyxar" component={SpritesNyxar} durationInFrames={SPRITES.length} fps={30} width={900} height={1260} />
       <Composition id="GtaVI" component={GtaVI} durationInFrames={DURACION_GTA} fps={60} width={1080} height={1920} />
       <Composition id="RetratoNyxar" component={RetratoNyxar} durationInFrames={120} fps={30} width={900} height={1100} />
       <Composition

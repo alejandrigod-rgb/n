@@ -1,0 +1,1066 @@
+[
+ {
+  "nombre": "cara-normal",
+  "grupo": "expresiones",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-feliz",
+  "grupo": "expresiones",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-sorprendido",
+  "grupo": "expresiones",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-enfadado",
+  "grupo": "expresiones",
+  "expresion": "enfadado",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-pensativo",
+  "grupo": "expresiones",
+  "expresion": "pensativo",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-guino",
+  "grupo": "expresiones",
+  "expresion": "guino",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "cara-triste",
+  "grupo": "expresiones",
+  "expresion": "triste",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "normal-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "normal-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "normal-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "normal-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "feliz-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "feliz-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "feliz-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "feliz-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "sorprendido-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "sorprendido-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "sorprendido-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "sorprendido-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "enfadado-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "enfadado",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "enfadado-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "enfadado",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "enfadado-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "enfadado",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "enfadado-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "enfadado",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "pensativo-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "pensativo",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "pensativo-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "pensativo",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "pensativo-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "pensativo",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "pensativo-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "pensativo",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "guino-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "guino",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "guino-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "guino",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "guino-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "guino",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "guino-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "guino",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "triste-callado-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "triste",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "triste-callado-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "triste",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "triste-hablando-ojos-abiertos",
+  "grupo": "pngtuber",
+  "expresion": "triste",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 0
+ },
+ {
+  "nombre": "triste-hablando-ojos-cerrados",
+  "grupo": "pngtuber",
+  "expresion": "triste",
+  "pose": "base",
+  "boca": 0.85,
+  "parpadeo": 1
+ },
+ {
+  "nombre": "pose-saludo",
+  "grupo": "poses",
+  "expresion": "feliz",
+  "pose": "saludo",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-senalar",
+  "grupo": "poses",
+  "expresion": "normal",
+  "pose": "senalar",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-celebrar",
+  "grupo": "poses",
+  "expresion": "feliz",
+  "pose": "celebrar",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-encogerse",
+  "grupo": "poses",
+  "expresion": "normal",
+  "pose": "encogerse",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-pensar",
+  "grupo": "poses",
+  "expresion": "pensativo",
+  "pose": "pensar",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-enfadado",
+  "grupo": "poses",
+  "expresion": "enfadado",
+  "pose": "jarras",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": null
+ },
+ {
+  "nombre": "pose-portatil",
+  "grupo": "poses",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Portatil"
+ },
+ {
+  "nombre": "pose-libro",
+  "grupo": "poses",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Libro"
+ },
+ {
+  "nombre": "pose-mando",
+  "grupo": "poses",
+  "expresion": "feliz",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Mando"
+ },
+ {
+  "nombre": "pose-movil",
+  "grupo": "poses",
+  "expresion": "normal",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Movil"
+ },
+ {
+  "nombre": "pose-lupa",
+  "grupo": "poses",
+  "expresion": "sorprendido",
+  "pose": "base",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Lupa"
+ },
+ {
+  "nombre": "pose-idea",
+  "grupo": "poses",
+  "expresion": "sorprendido",
+  "pose": "idea",
+  "boca": 0,
+  "parpadeo": 0,
+  "objeto": "Bombilla"
+ },
+ {
+  "nombre": "quieto-00",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 0,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-01",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 1,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-02",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 2,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-03",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 3,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-04",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 4,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-05",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 5,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-06",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 6,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-07",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 7,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-08",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 8,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-09",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 9,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-10",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 10,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "quieto-11",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "quieto",
+   "i": 11,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "hablar-00",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 0,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-01",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 1,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-02",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 2,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-03",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 3,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-04",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 4,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-05",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 5,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-06",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 6,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "hablar-07",
+  "grupo": "animaciones",
+  "expresion": "normal",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "hablar",
+   "i": 7,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "saludar-00",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 0,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-01",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 1,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-02",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 2,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-03",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 3,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-04",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 4,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-05",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 5,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-06",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 6,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-07",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 7,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-08",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 8,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-09",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 9,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-10",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 10,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saludar-11",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saludar",
+   "i": 11,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-00",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 0,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-01",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 1,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-02",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 2,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-03",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 3,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-04",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 4,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-05",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 5,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-06",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 6,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-07",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 7,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-08",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 8,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-09",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 9,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-10",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 10,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "saltar-11",
+  "grupo": "animaciones",
+  "expresion": "sorprendido",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "saltar",
+   "i": 11,
+   "n": 12
+  }
+ },
+ {
+  "nombre": "celebrar-00",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 0,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-01",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 1,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-02",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 2,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-03",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 3,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-04",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 4,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-05",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 5,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-06",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 6,
+   "n": 8
+  }
+ },
+ {
+  "nombre": "celebrar-07",
+  "grupo": "animaciones",
+  "expresion": "feliz",
+  "pose": "anim",
+  "boca": 0,
+  "parpadeo": 0,
+  "anim": {
+   "tipo": "celebrar",
+   "i": 7,
+   "n": 8
+  }
+ }
+]

@@ -101,18 +101,41 @@ const Brazo: React.FC<{
   </g>
 );
 
-const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: number; mirarY: number; id: string }> = ({
-  frame,
-  boca,
-  parpadeo,
-  mirarX,
-  mirarY,
-  id,
-}) => {
+export type Expresion = "normal" | "feliz" | "sorprendido" | "enfadado" | "pensativo" | "guino" | "triste";
+export const EXPRESIONES: Expresion[] = ["normal", "feliz", "sorprendido", "enfadado", "pensativo", "guino", "triste"];
+
+/** Párpado inclinado (enfado o tristeza): tapa la parte del ojo por encima de la línea (x1,y1)-(x2,y2). */
+const ParpadoInclinado: React.FC<{ x1: number; y1: number; x2: number; y2: number }> = ({ x1, y1, x2, y2 }) => (
+  <>
+    <polygon points={`${x1 - 20},150 ${x2 + 20},150 ${x2 + 20},${y2} ${x1 - 20},${y1}`} fill={PIEL} />
+    <line x1={x1 - 20} y1={y1} x2={x2 + 20} y2={y2} stroke={LINEA} strokeWidth={6} />
+  </>
+);
+
+/** Ojo cerrado contento: un arco "^". */
+const OjoFeliz: React.FC<{ cx: number }> = ({ cx }) => (
+  <path d={`M${cx - 42} 236 Q${cx} 196 ${cx + 42} 236`} stroke={LINEA} strokeWidth={8} fill="none" strokeLinecap="round" />
+);
+
+const Cabeza: React.FC<{
+  frame: number;
+  boca: number;
+  parpadeo: number;
+  mirarX: number;
+  mirarY: number;
+  id: string;
+  expresion: Expresion;
+}> = ({ frame, boca, parpadeo, mirarX, mirarY, id, expresion }) => {
   const anchoBoca = 13 + 9 * boca;
   const altoBoca = 4 + 30 * boca;
-  const px = mirarX * 9;
-  const py = mirarY * 7;
+  const mx = expresion === "pensativo" ? -0.7 : mirarX;
+  const my = expresion === "pensativo" ? -0.9 : expresion === "triste" ? 0.7 : mirarY;
+  const px = mx * 9;
+  const py = my * 7;
+  const pupilaRy = expresion === "sorprendido" ? 11 : 25;
+  const pupilaRx = expresion === "sorprendido" ? 9 : 8;
+  const cerradoI = expresion === "feliz";
+  const cerradoD = expresion === "feliz" || expresion === "guino";
   const lid = (y0: number) => (
     <>
       <rect x={140} y={y0} width={290} height={100 * parpadeo} fill={PIEL} />
@@ -173,20 +196,77 @@ const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: 
         <path d="M110 254 L120 246" />
       </g>
       {/* Ojos con pupilas que miran y párpados que siguen su forma */}
-      <path d={OJO_I} fill="#fff" />
-      <path d={OJO_D} fill="#fff" />
-      <g clipPath={`url(#${id}-ojoI)`}>
-        <ellipse cx={210 + px} cy={226 + py} rx={8} ry={25} fill="#1b2f7a" />
-        <ellipse cx={207 + px} cy={214 + py} rx={2.5} ry={6} fill="#fff" opacity={0.85} />
-        {parpadeo > 0 ? lid(176) : null}
+      {cerradoI ? (
+        <OjoFeliz cx={214} />
+      ) : (
+        <>
+          <path d={OJO_I} fill="#fff" />
+          <g clipPath={`url(#${id}-ojoI)`}>
+            <ellipse cx={210 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
+            <ellipse
+              cx={207 + px}
+              cy={(expresion === "sorprendido" ? 221 : 214) + py}
+              rx={2.5}
+              ry={expresion === "sorprendido" ? 3 : 6}
+              fill="#fff"
+              opacity={0.85}
+            />
+            {expresion === "enfadado" ? <ParpadoInclinado x1={166} y1={196} x2={264} y2={228} /> : null}
+            {expresion === "triste" ? <ParpadoInclinado x1={166} y1={222} x2={264} y2={200} /> : null}
+            {parpadeo > 0 ? lid(176) : null}
+          </g>
+          <path d={OJO_I} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+        </>
+      )}
+      {cerradoD ? (
+        <OjoFeliz cx={350} />
+      ) : (
+        <>
+          <path d={OJO_D} fill="#fff" />
+          <g clipPath={`url(#${id}-ojoD)`}>
+            <ellipse cx={352 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
+            <ellipse
+              cx={349 + px}
+              cy={(expresion === "sorprendido" ? 221 : 214) + py}
+              rx={2.5}
+              ry={expresion === "sorprendido" ? 3 : 6}
+              fill="#fff"
+              opacity={0.85}
+            />
+            {expresion === "enfadado" ? <ParpadoInclinado x1={300} y1={230} x2={398} y2={198} /> : null}
+            {expresion === "triste" ? <ParpadoInclinado x1={300} y1={202} x2={398} y2={224} /> : null}
+            {parpadeo > 0 ? lid(178) : null}
+          </g>
+          <path d={OJO_D} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+        </>
+      )}
+      {/* Cejas (solo en algunas expresiones; Nyxar normalmente no tiene) */}
+      <g stroke={LINEA} strokeWidth={9} strokeLinecap="round" fill="none">
+        {expresion === "enfadado" ? (
+          <>
+            <path d="M170 172 L258 200" />
+            <path d="M306 202 L394 174" />
+          </>
+        ) : null}
+        {expresion === "sorprendido" ? (
+          <>
+            <path d="M176 164 Q214 144 254 162" />
+            <path d="M310 164 Q350 144 388 164" />
+          </>
+        ) : null}
+        {expresion === "triste" ? (
+          <>
+            <path d="M172 184 L256 168" />
+            <path d="M308 168 L392 186" />
+          </>
+        ) : null}
+        {expresion === "pensativo" ? (
+          <>
+            <path d="M176 178 L256 182" />
+            <path d="M310 168 Q350 146 390 160" />
+          </>
+        ) : null}
       </g>
-      <g clipPath={`url(#${id}-ojoD)`}>
-        <ellipse cx={352 + px} cy={226 + py} rx={8} ry={25} fill="#1b2f7a" />
-        <ellipse cx={349 + px} cy={214 + py} rx={2.5} ry={6} fill="#fff" opacity={0.85} />
-        {parpadeo > 0 ? lid(178) : null}
-      </g>
-      <path d={OJO_I} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
-      <path d={OJO_D} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
       {/* Nariz */}
       <path
         d="M266 268 C276 263 294 263 302 269 C298 278 286 282 279 285 C272 281 266 275 266 268 Z"
@@ -207,7 +287,28 @@ const Cabeza: React.FC<{ frame: number; boca: number; parpadeo: number; mirarX: 
           <ellipse cx={280} cy={297 + altoBoca * 0.82} rx={anchoBoca * 0.55} ry={Math.min(7, altoBoca * 0.3)} fill="#e0607e" />
         </g>
       ) : null}
-      <path d="M234 288 Q257 312 280 295 Q303 312 326 288" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+      {boca <= 0.08 && expresion === "feliz" ? (
+        <g>
+          <path d="M246 292 Q280 338 314 292 Z" fill="#2a0d1c" stroke={LINEA} strokeWidth={4} strokeLinejoin="round" />
+          <ellipse cx={280} cy={312} rx={14} ry={6} fill="#e0607e" />
+        </g>
+      ) : null}
+      {boca <= 0.08 && expresion === "sorprendido" ? (
+        <ellipse cx={280} cy={308} rx={11} ry={14} fill="#2a0d1c" stroke={LINEA} strokeWidth={4} />
+      ) : null}
+      {expresion === "enfadado" || expresion === "triste" ? (
+        boca <= 0.08 ? (
+          <path d="M248 308 Q280 288 312 308" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+        ) : null
+      ) : expresion === "pensativo" ? (
+        boca <= 0.08 ? (
+          <path d="M258 304 Q284 298 306 292" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+        ) : null
+      ) : expresion === "guino" ? (
+        <path d="M236 290 Q260 312 282 296 Q306 314 330 284" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+      ) : (
+        <path d="M234 288 Q257 312 280 295 Q303 312 326 288" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+      )}
       {/* Bigotes */}
       <g stroke={LINEA} strokeWidth={3} strokeLinecap="round">
         <line x1={196} y1={282} x2={236} y2={290} />
@@ -232,7 +333,11 @@ export const Nyxar: React.FC<{
   id?: string;
   /** Objeto relacionado con el tema que sostiene delante del pecho (portátil, móvil, mando...). */
   objeto?: TipoObjeto;
-}> = ({ ancho, pose: entrada, boca, frame, fps = 30, id = "nyxar", objeto }) => {
+  /** Cara de Nyxar (por defecto "normal"). */
+  expresion?: Expresion;
+  /** Fuerza el parpadeo (0 abierto, 1 cerrado); si no, parpadea solo. */
+  parpadeo?: number;
+}> = ({ ancho, pose: entrada, boca, frame, fps = 30, id = "nyxar", objeto, expresion = "normal", parpadeo: parpadeoFijo }) => {
   const f = (frame * 30) / fps; // las oscilaciones van en tiempo, no en fotogramas
   // Con un objeto, los brazos, la mirada y la cabeza van hacia la postura de agarre.
   const agarre = objeto ? AGARRES[objeto] : null;
@@ -254,7 +359,7 @@ export const Nyxar: React.FC<{
   const colaOnda = Math.sin(f / 14);
   const cascabel = Math.sin(f / 7) * 12 + p.salto * 0.2;
   const asentir = boca * 2.5;
-  const parpadeo = parpadeoNyxar(frame, fps);
+  const parpadeo = parpadeoFijo ?? parpadeoNyxar(frame, fps);
   const cola = `M345 520 C420 530 ${455 + colaOnda * 12} 480 ${448 + colaOnda * 18} 420 C${445 + colaOnda * 22} 390 ${462 + colaOnda * 26} 370 ${480 + colaOnda * 28} 382`;
 
   return (
@@ -302,7 +407,7 @@ export const Nyxar: React.FC<{
         </g>
         {/* Cabeza y accesorios */}
         <g transform={`rotate(${p.cabeza + asentir * 0.4} 280 330) translate(0 ${-asentir})`}>
-          <Cabeza frame={frame} boca={boca} parpadeo={parpadeo} mirarX={p.mirarX} mirarY={p.mirarY} id={id} />
+          <Cabeza frame={frame} boca={boca} parpadeo={parpadeo} mirarX={p.mirarX} mirarY={p.mirarY} id={id} expresion={expresion} />
           {p.sombrero > 0.01 ? (
             <g transform={`translate(280 70) scale(${p.sombrero}) rotate(${-8 + (1 - p.sombrero) * 30})`}>
               <path
