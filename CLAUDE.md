@@ -53,6 +53,6 @@ Conclusiones:
 - Instagram no es accesible desde el entorno: para estudiar un reel, pedir que lo suban (si pesa más de 30 MB, que lo pasen por WhatsApp para comprimirlo).
 
 ## Ideas pendientes
-- Próximos temas propuestos: "Cómo los juegos de móvil te sacan el dinero" (la niña que gastó 60.000 €), "El truco de los precios del Black Friday" (27 de noviembre), "13 años esperando GTA VI".
+- Próximos temas propuestos: "Cómo los juegos de móvil te sacan el dinero" (la niña que gastó 60.000 €), "El truco de los precios del Black Friday" (27 de noviembre), "13 años esperando GTA VI" (ya hecho).
 - Series del canal (propuestas, pendientes de confirmar): ¿Por qué…?, La historia detrás de…, El truco de…, Esto pasó de verdad.
-- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` `por-que-gta-vi-pesa-tanto.mp4` y `fasciculaciones.mp4` (no publicado; era para la familia del usuario).
+- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` `por-que-gta-vi-pesa-tanto.mp4`, `por-que-gta-vi-tardo-13-anos.mp4` (composición `EsperaGTA`; publicar entre el 10 y el 18 de noviembre) y `fasciculaciones.mp4` (no publicado; era para la familia del usuario).
