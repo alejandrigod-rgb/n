@@ -35,15 +35,17 @@ Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trab
 ## Lo que dicen los datos (Windsor.ai, conector `tiktok_organic`)
 | Video | Duración | Vistas | Notas |
 |---|---|---|---|
-| ¿Cómo funciona la programación? (sin Nyxar, horizontal) | 93 s | ~745 | Primer video; impulso de cuenta nueva |
-| ¿Qué es la piratería? (Nyxar antiguo) | 110 s | ~377 | Empezaba con un saludo; demasiado largo |
-| **¿Por qué GTA VI pesa 212 GB?** (marca completa) | 49 s | **933 · 25 me gusta · 1 comentario** (<1 día) | El mejor; tema en tendencia |
+| ¿Cómo funciona la programación? (sin Nyxar, horizontal) | 93 s | ~762 | Primer video; impulso de cuenta nueva |
+| ¿Qué es la piratería? (Nyxar antiguo) | 110 s | ~888 | Revivió (de 377 a 888) cuando funcionó el de GTA |
+| **¿Por qué GTA VI pesa 212 GB?** (marca completa) | 49 s | **1.017 · 31 me gusta · 2 compartidos · 4 guardados · 1 comentario** (~1 día) | El mejor; el que más se ve completo (3,9 %) |
 
 Conclusiones:
 - **Entre el 40 y el 60 % de la gente se va en los primeros 2 segundos.** El inicio es lo más importante (ver "Los primeros 2 segundos" en `MARCA.md`).
 - **Nyxar ayuda a retener:** en el de GTA, el 20 % sigue al segundo 10, frente al 13 % de los otros dos.
 - Los temas en tendencia (por ejemplo, GTA VI) traen visitas desde la búsqueda.
 - Revisar las estadísticas 24–48 h después de publicar; antes los datos están incompletos.
+- Cuando un video nuevo funciona, TikTok vuelve a empujar los anteriores.
+- Comentario en GTA: "el Genshin pesa lo mismo". Genshin pide ~110 GB en PC (150 GB recomendados) y crece con las actualizaciones. Idea: responder con un video corto ("¿Genshin pesa lo mismo que GTA VI?").
 
 ## Entorno técnico
 - Entorno de nube **`n`**: red con ElevenLabs (la clave la inyecta el proxy, no hay variable de entorno) y Hugging Face. Su script de arranque instala `whisper-cli` y el modelo `small`.
@@ -53,4 +55,4 @@ Conclusiones:
 ## Ideas pendientes
 - Próximos temas propuestos: "Cómo los juegos de móvil te sacan el dinero" (la niña que gastó 60.000 €), "El truco de los precios del Black Friday" (27 de noviembre), "13 años esperando GTA VI".
 - Series del canal (propuestas, pendientes de confirmar): ¿Por qué…?, La historia detrás de…, El truco de…, Esto pasó de verdad.
-- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` y `por-que-gta-vi-pesa-tanto.mp4`.
+- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` `por-que-gta-vi-pesa-tanto.mp4` y `fasciculaciones.mp4` (no publicado; era para la familia del usuario).
