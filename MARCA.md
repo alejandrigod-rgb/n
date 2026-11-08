@@ -21,7 +21,8 @@
 - Aparece en el gancho y reacciona en los momentos clave.
 - Pasa de una pose a otra con un muelle (`mezclarPoses`). Nyxar y el fondo viven **fuera** de las transiciones para no cortarse.
 - Retrato transparente: `public/marca/nyxar.png` (composición `RetratoNyxar`).
-- **Expresiones** (`expresion` en `Nyxar`): `normal`, `feliz`, `sorprendido`, `enfadado`, `pensativo`, `guino` y `triste`. Úsalas para reaccionar al guion (por ejemplo, sorprendido en el gancho y feliz en el remate).
+- **Expresiones** (`expresion` en `Nyxar`): `normal`, `feliz`, `sorprendido`, `enfadado`, `pensativo`, `guino` y `triste`. **Nyxar es un gato: no tiene cejas.** Las emociones se muestran como en un gato real: orejas (hacia atrás al enfadarse, caídas de tristeza, levantadas de sorpresa), pupilas (finas de enfado, grandes y redondas de sorpresa o tristeza), párpados y boca.
+- **Expresiones en los videos:** cada escena elige la que encaja con lo que se cuenta. Como guía: `sorprendido` en el gancho, `pensativo` en el giro ("lo curioso es…"), `enfadado` o `triste` cuando se habla de algo malo (errores, riesgos, pérdidas), `feliz` en el remate y en la firma, y `guino` para un chiste o un truco. La expresión cambia a la vez que la pose.
 - **Sprites** en `public/marca/sprites/` (paquete: `public/marca/sprites-nyxar.zip`): PNGTuber (7 expresiones × boca cerrada/abierta × ojos abiertos/cerrados, alineados), caras, 12 poses, hoja de personaje, stickers 512×512 (PNG y WebP) y pixel art (caras, poses y 5 animaciones en tiras con JSON y GIF). Se regeneran con la composición `SpritesNyxar` (lista en `src/personajes/sprites.json`) y `scripts/sprites-nyxar.py`.
 
 ## Color

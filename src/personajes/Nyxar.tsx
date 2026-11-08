@@ -132,8 +132,13 @@ const Cabeza: React.FC<{
   const my = expresion === "pensativo" ? -0.9 : expresion === "triste" ? 0.7 : mirarY;
   const px = mx * 9;
   const py = my * 7;
-  const pupilaRy = expresion === "sorprendido" ? 11 : 25;
-  const pupilaRx = expresion === "sorprendido" ? 9 : 8;
+  // Como un gato: pupilas finas al enfadarse, grandes y redondas al sorprenderse o entristecerse.
+  const pupilaRx = expresion === "sorprendido" ? 17 : expresion === "triste" ? 15 : expresion === "enfadado" ? 4 : 8;
+  const pupilaRy = expresion === "sorprendido" ? 20 : expresion === "triste" ? 18 : expresion === "enfadado" ? 26 : 25;
+  const grande = expresion === "sorprendido" || expresion === "triste";
+  // Orejas: hacia atrás al enfadarse, caídas de tristeza, levantadas de sorpresa.
+  const orejaBase = { normal: 0, feliz: 0, guino: 0, sorprendido: -7, enfadado: 24, triste: 34, pensativo: 0 }[expresion];
+  const orejaPensativa = expresion === "pensativo" ? 14 : 0;
   const cerradoI = expresion === "feliz";
   const cerradoD = expresion === "feliz" || expresion === "guino";
   const lid = (y0: number) => (
@@ -162,11 +167,11 @@ const Cabeza: React.FC<{
         </clipPath>
       </defs>
       {/* Orejas */}
-      <g transform={`rotate(${-ticOreja(frame, "i")} 180 160)`}>
+      <g transform={`rotate(${-ticOreja(frame, "i") - orejaBase - orejaPensativa} 180 160)`}>
         <path d="M222 128 L124 58 L136 182 Z" fill={`url(#${id}-pelo)`} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
         <path d="M196 124 L138 80 L146 160 Z" fill="#b8708a" />
       </g>
-      <g transform={`rotate(${ticOreja(frame, "d")} 390 160)`}>
+      <g transform={`rotate(${ticOreja(frame, "d") + orejaBase} 390 160)`}>
         <path d="M356 122 L418 62 L430 186 Z" fill={`url(#${id}-pelo)`} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
         <path d="M374 120 L408 84 L416 160 Z" fill="#b8708a" />
       </g>
@@ -204,15 +209,16 @@ const Cabeza: React.FC<{
           <g clipPath={`url(#${id}-ojoI)`}>
             <ellipse cx={210 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
             <ellipse
-              cx={207 + px}
-              cy={(expresion === "sorprendido" ? 221 : 214) + py}
-              rx={2.5}
-              ry={expresion === "sorprendido" ? 3 : 6}
+              cx={207 + px - (grande ? 4 : 0)}
+              cy={(grande ? 216 : 214) + py}
+              rx={grande ? 5 : 2.5}
+              ry={grande ? 6 : expresion === "enfadado" ? 4 : 6}
               fill="#fff"
               opacity={0.85}
             />
             {expresion === "enfadado" ? <ParpadoInclinado x1={166} y1={196} x2={264} y2={228} /> : null}
-            {expresion === "triste" ? <ParpadoInclinado x1={166} y1={222} x2={264} y2={200} /> : null}
+            {expresion === "triste" ? <ParpadoInclinado x1={166} y1={210} x2={264} y2={198} /> : null}
+            {expresion === "pensativo" ? <ParpadoInclinado x1={166} y1={214} x2={264} y2={214} /> : null}
             {parpadeo > 0 ? lid(176) : null}
           </g>
           <path d={OJO_I} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
@@ -226,47 +232,20 @@ const Cabeza: React.FC<{
           <g clipPath={`url(#${id}-ojoD)`}>
             <ellipse cx={352 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
             <ellipse
-              cx={349 + px}
-              cy={(expresion === "sorprendido" ? 221 : 214) + py}
-              rx={2.5}
-              ry={expresion === "sorprendido" ? 3 : 6}
+              cx={349 + px - (grande ? 4 : 0)}
+              cy={(grande ? 216 : 214) + py}
+              rx={grande ? 5 : 2.5}
+              ry={grande ? 6 : expresion === "enfadado" ? 4 : 6}
               fill="#fff"
               opacity={0.85}
             />
             {expresion === "enfadado" ? <ParpadoInclinado x1={300} y1={230} x2={398} y2={198} /> : null}
-            {expresion === "triste" ? <ParpadoInclinado x1={300} y1={202} x2={398} y2={224} /> : null}
+            {expresion === "triste" ? <ParpadoInclinado x1={300} y1={200} x2={398} y2={212} /> : null}
             {parpadeo > 0 ? lid(178) : null}
           </g>
           <path d={OJO_D} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
         </>
       )}
-      {/* Cejas (solo en algunas expresiones; Nyxar normalmente no tiene) */}
-      <g stroke={LINEA} strokeWidth={9} strokeLinecap="round" fill="none">
-        {expresion === "enfadado" ? (
-          <>
-            <path d="M170 172 L258 200" />
-            <path d="M306 202 L394 174" />
-          </>
-        ) : null}
-        {expresion === "sorprendido" ? (
-          <>
-            <path d="M176 164 Q214 144 254 162" />
-            <path d="M310 164 Q350 144 388 164" />
-          </>
-        ) : null}
-        {expresion === "triste" ? (
-          <>
-            <path d="M172 184 L256 168" />
-            <path d="M308 168 L392 186" />
-          </>
-        ) : null}
-        {expresion === "pensativo" ? (
-          <>
-            <path d="M176 178 L256 182" />
-            <path d="M310 168 Q350 146 390 160" />
-          </>
-        ) : null}
-      </g>
       {/* Nariz */}
       <path
         d="M266 268 C276 263 294 263 302 269 C298 278 286 282 279 285 C272 281 266 275 266 268 Z"
@@ -296,9 +275,16 @@ const Cabeza: React.FC<{
       {boca <= 0.08 && expresion === "sorprendido" ? (
         <ellipse cx={280} cy={308} rx={11} ry={14} fill="#2a0d1c" stroke={LINEA} strokeWidth={4} />
       ) : null}
-      {expresion === "enfadado" || expresion === "triste" ? (
+      {expresion === "enfadado" ? (
         boca <= 0.08 ? (
-          <path d="M248 308 Q280 288 312 308" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+          <g>
+            <path d="M246 306 Q262 296 280 300 Q298 296 314 306" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+            <path d="M262 299 L266 312 L271 300 Z" fill="#fff" stroke={LINEA} strokeWidth={2} strokeLinejoin="round" />
+          </g>
+        ) : null
+      ) : expresion === "triste" ? (
+        boca <= 0.08 ? (
+          <path d="M250 308 Q280 290 310 308" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
         ) : null
       ) : expresion === "pensativo" ? (
         boca <= 0.08 ? (
