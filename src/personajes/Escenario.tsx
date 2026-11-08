@@ -18,7 +18,8 @@ export const SITIOS: Record<Lado, Sitio> = {
   asomadoDerecha: { x: 640, y: 250, ancho: 600, giro: -16, espejo: true, desdeX: 600, desdeY: 0 },
 };
 
-export type Tramo = { inicio: number; fin: number; lado: Lado };
+/** `sinEntrada`: ya está en su sitio desde el primer fotograma (para el gancho). */
+export type Tramo = { inicio: number; fin: number; lado: Lado; sinEntrada?: boolean };
 
 
 export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (ancho: number) => React.ReactNode }> = ({
@@ -31,7 +32,7 @@ export const Escenario: React.FC<{ tramos: Tramo[]; fps: number; children: (anch
   for (let k = 0; k < tramos.length; k++) if (frame >= tramos[k].inicio) i = k;
   const t = tramos[i];
   const s = SITIOS[t.lado];
-  const entra = spring({ frame: frame - t.inicio, fps, config: { damping: 14, mass: 0.8 } });
+  const entra = t.sinEntrada ? 1 : spring({ frame: frame - t.inicio, fps, config: { damping: 14, mass: 0.8 } });
   const esUltimo = i === tramos.length - 1;
   const salida = Math.round(fps / 3);
   const sale = esUltimo ? 0 : interpolate(frame, [t.fin - salida, t.fin], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });

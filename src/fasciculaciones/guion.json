@@ -1,0 +1,25 @@
+{
+  "voz": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelo": "eleven_v3",
+  "prefijo": "[acento de España, castellano de Madrid, tono enérgico y curioso, ritmo rápido]",
+  "carpeta": "fasciculaciones",
+  "escenas": [
+    { "id": "gancho", "texto": "¿Te tiembla el párpado solo? Tiene nombre: fasciculación. Y casi siempre es normal." },
+    { "id": "que", "texto": "Pasa cuando un nervio manda una señal suelta, y unas pocas fibras del músculo se contraen sin permiso." },
+    { "id": "causas", "texto": "Los culpables típicos: estrés, mucho café, dormir poco, o pasarte con el ejercicio." },
+    { "id": "sueno", "texto": "Y luego está el salto al dormirte, como si cayeras al vacío. Se llama sacudida hípnica, y le pasa hasta a siete de cada diez personas." },
+    { "id": "teoria", "texto": "Una teoría dice que, al relajarte de golpe, el cerebro cree que te caes, y tensa todo el cuerpo." },
+    { "id": "remate", "texto": "Las dos suelen ser inofensivas. Pero si vienen con debilidad, o no se van, consulta a un médico." },
+    { "id": "pregunta", "texto": "¿Te ha pasado el salto al dormir? Sí o no. Te leo." }
+  ],
+  "sfx": [
+    { "id": "chispa", "texto": "Tiny electric spark zap, short and crisp", "duracion": 0.6 },
+    { "id": "tic", "texto": "Quick small rubbery twitch boing, subtle cartoon", "duracion": 0.5 },
+    { "id": "cafe", "texto": "Pouring hot coffee into a ceramic cup", "duracion": 1.2 },
+    { "id": "caida", "texto": "Cartoon falling whistle descending fast", "duracion": 1.2 },
+    { "id": "sacudida", "texto": "Sudden body jolt thud on a mattress, startled", "duracion": 0.8 },
+    { "id": "alerta", "texto": "Short brain alert alarm beep, two quick beeps", "duracion": 0.8 },
+    { "id": "ronquido", "texto": "Single soft cute cartoon snore", "duracion": 1.2 },
+    { "id": "latido", "texto": "Two soft clear heartbeats", "duracion": 1.2 }
+  ]
+}
