@@ -53,6 +53,14 @@ Proporción aproximada: 62 % noche, 20 % pelaje, 10 % hueso, 5 % menta, 2 % casc
 - Gancho: pregunta o dato que choca, **nunca un saludo**. El texto está en pantalla desde el primer fotograma, sin fundido de entrada.
 - Un corte por frase; planos de 2,5–5 s. Voz a ~3 palabras por segundo, con frases cortas.
 
+### Los primeros 2 segundos (la regla más importante)
+Datos de los tres primeros videos: entre el 40 y el 60 % de la gente se va antes del segundo 2, y quien se queda aguanta más cuando sale Nyxar. Por eso:
+1. **El dato más fuerte ya está en pantalla en el fotograma 0**: grande, terminado y con color de alerta (por ejemplo, "212 GB" en rojo pañuelo). Nada de contadores que empiezan en cero, fundidos o pantallas vacías.
+2. **Nyxar ya visible y reaccionando en el fotograma 0** (sorpresa, brazos arriba), en un sitio llamativo (por ejemplo, `asomadoIzquierda`). No entra deslizándose en el gancho.
+3. **Movimiento y sonido fuertes en el segundo 0**: golpe de zoom (+10 %) y un golpe grave junto con el cascabel, en los primeros 6 fotogramas.
+4. **Frase de gancho corta, de 5-6 palabras**, que abra curiosidad y empiece a sonar antes de 0,3 s. El resto del dato va en la segunda frase.
+5. **Pregunta final que divida opiniones** ("¿Vale la pena…? Sí o no 👇"), no una pregunta genérica.
+
 ## Fluidez (como el video de las células)
 - **60 fps.** Las animaciones se calculan en segundos, no en fotogramas, para que no cambien de velocidad.
 - **Todo respira:** las formas laten (±3 %), flotan y sus contornos ondulan. Nunca hay un fotograma totalmente quieto.
