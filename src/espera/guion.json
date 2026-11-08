@@ -1,0 +1,23 @@
+{
+  "voz": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelo": "eleven_v3",
+  "prefijo": "[acento de España, castellano de Madrid, tono enérgico y curioso, ritmo rápido]",
+  "carpeta": "espera",
+  "escenas": [
+    { "id": "gancho", "texto": "Trece años esperando un juego. GTA cinco salió en dos mil trece, y el seis llega ahora. ¿Por qué tanto?" },
+    { "id": "exito", "texto": "Primero, porque GTA cinco nunca dejó de venderse: más de doscientos treinta millones de copias, y sigue vendiendo millones cada año." },
+    { "id": "online", "texto": "Además, GTA Online mantuvo a la gente jugando y gastando durante años, y eso le dio a Rockstar tiempo de sobra." },
+    { "id": "rdr", "texto": "Mientras tanto, hicieron otro juego enorme: Red Dead Redemption dos, en dos mil dieciocho." },
+    { "id": "retrasos", "texto": "Y cuando por fin anunciaron el seis, lo retrasaron dos veces: de dos mil veinticinco, a mayo, y luego a noviembre." },
+    { "id": "remate", "texto": "¿El motivo oficial? Pulirlo hasta que esté a la altura de lo que esperan los fans." },
+    { "id": "pregunta", "texto": "Sale el diecinueve de noviembre. ¿Valió la pena esperar? Sí o no." }
+  ],
+  "sfx": [
+    { "id": "calendario", "texto": "Fast flipping calendar pages, paper flutter", "duracion": 1.2 },
+    { "id": "monedas", "texto": "Coins falling into a pile, cheerful cash sound", "duracion": 1.2 },
+    { "id": "caballo", "texto": "Short horse neigh with a western whistle", "duracion": 1.5 },
+    { "id": "sello", "texto": "Heavy rubber stamp slam on paper, single hit", "duracion": 0.6 },
+    { "id": "brillo", "texto": "Magical sparkle shimmer chime", "duracion": 1.2 },
+    { "id": "pulir", "texto": "Cartoon polishing squeak, quick rub", "duracion": 0.8 }
+  ]
+}
