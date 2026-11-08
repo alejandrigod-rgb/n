@@ -1,12 +1,56 @@
-# Proyecto de videos (Remotion)
+# Proyecto de videos AEZ (Remotion): memoria del proyecto
 
-Videos para el canal **AEZ** (TikTok @ithnoir), hechos con Remotion, ElevenLabs y Whisper.
+Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trabajando con este usuario sin que tenga que repetirlo.
+
+## Quién es y cómo trabajar con él
+- Creador del canal **AEZ** en TikTok (**@ithnoir**). Escribe en español informal ("bro", "porfa"). Responde siempre en español, de forma cercana y directa.
+- Quiere que las cosas se hagan completas y bien. Revisa los videos con atención y pide arreglos concretos (por ejemplo: la cabeza mal recortada, las cejas de Nyxar).
+- Hacer commit y push de todo en la rama de desarrollo indicada en la sesión. El hook del repositorio lo exige al terminar.
+- Antes de entregar un video: revisar fotogramas, transcribir el audio con Whisper, medir el volumen (−14 LUFS) y enviar el MP4 con `SendUserFile`, junto con el título, la descripción y los hashtags para TikTok.
 
 ## Regla principal
-**Todo video que se edite para el usuario sigue `MARCA.md`** (guía de marca aprobada): colores, tipografía, subtítulos, ritmo, fluidez, motion graphics, sonido y el personaje **Nyxar** (`src/personajes/Nyxar.tsx`). Si algo de la guía no encaja con un pedido concreto, preguntar antes de saltársela.
+**Todo video sigue `MARCA.md`** (guía de marca aprobada): colores, tipografía, subtítulos, ritmo, fluidez, motion graphics, sonido y el personaje **Nyxar**. Si algo de la guía no encaja con un pedido, preguntar antes de saltársela.
+- Hoja de marca visual: https://claude.ai/artifact/RerKSj19Dum9ifeeTzXhqH (se actualiza a la vez que `MARCA.md`).
 
-## Herramientas
-- Render: `npx remotion render <Composición> out/<archivo>.mp4 --browser-executable=/opt/pw-browsers/chromium`; luego normalizar el audio con `scripts/normalizar-audio.sh`.
-- Audio: `NODE_USE_ENV_PROXY=1 node scripts/generar-audio.mjs <carpeta>` (lee `src/<carpeta>/guion.json`; la clave de ElevenLabs la inyecta el proxy).
-- Transcripción y verificación: `whisper-cli` con `~/.cache/hyperframes/whisper/models/ggml-small.bin`.
-- Estadísticas de TikTok: conector Windsor.ai (`tiktok_organic`).
+## Nyxar (el personaje del usuario)
+- Gato morado original del usuario. Está en vector en `src/personajes/Nyxar.tsx`, con expresiones, objetos con agarre (`objetos.tsx`) y cambio de sitio por escena (`Escenario.tsx`).
+- **No tiene cejas**: las emociones se muestran con orejas, pupilas, párpados y boca. Nunca usar el PNG recortado del dibujo original.
+- Sprites en `public/marca/sprites/` y `public/marca/sprites-nyxar.zip` (PNGTuber, stickers, hoja de personaje, pixel art). Se regeneran con la composición `SpritesNyxar` y `scripts/sprites-nyxar.py`.
+
+## Cómo hacer un video nuevo (receta)
+1. **Tema:** buscar tendencias con WebSearch y comprobar los datos clave en fuentes fiables. El canal habla de "un poco de todo", explicado por Nyxar ("el porqué de las cosas").
+2. **Guion** en `src/<tema>/guion.json`: 35–50 s, frases cortas y estructura gancho → contexto → giro → remate → pregunta. El gancho son 5–6 palabras, sin saludo.
+3. **Audio:** `NODE_USE_ENV_PROXY=1 node scripts/generar-audio.mjs <tema>`, luego `scripts/igualar-sfx.sh public/<tema>`. Comprobar el pico de cada efecto: si alguno sale casi mudo (por ejemplo, el "pop" a −40 dB), regenerarlo o reutilizar uno bueno de otro video.
+4. **Código:** copiar la estructura de `src/gta/` (el ejemplo completo con el kit de `src/marca/`), a **60 fps**. Registrar la composición en `src/Root.tsx`.
+5. **Revisión:** stills de cada escena (`npx remotion still ... --scale=0.3`), corregir y volver a revisar.
+6. **Render:** `npx remotion render <Comp> out/x.mp4 --browser-executable=/opt/pw-browsers/chromium --concurrency=4`, luego `scripts/normalizar-audio.sh out/x.mp4 videos/<nombre>.mp4`.
+7. **Entrega:** Whisper, LUFS, `SendUserFile`, y el texto para publicar: portada, descripción, 8–10 hashtags del tema y hora recomendada (7–10 de la noche).
+
+## Voz
+- ElevenLabs en **plan gratuito**: no permite usar voces de la biblioteca (las nativas de España) por API ni da licencia comercial.
+- Voz actual del canal: **Liam** (`TX3LPaxmHKxFdv7VOQHJ`), modelo `eleven_v3`, con la etiqueta `[acento de España, castellano de Madrid, ...]` en `prefijo`.
+- Pronuncia "GTA" a la inglesa. Al usuario le parece bien.
+- Si el usuario pasa a un plan de pago: usar la voz "Dani" de la biblioteca (`7QQzpAyzlKTVrRzQJmTE`, joven y de España). Necesita una clave con el permiso `voices_write`.
+
+## Lo que dicen los datos (Windsor.ai, conector `tiktok_organic`)
+| Video | Duración | Vistas | Notas |
+|---|---|---|---|
+| ¿Cómo funciona la programación? (sin Nyxar, horizontal) | 93 s | ~745 | Primer video; impulso de cuenta nueva |
+| ¿Qué es la piratería? (Nyxar antiguo) | 110 s | ~377 | Empezaba con un saludo; demasiado largo |
+| **¿Por qué GTA VI pesa 212 GB?** (marca completa) | 49 s | **933 · 25 me gusta · 1 comentario** (<1 día) | El mejor; tema en tendencia |
+
+Conclusiones:
+- **Entre el 40 y el 60 % de la gente se va en los primeros 2 segundos.** El inicio es lo más importante (ver "Los primeros 2 segundos" en `MARCA.md`).
+- **Nyxar ayuda a retener:** en el de GTA, el 20 % sigue al segundo 10, frente al 13 % de los otros dos.
+- Los temas en tendencia (por ejemplo, GTA VI) traen visitas desde la búsqueda.
+- Revisar las estadísticas 24–48 h después de publicar; antes los datos están incompletos.
+
+## Entorno técnico
+- Entorno de nube **`n`**: red con ElevenLabs (la clave la inyecta el proxy, no hay variable de entorno) y Hugging Face. Su script de arranque instala `whisper-cli` y el modelo `small`.
+- Herramientas: Remotion 4, `@remotion/transitions`, Hyperframes (`npx hyperframes`), FFmpeg, Whisper (`~/.cache/hyperframes/whisper/models/ggml-small.bin`).
+- Instagram no es accesible desde el entorno: para estudiar un reel, pedir que lo suban (si pesa más de 30 MB, que lo pasen por WhatsApp para comprimirlo).
+
+## Ideas pendientes
+- Próximos temas propuestos: "Cómo los juegos de móvil te sacan el dinero" (la niña que gastó 60.000 €), "El truco de los precios del Black Friday" (27 de noviembre), "13 años esperando GTA VI".
+- Series del canal (propuestas, pendientes de confirmar): ¿Por qué…?, La historia detrás de…, El truco de…, Esto pasó de verdad.
+- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` y `por-que-gta-vi-pesa-tanto.mp4`.
