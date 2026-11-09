@@ -1,0 +1,14 @@
+{
+  "carpeta": "precarga",
+  "controlVox": "Voz masculina joven, enérgica y cercana, acento de España, castellano de Madrid, ritmo rápido de TikTok",
+  "escenas": [
+    { "id": "gancho", "texto": "Ya puedes bajar el GTA seis... y no jugarlo." },
+    { "id": "fechas", "texto": "Desde el diez de noviembre, PlayStation y Xbox dejan precargarlo: doscientos doce gigas. Pero no se abre hasta el diecinueve." },
+    { "id": "servidores", "texto": "¿Por qué? Imagina a diez millones de personas bajando doscientos doce gigas el mismo día. Los servidores revientan." },
+    { "id": "candado", "texto": "Por eso te lo dan antes, pero con candado: los archivos vienen cifrados, y la llave no llega hasta el lanzamiento." },
+    { "id": "llave", "texto": "Así nadie lo abre antes ni filtra el final. A medianoche llega la llave, y en segundos ya estás jugando." },
+    { "id": "remate", "texto": "Vamos, que no es para que lo tengas antes. Es para que todos empecemos a la vez." },
+    { "id": "pregunta", "texto": "¿Lo precargas el primer día, o esperas a las reseñas? Te leo." },
+    { "id": "final", "texto": "Bueno, os dejo. Menos mal que ya salí de los Backrooms... ¿verdad?" }
+  ]
+}
