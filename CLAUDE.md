@@ -30,6 +30,9 @@ Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trab
 - ElevenLabs en **plan gratuito**: no permite usar voces de la biblioteca (las nativas de España) por API ni da licencia comercial.
 - Voz actual del canal: **Liam** (`TX3LPaxmHKxFdv7VOQHJ`), modelo `eleven_v3`, con la etiqueta `[acento de España, castellano de Madrid, ...]` en `prefijo`.
 - Pronuncia "GTA" a la inglesa. Al usuario le parece bien.
+- **Créditos:** el plan gratuito da 10.000 al mes. **Se agotaron el 9 de noviembre de 2026 y se renuevan el 6 de diciembre de 2026.** Hasta entonces no se puede generar voz nueva ni efectos con ElevenLabs. Opciones: guiones muy cortos con lo que quede, efectos reutilizados de `public/*/` o sintetizados con FFmpeg (ver `public/backrooms/`: zumbido, drone y criatura), o que el usuario pase a un plan de pago. Comprobar el saldo con `curl -sS https://api.elevenlabs.io/v1/user/subscription`.
+- Si una generación se corta, `scripts/tiempos-whisper.py <carpeta>` reconstruye `tiempos.json` con Whisper. El generador ya guarda los tiempos tras cada frase.
+- Etiquetas de interpretación dentro del texto (`[susurrando]`, `[nervioso]`, `[emocionado]`) funcionan con `eleven_v3`. El generador las quita de los subtítulos.
 - Si el usuario pasa a un plan de pago: usar la voz "Dani" de la biblioteca (`7QQzpAyzlKTVrRzQJmTE`, joven y de España). Necesita una clave con el permiso `voices_write`.
 
 ## Lo que dicen los datos (Windsor.ai, conector `tiktok_organic`)
@@ -37,7 +40,8 @@ Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trab
 |---|---|---|---|
 | ¿Cómo funciona la programación? (sin Nyxar, horizontal) | 93 s | ~762 | Primer video; impulso de cuenta nueva |
 | ¿Qué es la piratería? (Nyxar antiguo) | 110 s | ~888 | Revivió (de 377 a 888) cuando funcionó el de GTA |
-| **¿Por qué GTA VI pesa 212 GB?** (marca completa) | 49 s | **1.017 · 31 me gusta · 2 compartidos · 4 guardados · 1 comentario** (~1 día) | El mejor; el que más se ve completo (3,9 %) |
+| ¿Por qué GTA VI pesa 212 GB? (marca completa) | 49 s | 1.028 · 31 me gusta · 2 comentarios | Tema en tendencia |
+| **¿Por qué GTA VI tardó 13 años?** (marca + reglas del inicio) | 54 s | **1.056 · 48 me gusta · 2 comentarios** (<1 día) | El mejor: 5,5 % lo ve completo y 12,3 s de media |
 
 Conclusiones:
 - **Entre el 40 y el 60 % de la gente se va en los primeros 2 segundos.** El inicio es lo más importante (ver "Los primeros 2 segundos" en `MARCA.md`).
@@ -55,4 +59,4 @@ Conclusiones:
 ## Ideas pendientes
 - Próximos temas propuestos: "Cómo los juegos de móvil te sacan el dinero" (la niña que gastó 60.000 €), "El truco de los precios del Black Friday" (27 de noviembre), "13 años esperando GTA VI" (ya hecho).
 - Series del canal (propuestas, pendientes de confirmar): ¿Por qué…?, La historia detrás de…, El truco de…, Esto pasó de verdad.
-- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` `por-que-gta-vi-pesa-tanto.mp4`, `por-que-gta-vi-tardo-13-anos.mp4` (composición `EsperaGTA`; publicar entre el 10 y el 18 de noviembre) y `fasciculaciones.mp4` (no publicado; era para la familia del usuario).
+- Videos en `videos/`: `celulas.mp4`, `alimentacion-equilibrio.mp4` (cliente de nutrición, Perú), `como-funciona-la-programacion.mp4`, `que-es-la-pirateria.mp4` `por-que-gta-vi-pesa-tanto.mp4`, `por-que-gta-vi-tardo-13-anos.mp4` (composición `EsperaGTA`; publicar entre el 10 y el 18 de noviembre) `fasciculaciones.mp4` (no publicado; era para la familia del usuario) y `backrooms.mp4` (composición `Backrooms`: video tipo "grabación encontrada" en el cuarto de Nyxar; un solo plano de cámara, sin las escenas estándar).
