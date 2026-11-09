@@ -1,0 +1,94 @@
+{
+  "voz": "TX3LPaxmHKxFdv7VOQHJ",
+  "modelo": "eleven_v3",
+  "prefijo": "[acento de España, castellano de Madrid, ritmo rápido]",
+  "carpeta": "backrooms",
+  "escenas": [
+    {
+      "id": "intro",
+      "texto": "[emocionado] ¡Vale, ya graba! Por fin os enseño mi cuarto. Hoy os cuento qué son los…"
+    },
+    {
+      "id": "negro",
+      "texto": "[susurrando] Ay… ¿se ha roto? Espera, espera…"
+    },
+    {
+      "id": "revelacion",
+      "texto": "[nervioso] Vale… esto no es mi cuarto. Esto son… los Backrooms."
+    },
+    {
+      "id": "origen",
+      "texto": "Nacieron en dos mil diecinueve, en un foro de internet: alguien subió esta foto. Una sala amarilla y vacía que daba muy mal rollo."
+    },
+    {
+      "id": "leyenda",
+      "texto": "Y otro usuario escribió la leyenda: si te sales de la realidad por error, acabas aquí. Moqueta húmeda, zumbido de fluorescentes, y salas vacías para siempre."
+    },
+    {
+      "id": "liminal",
+      "texto": "¿Por qué da tanto miedo? Porque es un espacio liminal: un sitio hecho para estar de paso, que vacío se siente… raro."
+    },
+    {
+      "id": "real",
+      "texto": "En dos mil veinticuatro encontraron el sitio real: una tienda de maquetas en Estados Unidos."
+    },
+    {
+      "id": "final",
+      "texto": "[susurrando] ¿Hola? ¿Hay alguien…?"
+    }
+  ],
+  "sfx": [
+    {
+      "id": "camara",
+      "texto": "Handling a small camera on a tripod, plastic clicks and adjusting knobs",
+      "duracion": 1.5
+    },
+    {
+      "id": "tripode",
+      "texto": "Metal tripod with camera falling and crashing on a wooden floor",
+      "duracion": 1.2
+    },
+    {
+      "id": "estatica",
+      "texto": "Short harsh TV static glitch burst",
+      "duracion": 0.8
+    },
+    {
+      "id": "levantar",
+      "texto": "Picking up a camera from the floor, fabric rustle and clicks",
+      "duracion": 1.2
+    },
+    {
+      "id": "zumbido",
+      "texto": "Fluorescent office lights buzzing hum, eerie empty room tone, seamless loop",
+      "duracion": 12,
+      "loop": true
+    },
+    {
+      "id": "parpadeo",
+      "texto": "Fluorescent light flickering with electric buzz",
+      "duracion": 1.2
+    },
+    {
+      "id": "pasos",
+      "texto": "Slow footsteps on damp carpet in an empty room",
+      "duracion": 2
+    },
+    {
+      "id": "criatura",
+      "texto": "Low distorted inhuman growl getting closer, horror",
+      "duracion": 2
+    },
+    {
+      "id": "drone",
+      "texto": "Dark eerie ambient drone, unsettling low tone, liminal space, seamless loop",
+      "duracion": 15,
+      "loop": true
+    },
+    {
+      "id": "foto",
+      "texto": "Old instant camera shutter and photo eject",
+      "duracion": 1
+    }
+  ]
+}

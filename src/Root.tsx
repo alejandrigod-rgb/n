@@ -7,6 +7,7 @@ import { RetratoNyxar } from "./personajes/RetratoNyxar";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
+import { BackroomsVideo, DURACION_BACKROOMS } from "./backrooms/Backrooms";
 import { DURACION_FASCICULACIONES, Fasciculaciones } from "./fasciculaciones/Fasciculaciones";
 import {
   ComoFuncionaLaProgramacion,
@@ -20,6 +21,7 @@ import {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition id="Backrooms" component={BackroomsVideo} durationInFrames={DURACION_BACKROOMS} fps={60} width={1080} height={1920} />
       <Composition id="EsperaGTA" component={EsperaGTA} durationInFrames={DURACION_ESPERA} fps={60} width={1080} height={1920} />
       <Composition id="Fasciculaciones" component={Fasciculaciones} durationInFrames={DURACION_FASCICULACIONES} fps={60} width={1080} height={1920} />
       <Composition id="SpritesNyxar" component={SpritesNyxar} durationInFrames={SPRITES.length} fps={30} width={900} height={1260} />

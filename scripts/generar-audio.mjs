@@ -65,11 +65,25 @@ for (const e of guion.escenas) {
     writeFileSync(archivo, Buffer.from(d.audio_base64, "base64"));
     // Quita la etiqueta de estilo (no se pronuncia) de la alineación.
     const n = prefijo.length;
-    const al = {
-      characters: d.alignment.characters.slice(n),
-      character_start_times_seconds: d.alignment.character_start_times_seconds.slice(n),
-      character_end_times_seconds: d.alignment.character_end_times_seconds.slice(n),
-    };
+    // Quita también las etiquetas de interpretación dentro del texto ("[susurrando]"...), que no se pronuncian.
+    const chars = d.alignment.characters.slice(n);
+    const ini = d.alignment.character_start_times_seconds.slice(n);
+    const fin = d.alignment.character_end_times_seconds.slice(n);
+    const al = { characters: [], character_start_times_seconds: [], character_end_times_seconds: [] };
+    let dentro = false;
+    chars.forEach((c, k) => {
+      if (c === "[") dentro = true;
+      const fuera = !dentro;
+      if (c === "]") {
+        dentro = false;
+        return;
+      }
+      if (fuera && !(al.characters.length === 0 && /\s/.test(c))) {
+        al.characters.push(c);
+        al.character_start_times_seconds.push(ini[k]);
+        al.character_end_times_seconds.push(fin[k]);
+      }
+    });
     tiempos.voz[e.id] = {
       texto: e.texto,
       duracion: duracion(archivo),
@@ -80,6 +94,8 @@ for (const e of guion.escenas) {
       fin: al.character_end_times_seconds.map((x) => Math.round(x * 1000) / 1000),
     };
     console.log("✓", archivo);
+    // Guardar ya, por si la siguiente petición falla (por ejemplo, sin créditos).
+    writeFileSync(TIEMPOS, JSON.stringify({ voz: { ...previos.voz, ...tiempos.voz }, sfx: previos.sfx }, null, 1) + "\n");
   } else {
     tiempos.voz[e.id] = previo;
   }
