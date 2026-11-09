@@ -1,5 +1,6 @@
 import { AbsoluteFill, Html5Audio, interpolate, random, Sequence, spring, staticFile, useCurrentFrame } from "remotion";
 import { Brillo, Pop, Subtitulos } from "../marca/kit";
+import { IcoBombilla, IcoInfinito, IcoMoqueta } from "../marca/iconos";
 import { C, CLAMP, F, FPS } from "../marca/tema";
 import { Expresion, Nyxar, POSE_BASE, PoseNyxar } from "../personajes/Nyxar";
 import { TipoObjeto } from "../personajes/objetos";
@@ -264,12 +265,15 @@ const Graficos: React.FC<{ frame: number }> = ({ frame }) => {
     return (
       <div style={zona}>
         {[
-          { t: "🧽 moqueta húmeda", w: "moqueta", c: C.cascabel },
-          { t: "💡 zumbido de fluorescentes", w: "zumbido", c: C.hueso },
-          { t: "♾️ salas vacías para siempre", w: "salas", c: C.menta },
+          { t: "moqueta húmeda", i: IcoMoqueta, w: "moqueta", c: C.cascabel },
+          { t: "zumbido de fluorescentes", i: IcoBombilla, w: "zumbido", c: C.hueso },
+          { t: "salas vacías para siempre", i: IcoInfinito, w: "salas", c: C.menta },
         ].map((x) => (
           <Pop key={x.w} desde={marca("leyenda", x.w)} giro={-6}>
-            <Chip texto={x.t} color={x.c} tamano={42} />
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <x.i tamano={70} />
+              <Chip texto={x.t} color={x.c} tamano={42} />
+            </div>
           </Pop>
         ))}
       </div>

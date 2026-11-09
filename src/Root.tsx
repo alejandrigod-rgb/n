@@ -5,6 +5,7 @@ import { DURACION_TOTAL } from "./pirateria/linea";
 import { Pirateria } from "./pirateria/Pirateria";
 import { RetratoNyxar } from "./personajes/RetratoNyxar";
 import { FotoPerfil } from "./personajes/FotoPerfil";
+import { HojaIconos } from "./marca/HojaIconos";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
@@ -31,6 +32,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="GtaVI" component={GtaVI} durationInFrames={DURACION_GTA} fps={60} width={1080} height={1920} />
       <Composition id="RetratoNyxar" component={RetratoNyxar} durationInFrames={120} fps={30} width={900} height={1100} />
       <Composition id="FotoPerfil" component={FotoPerfil} durationInFrames={3} fps={30} width={1080} height={1080} />
+      <Composition id="HojaIconos" component={HojaIconos} durationInFrames={1} fps={30} width={1080} height={620} />
       <Composition
         id="Pirateria"
         component={Pirateria}

@@ -1,13 +1,13 @@
 import { AbsoluteFill, Html5Audio, interpolate, random, Sequence, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { Brillo, Contador, Pop, Rafaga, Respira, Subtitulos, useSeg } from "../marca/kit";
+import { IcoBien, IcoCandado, IcoDescarga, IcoEstrella, IcoHuella, IcoMando } from "../marca/iconos";
 import { C, CLAMP, F } from "../marca/tema";
 import { Escena, S } from "./comun";
 import { CARPETA, LINEA, TIEMPOS } from "./linea";
 
-const Chip: React.FC<{ texto: string; color?: string; tamano?: number; oscuro?: boolean }> = ({ texto, color = C.menta, tamano = 40, oscuro }) => (
+const Chip: React.FC<{ texto: string; color?: string; tamano?: number; oscuro?: boolean; icono?: React.ReactNode }> = ({ texto, color = C.menta, tamano = 40, oscuro, icono }) => (
   <div
     style={{
-      display: "inline-block",
       fontFamily: F.cifra,
       fontWeight: 700,
       fontSize: tamano,
@@ -17,9 +17,13 @@ const Chip: React.FC<{ texto: string; color?: string; tamano?: number; oscuro?: 
       padding: "6px 22px",
       borderRadius: 999,
       whiteSpace: "nowrap",
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 14,
     }}
   >
     {texto}
+    {icono}
   </div>
 );
 
@@ -65,7 +69,7 @@ export const Gancho: React.FC = () => {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
           <div style={{ fontFamily: F.titulo, fontWeight: 800, fontSize: 84, color: C.hueso, lineHeight: 1 }}>GTA VI</div>
-          <div style={{ fontFamily: F.cifra, fontWeight: 700, fontSize: 40, color: C.menta }}>212 GB ✓</div>
+          <div style={{ fontFamily: F.cifra, fontWeight: 700, fontSize: 40, color: C.menta, display: "flex", alignItems: "center", gap: 12 }}>212 GB <IcoBien tamano={44} /></div>
         </div>
         <div style={{ height: 26, borderRadius: 13, background: "#ffffff1a", overflow: "hidden" }}>
           <div style={{ width: "100%", height: "100%", background: C.menta, boxShadow: `0 0 24px ${C.menta}` }} />
@@ -97,7 +101,7 @@ export const Gancho: React.FC = () => {
   );
 };
 
-/* 2 · FECHAS: 10 de noviembre (precarga) → 19 de noviembre (jugar) y 212 GB */
+/* 2 · FECHAS: 10 de noviembre (precarga) hasta el 19 de noviembre (jugar) y 212 GB */
 export const Fechas: React.FC = () => {
   const m = LINEA.marcas("fechas");
   const frame = useCurrentFrame();
@@ -107,13 +111,13 @@ export const Fechas: React.FC = () => {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: "translateX(-20px)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
           <Pop desde={m("diez")}>
-            <Chip texto="10 NOV ⬇" color={C.menta} tamano={46} />
+            <Chip texto="10 NOV" color={C.menta} tamano={46} icono={<IcoDescarga tamano={46} color={C.hueso} />} />
           </Pop>
           <div style={{ width: 200, height: 10, borderRadius: 5, background: "#ffffff22", overflow: "hidden" }}>
             <div style={{ width: `${linea * 100}%`, height: "100%", background: C.cascabel }} />
           </div>
           <Pop desde={m("diecinueve")}>
-            <Chip texto="19 NOV 🎮" color={C.cascabel} tamano={46} />
+            <Chip texto="19 NOV" color={C.cascabel} tamano={46} icono={<IcoMando tamano={54} color={C.hueso} />} />
           </Pop>
         </div>
         <Pop desde={m("playstation")}>
@@ -238,7 +242,7 @@ export const Candados: React.FC = () => {
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 26 }}>
           <Pop desde={m("cifrados")}>
-            <Chip texto="CIFRADOS 🔒" color={C.cascabel} tamano={38} />
+            <Chip texto="CIFRADOS" color={C.cascabel} tamano={38} icono={<IcoCandado tamano={40} color={C.hueso} />} />
           </Pop>
           <Pop desde={m("llave")}>
             <Respira amp={0.05} fase={1}>
@@ -358,8 +362,8 @@ export const Pregunta: React.FC = () => {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 44, transform: "translateX(-50px)" }}>
         <div style={{ display: "flex", gap: 34 }}>
           {[
-            { t: "PRECARGO YA", i: "⬇️", c: C.menta, w: "precargas" },
-            { t: "ESPERO RESEÑAS", i: "⭐", c: C.cascabel, w: "resenas" },
+            { t: "PRECARGO YA", i: <IcoDescarga tamano={92} color={C.hueso} />, c: C.menta, w: "precargas" },
+            { t: "ESPERO RESEÑAS", i: <IcoEstrella tamano={92} color={C.hueso} />, c: C.cascabel, w: "resenas" },
           ].map((b, k) => (
             <Pop key={b.t} desde={m(b.w)} giro={k ? 8 : -8}>
               <Respira fase={k * 1.5} amp={0.05}>
@@ -382,7 +386,7 @@ export const Pregunta: React.FC = () => {
                     color: C.abismo,
                   }}
                 >
-                  <span style={{ fontSize: 70 }}>{b.i}</span>
+                  {b.i}
                   {b.t}
                 </div>
               </Respira>
@@ -392,7 +396,7 @@ export const Pregunta: React.FC = () => {
         <Pop desde={firma}>
           <div style={{ display: "flex", alignItems: "center", gap: 16, fontFamily: F.cifra, fontWeight: 700, fontSize: 40, color: C.hueso }}>
             <span style={{ width: 36, height: 36, borderRadius: 18, background: C.pelaje, border: `3px solid ${C.hueso}`, display: "inline-block" }} />
-            @ithnoir · comenta 🐾
+            @ithnoir · comenta <IcoHuella tamano={56} />
           </div>
         </Pop>
       </div>

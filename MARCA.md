@@ -81,6 +81,12 @@ Datos de los tres primeros videos: entre el 40 y el 60 % de la gente se va antes
 | Transición | Cambio de escena | Fundido cruzado de 0,5 s; barrido con desenfoque solo si cambia el tema |
 | Partículas | Remate | Una ráfaga de chispas menta, una vez por video |
 
+## Iconos (nunca emojis)
+- **Nada de emojis en los videos** (ni ✓, ✗, flechas de texto ni símbolos del sistema). El usuario prefiere iconos creados por nosotros.
+- Usar los iconos propios de `src/marca/iconos.tsx` (hoja: composición `HojaIconos`): descarga, mando, candado, estrella, huella, bien, mal, bombilla, moqueta e infinito.
+- Estilo: relleno con un color de la marca, contorno oscuro `#1d1530` grueso y redondeado (como Nyxar) y un brillo blanco suave arriba a la izquierda. Lienzo de 100×100.
+- Si un video necesita un icono que no existe, dibujarlo con ese mismo estilo y añadirlo a `iconos.tsx` y a `ICONOS`.
+
 ## Música y sonido
 - **Voz** al frente; el video final se normaliza a **−14 LUFS** con `scripts/normalizar-audio.sh`.
 - **Efectos** a ~−20 dB, uno por cada cosa que aparece y nunca dos a la vez. Subir los efectos flojos con `scripts/igualar-sfx.sh`.

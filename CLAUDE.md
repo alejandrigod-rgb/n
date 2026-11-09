@@ -10,6 +10,7 @@ Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trab
 
 ## Regla principal
 **Todo video sigue `MARCA.md`** (guía de marca aprobada): colores, tipografía, subtítulos, ritmo, fluidez, motion graphics, sonido y el personaje **Nyxar**. Si algo de la guía no encaja con un pedido, preguntar antes de saltársela.
+- **Nunca emojis en los videos** (petición del usuario, 9 de noviembre de 2026): usar los iconos propios de `src/marca/iconos.tsx` o dibujar uno nuevo con el mismo estilo.
 - Hoja de marca visual: https://claude.ai/artifact/RerKSj19Dum9ifeeTzXhqH (se actualiza a la vez que `MARCA.md`).
 
 ## Nyxar (el personaje del usuario)

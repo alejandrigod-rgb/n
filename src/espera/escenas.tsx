@@ -1,5 +1,6 @@
 import { interpolate, random, useCurrentFrame, useVideoConfig } from "remotion";
 import { Brillo, Contador, Pop, Rafaga, Respira, useSeg } from "../marca/kit";
+import { IcoBien, IcoHuella, IcoMal } from "../marca/iconos";
 import { C, CLAMP, F } from "../marca/tema";
 import { Escena, S } from "./comun";
 import { LINEA } from "./linea";
@@ -298,15 +299,11 @@ const Fecha: React.FC<{ texto: string; tachada: boolean; desde: number; selloEn?
           <div
             style={{
               position: "absolute",
-              fontFamily: F.titulo,
-              fontWeight: 800,
-              fontSize: 170,
-              color: C.panuelo,
               transform: `scale(${2 - p}) rotate(-12deg)`,
               opacity: p,
             }}
           >
-            ✗
+            <IcoMal tamano={150} />
           </div>
         ) : null}
         {buena ? (
@@ -315,18 +312,9 @@ const Fecha: React.FC<{ texto: string; tachada: boolean; desde: number; selloEn?
               position: "absolute",
               top: -26,
               right: -20,
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              background: C.menta,
-              color: C.abismo,
-              fontSize: 44,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
             }}
           >
-            ✓
+            <IcoBien tamano={70} />
           </div>
         ) : null}
       </div>
@@ -498,7 +486,7 @@ export const Pregunta: React.FC = () => {
                 display: "inline-block",
               }}
             />
-            @ithnoir · comenta 🐾
+            @ithnoir · comenta <IcoHuella tamano={56} />
           </div>
         </Pop>
       </div>
