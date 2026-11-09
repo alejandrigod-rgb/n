@@ -124,6 +124,80 @@ export const IcoInfinito: React.FC<P> = ({ color = C.menta, ...p }) => (
   </Lienzo>
 );
 
+
+/** Sol (de día). */
+export const IcoSol: React.FC<P> = ({ color = C.cascabel, ...p }) => (
+  <Lienzo {...p}>
+    {new Array(8).fill(0).map((_, k) => {
+      const a = (k * Math.PI) / 4;
+      return <path key={k} d={`M${50 + Math.cos(a) * 34} ${50 + Math.sin(a) * 34} L${50 + Math.cos(a) * 46} ${50 + Math.sin(a) * 46}`} stroke={LINEA} strokeWidth={T + 6} />;
+    })}
+    {new Array(8).fill(0).map((_, k) => {
+      const a = (k * Math.PI) / 4;
+      return <path key={`c${k}`} d={`M${50 + Math.cos(a) * 34} ${50 + Math.sin(a) * 34} L${50 + Math.cos(a) * 46} ${50 + Math.sin(a) * 46}`} stroke={color} strokeWidth={T - 1} />;
+    })}
+    <circle cx={50} cy={50} r={24} fill={color} stroke={LINEA} strokeWidth={T} />
+    {brillo("M38 42 C40 36 44 33 49 32")}
+  </Lienzo>
+);
+
+/** Luna (de noche). */
+export const IcoLuna: React.FC<P> = ({ color = C.azul, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M62 10 C40 14 26 32 28 54 C30 76 50 92 72 88 C82 86 88 80 92 74 C70 78 50 64 48 42 C46 28 52 16 62 10 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <circle cx={74} cy={26} r={4} fill={C.hueso} />
+    <circle cx={86} cy={46} r={3} fill={C.hueso} />
+  </Lienzo>
+);
+
+/** Hacker con capucha (genérico, sin cara). */
+export const IcoCapucha: React.FC<P> = ({ color = "#2b2f45", ...p }) => (
+  <Lienzo {...p}>
+    <path d="M50 6 C74 6 86 26 84 50 L92 94 H8 L16 50 C14 26 26 6 50 6 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M50 22 C64 22 70 34 70 48 C70 62 62 70 50 70 C38 70 30 62 30 48 C30 34 36 22 50 22 Z" fill="#0b0d16" stroke={LINEA} strokeWidth={T - 2} />
+    <ellipse cx={41} cy={48} rx={4} ry={3} fill={C.menta} />
+    <ellipse cx={59} cy={48} rx={4} ry={3} fill={C.menta} />
+    {brillo("M26 34 C30 22 38 15 48 13")}
+  </Lienzo>
+);
+
+/** Trofeo (premios). */
+export const IcoTrofeo: React.FC<P> = ({ color = C.cascabel, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M28 18 H12 V28 C12 40 20 46 30 46 M72 18 H88 V28 C88 40 80 46 70 46" fill="none" stroke={LINEA} strokeWidth={T + 6} />
+    <path d="M28 18 H12 V28 C12 40 20 46 30 46 M72 18 H88 V28 C88 40 80 46 70 46" fill="none" stroke={color} strokeWidth={T - 2} />
+    <path d="M26 10 H74 V36 C74 52 64 62 50 62 C36 62 26 52 26 36 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M44 62 H56 V74 H44 Z" fill={color} stroke={LINEA} strokeWidth={T - 1} />
+    <rect x={28} y={74} width={44} height={16} rx={5} fill={C.niebla} stroke={LINEA} strokeWidth={T} />
+    {brillo("M34 18 V36")}
+  </Lienzo>
+);
+
+/** Rascacielos (gran empresa). */
+export const IcoEdificio: React.FC<P> = ({ color = C.niebla, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M28 94 V18 L50 6 L72 18 V94 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    {[24, 38, 52, 66].map((y) => (
+      <g key={y}>
+        <rect x={36} y={y} width={10} height={8} rx={2} fill={LINEA} opacity={0.6} />
+        <rect x={54} y={y} width={10} height={8} rx={2} fill={LINEA} opacity={0.6} />
+      </g>
+    ))}
+    <rect x={43} y={80} width={14} height={14} rx={2} fill={LINEA} />
+    {brillo("M33 26 V60")}
+  </Lienzo>
+);
+
+/** Terminal (código). */
+export const IcoTerminal: React.FC<P> = ({ color = "#16244a", ...p }) => (
+  <Lienzo {...p}>
+    <rect x={6} y={14} width={88} height={72} rx={12} fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M6 30 H94" stroke={LINEA} strokeWidth={T - 2} />
+    <path d="M22 46 L34 56 L22 66" fill="none" stroke={C.menta} strokeWidth={7} />
+    <path d="M42 68 H64" stroke={C.menta} strokeWidth={7} />
+  </Lienzo>
+);
+
 /** Todos los iconos, para la hoja de marca. */
 export const ICONOS = {
   descarga: IcoDescarga,
@@ -136,4 +210,10 @@ export const ICONOS = {
   bombilla: IcoBombilla,
   moqueta: IcoMoqueta,
   infinito: IcoInfinito,
+  sol: IcoSol,
+  luna: IcoLuna,
+  capucha: IcoCapucha,
+  trofeo: IcoTrofeo,
+  edificio: IcoEdificio,
+  terminal: IcoTerminal,
 };

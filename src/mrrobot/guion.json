@@ -1,0 +1,56 @@
+{
+  "carpeta": "mrrobot",
+  "ritmoVox": 0.9,
+  "mostrar": {
+    "Míster": "Mr.",
+    "Róbot.": "Robot.",
+    "Élliot": "Elliot",
+    "Élliot:": "Elliot:",
+    "efe": "FBI,",
+    "be": "",
+    "i,": "",
+    "Cali": "Kali",
+    "Línux.": "Linux.",
+    "Málek,": "Malek,",
+    "Émmy.": "Emmy.",
+    "jáquers": "hackers",
+    "jáquer": "hacker",
+    "jáqueos": "hackeos",
+    "Éliot": "Elliot",
+    "Éliot:": "Elliot:"
+  },
+  "escenas": [
+    {
+      "id": "gancho",
+      "texto": "La serie que los jáquers aprueban."
+    },
+    {
+      "id": "contexto",
+      "texto": "Míster Róbot. Cuatro temporadas, de dos mil quince a dos mil diecinueve."
+    },
+    {
+      "id": "elliot",
+      "texto": "Éliot es ingeniero de ciberseguridad de día... y jáquer justiciero de noche."
+    },
+    {
+      "id": "trama",
+      "texto": "Hasta que un grupo misterioso le propone algo enorme: tumbar a la empresa más poderosa del mundo."
+    },
+    {
+      "id": "real",
+      "texto": "Y lo mejor: los jáqueos son reales. Con asesores de ciberseguridad, hasta un exinvestigador del efe be i, y herramientas de verdad, como Cali Línux."
+    },
+    {
+      "id": "mente",
+      "texto": "Pero lo que engancha es Éliot: ansiedad, soledad... y un narrador en el que no siempre puedes confiar."
+    },
+    {
+      "id": "premios",
+      "texto": "Ganó el Globo de Oro a mejor serie dramática. Y Rami Málek, el Émmy."
+    },
+    {
+      "id": "pregunta",
+      "texto": "¿Obra maestra, o sobrevalorada? Sin spoilers en los comentarios."
+    }
+  ]
+}

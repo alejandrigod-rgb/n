@@ -10,6 +10,7 @@ import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
 import { DURACION_PRECARGA, Precarga } from "./precarga/Precarga";
+import { DURACION_MRROBOT, MrRobot } from "./mrrobot/MrRobot";
 import { BackroomsVideo, DURACION_BACKROOMS } from "./backrooms/Backrooms";
 import { DURACION_FASCICULACIONES, Fasciculaciones } from "./fasciculaciones/Fasciculaciones";
 import {
@@ -27,12 +28,13 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Backrooms" component={BackroomsVideo} durationInFrames={DURACION_BACKROOMS} fps={60} width={1080} height={1920} />
       <Composition id="EsperaGTA" component={EsperaGTA} durationInFrames={DURACION_ESPERA} fps={60} width={1080} height={1920} />
       <Composition id="Precarga" component={Precarga} durationInFrames={DURACION_PRECARGA} fps={60} width={1080} height={1920} />
+      <Composition id="MrRobot" component={MrRobot} durationInFrames={DURACION_MRROBOT} fps={60} width={1080} height={1920} />
       <Composition id="Fasciculaciones" component={Fasciculaciones} durationInFrames={DURACION_FASCICULACIONES} fps={60} width={1080} height={1920} />
       <Composition id="SpritesNyxar" component={SpritesNyxar} durationInFrames={SPRITES.length} fps={30} width={900} height={1260} />
       <Composition id="GtaVI" component={GtaVI} durationInFrames={DURACION_GTA} fps={60} width={1080} height={1920} />
       <Composition id="RetratoNyxar" component={RetratoNyxar} durationInFrames={120} fps={30} width={900} height={1100} />
       <Composition id="FotoPerfil" component={FotoPerfil} durationInFrames={3} fps={30} width={1080} height={1080} />
-      <Composition id="HojaIconos" component={HojaIconos} durationInFrames={1} fps={30} width={1080} height={620} />
+      <Composition id="HojaIconos" component={HojaIconos} durationInFrames={1} fps={30} width={1080} height={1120} />
       <Composition
         id="Pirateria"
         component={Pirateria}

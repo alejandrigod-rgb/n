@@ -5,6 +5,7 @@ Narración local y gratis con VoxCPM2 (openbmb, licencia Apache-2.0), sin servic
   y la guarda en public/<carpeta>/voz-referencia.wav; las demás escenas la clonan para que suene igual.
   Si ya existe ese archivo, se reutiliza (se puede copiar de otro video para mantener la voz del canal).
 - "ritmoVox" en guion.json ajusta la velocidad (0.9 por defecto: un poco más lenta, mismo tono).
+- "mostrar" en guion.json: {"palabra fonética": "como se escribe"} para los subtítulos (p. ej. "jáquers" → "hackers").
 - Los tiempos de palabras y letras salen de Whisper (como tiempos-whisper.py).
 
 Uso: HF_HUB_DISABLE_XET=1 ~/vox/bin/python scripts/voz-voxcpm.py <carpeta> [--forzar]
@@ -38,6 +39,19 @@ codigo = re.sub(r"guion = json\.load\(.*\n", "", codigo).replace("SALIDA = f\"pu
 TW = {}
 exec(codigo, TW)
 
+MOSTRAR = guion.get("mostrar", {})
+
+
+def mostrar(palabras):
+    """Subtítulos: cambia la escritura fonética ("jáquers") por la real ("hackers"); "" quita la palabra."""
+    out = []
+    for w in palabras:
+        p = MOSTRAR.get(w["p"], w["p"])
+        if p:
+            out.append({**w, "p": p})
+    return out
+
+
 modelo = VoxCPM.from_pretrained("openbmb/VoxCPM2", load_denoiser=False, optimize=False, device="cpu")
 previos = json.load(open(TIEMPOS, encoding="utf-8")) if os.path.exists(TIEMPOS) else {"voz": {}, "sfx": {}}
 tiempos = {"voz": dict(previos.get("voz", {})), "sfx": {}}
@@ -58,6 +72,7 @@ for e in guion["escenas"]:
     os.remove(f"{SALIDA}/tmp.wav")
     palabras = TW["cuadrar"](texto, TW["palabras_whisper"](mp3))
     letras, li, lf = TW["letras_de"](palabras, texto)
+    palabras = mostrar(palabras)
     tiempos["voz"][e["id"]] = {"texto": texto, "duracion": TW["duracion"](mp3), "palabras": palabras, "letras": letras, "ini": li, "fin": lf, "motor": "voxcpm", "ritmo": RITMO}
     json.dump({**tiempos, "sfx": previos.get("sfx", {})}, open(TIEMPOS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     print("✓", mp3, f"{tiempos['voz'][e['id']]['duracion']:.2f}s")
