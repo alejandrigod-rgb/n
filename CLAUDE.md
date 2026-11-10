@@ -57,6 +57,7 @@ Conclusiones:
 - Cuando un video nuevo funciona, TikTok vuelve a empujar los anteriores.
 - Comentario en GTA: "el Genshin pesa lo mismo". Genshin pide ~110 GB en PC (150 GB recomendados) y crece con las actualizaciones. Idea: responder con un video corto ("¿Genshin pesa lo mismo que GTA VI?").
 
+- Ilustración de Nyxar de cuerpo entero en su cuarto detallado: composición `FotoCuarto` (`src/personajes/FotoCuarto.tsx`, se renderiza con `--scale=2`), en `public/marca/fotos/nyxar-cuarto.png` (2160×3840).
 - Fotos de perfil del canal: composición `FotoPerfil` (`src/personajes/FotoPerfil.tsx`), en `public/marca/perfil/` (feliz, guiño y AEZ).
 
 ## Entorno técnico
