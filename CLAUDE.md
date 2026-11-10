@@ -61,7 +61,8 @@ Conclusiones:
 
 ## Entorno técnico
 - Entorno de nube **`n`**: red con ElevenLabs (la clave la inyecta el proxy, no hay variable de entorno) y Hugging Face. Su script de arranque instala `whisper-cli` y el modelo `small`.
-- Herramientas: Remotion 4, `@remotion/transitions`, Hyperframes (`npx hyperframes`), FFmpeg, Whisper (`~/.cache/hyperframes/whisper/models/ggml-small.bin`).
+- **Skills oficiales de Remotion** instaladas en `.claude/skills/` (10 de noviembre de 2026, con `npx skills add remotion-dev/skills --agent claude-code -y`; `skills-lock.json` las fija). La de entrada es `remotion-best-practices`. Se actualizan con `npx skills update`. Ojo: la skill dice que no se renderice por defecto y se abra Remotion Studio; con este usuario (que sigue la sesión desde el móvil) se mantiene la receta de arriba: renderizar y mandar el MP4.
+- Herramientas: Remotion 4 (4.0.542, igual que las skills), `@remotion/transitions`, Hyperframes (`npx hyperframes`), FFmpeg, Whisper (`~/.cache/hyperframes/whisper/models/ggml-small.bin`).
 - Instagram no es accesible desde el entorno: para estudiar un reel, pedir que lo suban (si pesa más de 30 MB, que lo pasen por WhatsApp para comprimirlo).
 
 ## Ideas pendientes
