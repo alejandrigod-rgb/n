@@ -198,6 +198,46 @@ export const IcoTerminal: React.FC<P> = ({ color = "#16244a", ...p }) => (
   </Lienzo>
 );
 
+
+/** Cerebro. */
+export const IcoCerebro: React.FC<P> = ({ color = "#ff8da1", ...p }) => (
+  <Lienzo {...p}>
+    <path d="M50 16 C42 8 26 10 22 22 C10 24 6 38 12 46 C4 54 8 70 20 72 C22 84 36 90 46 84 L50 82 L54 84 C64 90 78 84 80 72 C92 70 96 54 88 46 C94 38 90 24 78 22 C74 10 58 8 50 16 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M50 18 V82" stroke={LINEA} strokeWidth={5} />
+    <path d="M30 34 C36 38 36 46 30 50 M70 34 C64 38 64 46 70 50 M28 62 C34 60 40 64 40 70 M72 62 C66 60 60 64 60 70" fill="none" stroke={LINEA} strokeWidth={4.5} />
+    {brillo("M26 26 C30 20 36 17 42 17")}
+  </Lienzo>
+);
+
+/** Persona (silueta redondeada). */
+export const IcoPersona: React.FC<P> = ({ color = C.azul, ...p }) => (
+  <Lienzo {...p}>
+    <circle cx={50} cy={30} r={18} fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M16 92 C16 64 30 54 50 54 C70 54 84 64 84 92 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    {brillo("M40 22 C42 18 46 16 50 16")}
+  </Lienzo>
+);
+
+/** Corazón (agridulce: con una grieta opcional). */
+export const IcoCorazon: React.FC<P & { roto?: boolean }> = ({ color = C.panuelo, roto, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M50 88 C20 66 8 50 10 32 C12 16 32 8 50 26 C68 8 88 16 90 32 C92 50 80 66 50 88 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    {roto ? <path d="M50 26 L42 44 L56 54 L46 70 L50 88" fill="none" stroke={LINEA} strokeWidth={6} /> : null}
+    {brillo("M22 30 C24 22 30 18 36 18")}
+  </Lienzo>
+);
+
+/** Casete. */
+export const IcoCasete: React.FC<P> = ({ color = C.cascabel, ...p }) => (
+  <Lienzo {...p}>
+    <rect x={6} y={20} width={88} height={60} rx={8} fill={color} stroke={LINEA} strokeWidth={T} />
+    <rect x={20} y={32} width={60} height={24} rx={6} fill={C.hueso} stroke={LINEA} strokeWidth={4} />
+    <circle cx={36} cy={44} r={7} fill={LINEA} />
+    <circle cx={64} cy={44} r={7} fill={LINEA} />
+    <path d="M24 80 L30 66 H70 L76 80" fill="none" stroke={LINEA} strokeWidth={5} />
+  </Lienzo>
+);
+
 /** Todos los iconos, para la hoja de marca. */
 export const ICONOS = {
   descarga: IcoDescarga,
@@ -216,4 +256,8 @@ export const ICONOS = {
   trofeo: IcoTrofeo,
   edificio: IcoEdificio,
   terminal: IcoTerminal,
+  cerebro: IcoCerebro,
+  persona: IcoPersona,
+  corazon: IcoCorazon,
+  casete: IcoCasete,
 };

@@ -1,0 +1,14 @@
+{
+  "carpeta": "nostalgia",
+  "ritmoVox": 0.9,
+  "mostrar": {},
+  "escenas": [
+    { "id": "gancho", "texto": "No hay nada más adictivo que el pasado. ¿Por qué?" },
+    { "id": "origen", "texto": "La palabra nostalgia la inventó un médico suizo en mil seiscientos ochenta y ocho. Significa dolor por volver a casa. Creían que era una enfermedad." },
+    { "id": "cerebro", "texto": "Hoy sabemos que un recuerdo bonito enciende el sistema de recompensa del cerebro. El mismo que se activa con la comida o la música." },
+    { "id": "filtro", "texto": "Y tu memoria hace trampa: lo malo se borra antes que lo bueno. Por eso el pasado parece mejor de lo que fue." },
+    { "id": "tristeza", "texto": "¿Y por qué duele? Porque recuerdas algo bonito... que ya no va a volver. Alegría y pérdida, a la vez." },
+    { "id": "giro", "texto": "Pero no es mala: los estudios dicen que la nostalgia nos hace sentir menos solos. El cerebro la usa como refugio." },
+    { "id": "pregunta", "texto": "Si pudieras, ¿volverías al pasado, o te quedas aquí? Te leo." }
+  ]
+}

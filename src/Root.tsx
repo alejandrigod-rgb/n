@@ -12,6 +12,7 @@ import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
 import { DURACION_PRECARGA, Precarga } from "./precarga/Precarga";
 import { DURACION_MRROBOT, MrRobot } from "./mrrobot/MrRobot";
+import { DURACION_NOSTALGIA, Nostalgia } from "./nostalgia/Nostalgia";
 import { BackroomsVideo, DURACION_BACKROOMS } from "./backrooms/Backrooms";
 import { DURACION_FASCICULACIONES, Fasciculaciones } from "./fasciculaciones/Fasciculaciones";
 import {
@@ -30,6 +31,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="EsperaGTA" component={EsperaGTA} durationInFrames={DURACION_ESPERA} fps={60} width={1080} height={1920} />
       <Composition id="Precarga" component={Precarga} durationInFrames={DURACION_PRECARGA} fps={60} width={1080} height={1920} />
       <Composition id="MrRobot" component={MrRobot} durationInFrames={DURACION_MRROBOT} fps={60} width={1080} height={1920} />
+      <Composition id="Nostalgia" component={Nostalgia} durationInFrames={DURACION_NOSTALGIA} fps={60} width={1080} height={1920} />
       <Composition id="Fasciculaciones" component={Fasciculaciones} durationInFrames={DURACION_FASCICULACIONES} fps={60} width={1080} height={1920} />
       <Composition id="SpritesNyxar" component={SpritesNyxar} durationInFrames={SPRITES.length} fps={30} width={900} height={1260} />
       <Composition id="GtaVI" component={GtaVI} durationInFrames={DURACION_GTA} fps={60} width={1080} height={1920} />
