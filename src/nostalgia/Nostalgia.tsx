@@ -1,6 +1,6 @@
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
-import { AbsoluteFill, Html5Audio, interpolate, random, spring, staticFile, useCurrentFrame } from "remotion";
+import { AbsoluteFill, getInputProps, Html5Audio, interpolate, random, spring, staticFile, useCurrentFrame } from "remotion";
 import { Sfx } from "../marca/kit";
 import { C, CLAMP, FPS } from "../marca/tema";
 import { Backrooms, Cuarto } from "../backrooms/mundos";
@@ -148,7 +148,8 @@ export const Nostalgia: React.FC = () => {
       <FotoFinal />
       <Pelicula />
       {frame >= F_NEGRO ? <AbsoluteFill style={{ background: "#000" }} /> : null}
-      <Html5Audio loop loopVolumeCurveBehavior="extend" src={staticFile(`${CARPETA}/sfx-musica.mp3`)} volume={volumenMusica} />
+      {/* --props '{"sinMusica":true}' quita la música para mezclar otra canción después (ver scripts/mezclar-cancion.sh). */}
+      {getInputProps().sinMusica ? null : <Html5Audio loop loopVolumeCurveBehavior="extend" src={staticFile(`${CARPETA}/sfx-musica.mp3`)} volume={volumenMusica} />}
       <Sfx carpeta={CARPETA} id="whoosh" en={F_FOTO} volumen={0.3} />
       <Sfx carpeta={CARPETA} id="golpe" en={F_FOTO + 22} volumen={0.3} />
       <Sfx carpeta={CARPETA} id="latido" en={F_FOTO + 50} volumen={0.4} />
