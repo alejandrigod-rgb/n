@@ -1,0 +1,14 @@
+{
+  "carpeta": "portugal",
+  "ritmoVox": 0.9,
+  "mostrar": { "pe": "PSG,", "ese": "", "ge,": "", "Escolari": "Scolari" },
+  "escenas": [
+    { "id": "gancho", "texto": "Mejores jugadores. Peor resultado. ¿Por qué?" },
+    { "id": "antes", "texto": "En dos mil seis, Portugal llegó a semifinales del Mundial. Su mejor resultado en cuarenta años." },
+    { "id": "ahora", "texto": "En dos mil veintiséis tenía más talento: campeones de Europa con el pe ese ge, y titulares en los mejores clubes. Y cayó en octavos." },
+    { "id": "bloque", "texto": "La clave de dos mil seis no eran las estrellas: era el equipo. Escolari armó un bloque que defendía junto." },
+    { "id": "plan", "texto": "En dos mil veintiséis, la prensa portuguesa culpó al plan: contra España se encerraron... y un gol en el último minuto los mandó a casa." },
+    { "id": "remate", "texto": "El talento gana partidos. El equipo gana Mundiales." },
+    { "id": "pregunta", "texto": "¿Fue culpa del entrenador, o de los jugadores? Te leo." }
+  ]
+}

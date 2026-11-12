@@ -271,6 +271,31 @@ export const IcoMovil: React.FC<P> = ({ color = "#2b3350", ...p }) => (
   </Lienzo>
 );
 
+
+/** Balón de fútbol (genérico). */
+export const IcoBalon: React.FC<P> = ({ color = C.hueso, ...p }) => (
+  <Lienzo {...p}>
+    <circle cx={50} cy={50} r={42} fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M50 30 L66 42 L60 61 H40 L34 42 Z" fill={LINEA} />
+    <path d="M50 30 V12 M66 42 L84 36 M60 61 L71 78 M40 61 L29 78 M34 42 L16 36" stroke={LINEA} strokeWidth={4} />
+    {brillo("M24 36 C28 26 36 18 46 15")}
+  </Lienzo>
+);
+
+/** Camiseta (sin escudos). */
+export const IcoCamiseta: React.FC<P & { numero?: string; segundo?: string }> = ({ color = C.panuelo, segundo = "#2f8a64", numero, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M34 8 L16 16 L4 40 L20 48 L24 40 V92 H76 V40 L80 48 L96 40 L84 16 L66 8 C62 18 38 18 34 8 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M24 40 V92" stroke={segundo} strokeWidth={8} />
+    {numero ? (
+      <text x={52} y={70} textAnchor="middle" fontFamily="Baloo 2" fontWeight={800} fontSize={30} fill="#fff">
+        {numero}
+      </text>
+    ) : null}
+    {brillo("M30 26 L22 40")}
+  </Lienzo>
+);
+
 /** Todos los iconos, para la hoja de marca. */
 export const ICONOS = {
   descarga: IcoDescarga,
@@ -296,4 +321,6 @@ export const ICONOS = {
   calculadora: IcoCalculadora,
   casa: IcoCasa,
   movil: IcoMovil,
+  balon: IcoBalon,
+  camiseta: IcoCamiseta,
 };
