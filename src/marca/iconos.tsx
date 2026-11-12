@@ -283,12 +283,34 @@ export const IcoBalon: React.FC<P> = ({ color = C.hueso, ...p }) => (
 );
 
 /** Camiseta (sin escudos). */
-export const IcoCamiseta: React.FC<P & { numero?: string; segundo?: string }> = ({ color = C.panuelo, segundo = "#2f8a64", numero, ...p }) => (
+/**
+ * Escudo inspirado en el escudo nacional de Portugal (el de la bandera, de dominio público):
+ * borde rojo con castillos amarillos y cinco escuditos azules. No es el logo de la federación.
+ */
+export const EscudoPortugal: React.FC<{ x: number; y: number; s?: number }> = ({ x, y, s = 1 }) => (
+  <g transform={`translate(${x} ${y}) scale(${s})`}>
+    <path d="M-10 -12 H10 V2 C10 9 5 13 0 15 C-5 13 -10 9 -10 2 Z" fill="#d6283e" stroke={LINEA} strokeWidth={1.8} />
+    {[
+      [-7.5, -9], [0, -9.5], [7.5, -9], [-8, 0], [8, 0], [-5, 9], [5, 9],
+    ].map(([cx, cy], k) => (
+      <rect key={k} x={cx - 1.3} y={cy - 1.3} width={2.6} height={2.6} fill="#ffd23f" />
+    ))}
+    <path d="M-5.5 -6.5 H5.5 V2 C5.5 6 3 8 0 9.5 C-3 8 -5.5 6 -5.5 2 Z" fill="#ffffff" />
+    {[
+      [0, -4], [-3, -0.5], [0, -0.5], [3, -0.5], [0, 3],
+    ].map(([cx, cy], k) => (
+      <rect key={k} x={cx - 1.1} y={cy - 1.3} width={2.2} height={2.6} rx={0.6} fill="#1f4fbf" />
+    ))}
+  </g>
+);
+
+export const IcoCamiseta: React.FC<P & { numero?: string; segundo?: string; escudo?: boolean }> = ({ color = C.panuelo, segundo = "#2f8a64", numero, escudo, ...p }) => (
   <Lienzo {...p}>
     <path d="M34 8 L16 16 L4 40 L20 48 L24 40 V92 H76 V40 L80 48 L96 40 L84 16 L66 8 C62 18 38 18 34 8 Z" fill={color} stroke={LINEA} strokeWidth={T} />
     <path d="M24 40 V92" stroke={segundo} strokeWidth={8} />
+    {escudo ? <EscudoPortugal x={64} y={36} s={0.85} /> : null}
     {numero ? (
-      <text x={52} y={70} textAnchor="middle" fontFamily="Baloo 2" fontWeight={800} fontSize={30} fill="#fff">
+      <text x={52} y={72} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={30} fill="#fff">
         {numero}
       </text>
     ) : null}

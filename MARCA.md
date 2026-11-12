@@ -85,6 +85,7 @@ Datos de los tres primeros videos: entre el 40 y el 60 % de la gente se va antes
 - **Nada de emojis en los videos** (ni ✓, ✗, flechas de texto ni símbolos del sistema). El usuario prefiere iconos creados por nosotros.
 - Usar los iconos propios de `src/marca/iconos.tsx` (hoja: composición `HojaIconos`): descarga, mando, candado, estrella, huella, bien, mal, bombilla, moqueta e infinito.
 - Estilo: relleno con un color de la marca, contorno oscuro `#1d1530` grueso y redondeado (como Nyxar) y un brillo blanco suave arriba a la izquierda. Lienzo de 100×100.
+- Escudos y logos: nunca el logo oficial de un club, federación o marca. Si hace falta identificar un país, usar su escudo o bandera nacional (de dominio público) simplificado, como `EscudoPortugal` en `IcoCamiseta escudo`.
 - Si un video necesita un icono que no existe, dibujarlo con ese mismo estilo y añadirlo a `iconos.tsx` y a `ICONOS`.
 
 ## Música y sonido

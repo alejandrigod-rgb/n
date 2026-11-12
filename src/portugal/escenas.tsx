@@ -35,7 +35,7 @@ const Chip: React.FC<{ texto: string; color?: string; tamano?: number; oscuro?: 
 const Marcador: React.FC<{ anio: string; ronda: string; color: string; bien: boolean }> = ({ anio, ronda, color, bien }) => (
   <div style={{ width: 380, background: "rgba(2,8,20,0.9)", border: `4px solid ${color}`, borderRadius: 28, padding: "18px 24px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-      <IcoCamiseta tamano={64} color={ROJO_PT} segundo={VERDE_PT} />
+      <IcoCamiseta tamano={64} color={ROJO_PT} segundo={VERDE_PT} escudo />
       <div style={{ fontFamily: F.cifra, fontWeight: 700, fontSize: 64, color: C.hueso }}>{anio}</div>
     </div>
     <div style={{ fontFamily: F.titulo, fontWeight: 800, fontSize: 54, color, lineHeight: 1 }}>{ronda}</div>
@@ -159,7 +159,7 @@ export const Ahora: React.FC = () => {
         <Pop desde={m("titulares")}>
           <div style={{ display: "flex", gap: 14 }}>
             {["8", "10", "17", "5", "7"].map((n, k) => (
-              <IcoCamiseta key={n} tamano={84} color={ROJO_PT} segundo={VERDE_PT} numero={n} style={{ transform: `translateY(${k % 2 ? 8 : 0}px)` }} />
+              <IcoCamiseta key={n} tamano={84} color={ROJO_PT} segundo={VERDE_PT} escudo numero={n} style={{ transform: `translateY(${k % 2 ? 8 : 0}px)` }} />
             ))}
           </div>
         </Pop>
@@ -312,7 +312,7 @@ export const Pregunta: React.FC = () => {
         <div style={{ display: "flex", gap: 34 }}>
           {[
             { t: "ENTRENADOR", i: <IcoPersona tamano={92} color={C.hueso} />, c: C.cascabel, w: "entrenador" },
-            { t: "JUGADORES", i: <IcoCamiseta tamano={92} color={ROJO_PT} segundo={VERDE_PT} />, c: C.menta, w: "jugadores" },
+            { t: "JUGADORES", i: <IcoCamiseta tamano={92} color={ROJO_PT} segundo={VERDE_PT} escudo />, c: C.menta, w: "jugadores" },
           ].map((b, k) => (
             <Pop key={b.w} desde={m(b.w)} giro={k ? 8 : -8}>
               <Respira fase={k * 1.5} amp={0.05}>
