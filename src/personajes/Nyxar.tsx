@@ -4,6 +4,7 @@
  * El componente es "tonto": recibe la pose, la apertura de la boca y el fotograma,
  * y cada video decide cómo se mueve.
  */
+import { createContext, useContext } from "react";
 import { random } from "remotion";
 import { AGARRES, OBJETOS, TipoObjeto } from "./objetos";
 
@@ -52,6 +53,29 @@ const LINEA = "#1d1530";
 const PIEL = "#54418e";
 const PIEL_CLARA = "#6d58a6";
 
+/**
+ * Paletas de pelaje. "gris" es el Nyxar de los temas tristes (elegido por el usuario el 12 de noviembre de 2026):
+ * gris azulado con un toque lavanda; el pañuelo rojo, el cascabel y las orejas rosas no cambian.
+ */
+export type PaletaNyxar = "normal" | "gris";
+const PALETAS: Record<PaletaNyxar, Record<string, string>> = {
+  normal: {},
+  gris: {
+    "#54418e": "#8c90ab",
+    "#6d58a6": "#b3b6cc",
+    "#6852ab": "#a4a8c1",
+    "#45347c": "#73778f",
+    "#5c489c": "#9ea2bb",
+    "#5d4891": "#8f93ae",
+    "#3f2f6c": "#6a6e88",
+    "#7a66b8": "#d0d2e2",
+    "#1b2f7a": "#4f6187",
+    "#1d3a7a": "#56627e",
+  },
+};
+const TonoCtx = createContext<(c: string) => string>((c) => c);
+const useTono = () => useContext(TonoCtx);
+
 const OJO_I = "M166 184 C200 182 240 200 262 228 C266 248 246 264 216 264 C186 264 166 246 164 220 C163 205 164 192 166 184 Z";
 const OJO_D = "M398 186 C364 184 324 202 302 230 C298 250 318 265 348 265 C378 265 398 247 400 221 C401 206 400 193 398 186 Z";
 
@@ -88,12 +112,12 @@ const Brazo: React.FC<{
 }> = ({ x, y, angulo, children, enMano, parte = "todo" }) => (
   <g transform={`translate(${x} ${y}) rotate(${angulo})`}>
     {parte !== "pata" ? (
-      <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={PIEL} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+      <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={useTono()(PIEL)} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
     ) : null}
     {enMano}
     {parte !== "brazo" ? (
       <>
-        <circle cx={0} cy={110} r={23} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
+        <circle cx={0} cy={110} r={23} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
         <path d="M-8 122 L-8 130 M0 124 L0 133 M8 122 L8 130" stroke={LINEA} strokeWidth={3} strokeLinecap="round" />
       </>
     ) : null}
@@ -107,7 +131,7 @@ export const EXPRESIONES: Expresion[] = ["normal", "feliz", "sorprendido", "enfa
 /** Párpado inclinado (enfado o tristeza): tapa la parte del ojo por encima de la línea (x1,y1)-(x2,y2). */
 const ParpadoInclinado: React.FC<{ x1: number; y1: number; x2: number; y2: number }> = ({ x1, y1, x2, y2 }) => (
   <>
-    <polygon points={`${x1 - 20},150 ${x2 + 20},150 ${x2 + 20},${y2} ${x1 - 20},${y1}`} fill={PIEL} />
+    <polygon points={`${x1 - 20},150 ${x2 + 20},150 ${x2 + 20},${y2} ${x1 - 20},${y1}`} fill={useTono()(PIEL)} />
     <line x1={x1 - 20} y1={y1} x2={x2 + 20} y2={y2} stroke={LINEA} strokeWidth={6} />
   </>
 );
@@ -143,7 +167,7 @@ const Cabeza: React.FC<{
   const cerradoD = expresion === "feliz" || expresion === "guino";
   const lid = (y0: number) => (
     <>
-      <rect x={140} y={y0} width={290} height={100 * parpadeo} fill={PIEL} />
+      <rect x={140} y={y0} width={290} height={100 * parpadeo} fill={useTono()(PIEL)} />
       <rect x={140} y={y0 + 100 * parpadeo - 3} width={290} height={6} fill={LINEA} />
     </>
   );
@@ -151,9 +175,9 @@ const Cabeza: React.FC<{
     <g>
       <defs>
         <linearGradient id={`${id}-pelo`} x1="0" y1="0" x2="0.3" y2="1">
-          <stop offset="0" stopColor="#6852ab" />
-          <stop offset="0.55" stopColor="#54418e" />
-          <stop offset="1" stopColor="#45347c" />
+          <stop offset="0" stopColor={useTono()("#6852ab")} />
+          <stop offset="0.55" stopColor={useTono()("#54418e")} />
+          <stop offset="1" stopColor={useTono()("#45347c")} />
         </linearGradient>
         <radialGradient id={`${id}-rubor`} cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stopColor="#d06a9a" stopOpacity="0.35" />
@@ -186,7 +210,7 @@ const Cabeza: React.FC<{
       <ellipse cx={180} cy={276} rx={30} ry={16} fill={`url(#${id}-rubor)`} />
       <ellipse cx={388} cy={278} rx={30} ry={16} fill={`url(#${id}-rubor)`} />
       {/* Rizo */}
-      <ellipse cx={352} cy={96} rx={28} ry={12} transform="rotate(14 352 96)" fill="#5c489c" stroke={LINEA} strokeWidth={5} />
+      <ellipse cx={352} cy={96} rx={28} ry={12} transform="rotate(14 352 96)" fill={useTono()("#5c489c")} stroke={LINEA} strokeWidth={5} />
       <path d="M332 92 C342 88 356 90 366 96" stroke="#ffffff" strokeOpacity={0.35} strokeWidth={3} fill="none" strokeLinecap="round" />
       {/* Rayas */}
       <g stroke={LINEA} strokeWidth={7} strokeLinecap="round" fill="none">
@@ -207,7 +231,7 @@ const Cabeza: React.FC<{
         <>
           <path d={OJO_I} fill="#fff" />
           <g clipPath={`url(#${id}-ojoI)`}>
-            <ellipse cx={210 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
+            <ellipse cx={210 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill={useTono()("#1b2f7a")} />
             <ellipse
               cx={207 + px - (grande ? 4 : 0)}
               cy={(grande ? 216 : 214) + py}
@@ -230,7 +254,7 @@ const Cabeza: React.FC<{
         <>
           <path d={OJO_D} fill="#fff" />
           <g clipPath={`url(#${id}-ojoD)`}>
-            <ellipse cx={352 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill="#1b2f7a" />
+            <ellipse cx={352 + px} cy={226 + py} rx={pupilaRx} ry={pupilaRy} fill={useTono()("#1b2f7a")} />
             <ellipse
               cx={349 + px - (grande ? 4 : 0)}
               cy={(grande ? 216 : 214) + py}
@@ -249,7 +273,7 @@ const Cabeza: React.FC<{
       {/* Nariz */}
       <path
         d="M266 268 C276 263 294 263 302 269 C298 278 286 282 279 285 C272 281 266 275 266 268 Z"
-        fill="#1d3a7a"
+        fill={useTono()("#1d3a7a")}
         stroke="#0f1d44"
         strokeWidth={2}
       />
@@ -308,7 +332,7 @@ const Cabeza: React.FC<{
   );
 };
 
-export const Nyxar: React.FC<{
+const NyxarInterno: React.FC<{
   ancho: number;
   pose: PoseNyxar;
   /** Apertura de la boca, 0-1. */
@@ -352,19 +376,19 @@ export const Nyxar: React.FC<{
     <svg width={ancho} height={ancho * (620 / 460)} viewBox="70 -20 460 620" style={{ overflow: "visible" }}>
       <defs>
         <linearGradient id={`${id}-cuerpo`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5d4891" />
-          <stop offset="1" stopColor="#3f2f6c" />
+          <stop offset="0" stopColor={useTono()("#5d4891")} />
+          <stop offset="1" stopColor={useTono()("#3f2f6c")} />
         </linearGradient>
       </defs>
       <ellipse cx={280 + p.x} cy={596} rx={150 - p.salto * 0.8} ry={18} fill="#000" opacity={0.28} />
       <g transform={`translate(${p.x} ${-p.salto}) rotate(${p.inclinar} 280 580)`}>
         {/* Cola rayada */}
         <path d={cola} stroke={LINEA} strokeWidth={38} fill="none" strokeLinecap="round" />
-        <path d={cola} stroke={PIEL} strokeWidth={26} fill="none" strokeLinecap="round" />
+        <path d={cola} stroke={useTono()(PIEL)} strokeWidth={26} fill="none" strokeLinecap="round" />
         <path d={cola} stroke={LINEA} strokeWidth={26} fill="none" strokeDasharray="5 17" opacity={0.85} />
         {/* Patas */}
-        <ellipse cx={240} cy={575} rx={40} ry={21} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
-        <ellipse cx={320} cy={575} rx={40} ry={21} fill={PIEL_CLARA} stroke={LINEA} strokeWidth={6} />
+        <ellipse cx={240} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
+        <ellipse cx={320} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
         {/* Torso */}
         <g transform={`translate(280 560) scale(${1 + respira * 0.012} ${1 - respira * 0.012}) translate(-280 -560)`}>
           <path
@@ -373,7 +397,7 @@ export const Nyxar: React.FC<{
             stroke={LINEA}
             strokeWidth={6}
           />
-          <ellipse cx={280} cy={478} rx={52} ry={66} fill="#7a66b8" opacity={0.45} />
+          <ellipse cx={280} cy={478} rx={52} ry={66} fill={useTono()("#7a66b8")} opacity={0.45} />
           <path d="M252 560 L252 540 M308 560 L308 540" stroke={LINEA} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
         </g>
         {/* Pañuelo y cascabel */}
@@ -480,5 +504,15 @@ export const Nyxar: React.FC<{
         ) : null}
       </g>
     </svg>
+  );
+};
+
+/** Nyxar con paleta: `paleta="gris"` para los temas tristes. */
+export const Nyxar: React.FC<React.ComponentProps<typeof NyxarInterno> & { paleta?: PaletaNyxar }> = ({ paleta = "normal", ...props }) => {
+  const mapa = PALETAS[paleta];
+  return (
+    <TonoCtx.Provider value={(c) => mapa[c] ?? c}>
+      <NyxarInterno {...props} />
+    </TonoCtx.Provider>
   );
 };

@@ -15,6 +15,7 @@ Léelo entero al empezar. Aquí está todo lo que hay que saber para seguir trab
 
 ## Nyxar (el personaje del usuario)
 - Gato morado original del usuario. Está en vector en `src/personajes/Nyxar.tsx`, con expresiones, objetos con agarre (`objetos.tsx`) y cambio de sitio por escena (`Escenario.tsx`).
+- **Nyxar gris para temas tristes** (elegido por el usuario el 12 de noviembre de 2026, la opción 3 de las que mandó: gris azulado con toque lavanda): `<Nyxar paleta="gris" ...>`. Cambia solo el pelaje, los ojos y la nariz; el pañuelo rojo, el cascabel y las orejas rosas quedan igual. Comparación en la composición `PaletasNyxar`.
 - **No tiene cejas**: las emociones se muestran con orejas, pupilas, párpados y boca. Nunca usar el PNG recortado del dibujo original.
 - Sprites en `public/marca/sprites/` y `public/marca/sprites-nyxar.zip` (PNGTuber, stickers, hoja de personaje, pixel art). Se regeneran con la composición `SpritesNyxar` y `scripts/sprites-nyxar.py`.
 
