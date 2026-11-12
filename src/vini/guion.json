@@ -1,0 +1,47 @@
+{
+  "carpeta": "vini",
+  "ritmoVox": 0.9,
+  "mostrar": {
+    "Bini": "Vini",
+    "Bini,": "Vini,",
+    "Bini.": "Vini.",
+    "Chabi": "Xabi",
+    "de": "de",
+    "Best.": "Best.",
+    "Mbapé.": "Mbappé."
+  },
+  "escenas": [
+    {
+      "id": "gancho",
+      "texto": "En dos mil veinticuatro, era el mejor del mundo."
+    },
+    {
+      "id": "cima",
+      "texto": "Marcó en la final de la Champions, y FIFA lo eligió The Best. Solo le faltó el Balón de Oro."
+    },
+    {
+      "id": "mbappe",
+      "texto": "Entonces llegó Mbapé. Y Bini dejó de ser el único protagonista."
+    },
+    {
+      "id": "alonso",
+      "texto": "Con Xabi Alonso casi nunca terminaba los partidos, y su renovación se atascó durante meses."
+    },
+    {
+      "id": "mundial",
+      "texto": "En el Mundial fue lo mejor de Brasil, con cuatro goles. Pero cayeron en octavos contra Noruega."
+    },
+    {
+      "id": "hoy",
+      "texto": "Ya renovó hasta dos mil treinta y dos. Y aun así, este año apenas marca."
+    },
+    {
+      "id": "remate",
+      "texto": "Quizá nunca le faltó talento. Le faltó confianza."
+    },
+    {
+      "id": "pregunta",
+      "texto": "¿Bini vuelve a ser el de dos mil veinticuatro? Sí o no. Te leo."
+    }
+  ]
+}

@@ -9,6 +9,8 @@ import { FotoCuarto } from "./personajes/FotoCuarto";
 import { PaletasNyxar } from "./personajes/PaletasNyxar";
 import { HojaIconos } from "./marca/HojaIconos";
 import { FlyerAyE } from "./nutricion/Flyer";
+import { PruebaPapel } from "./vini/PruebaPapel";
+import { DURACION_VINI, Vini } from "./vini/Vini";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
@@ -47,6 +49,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="PaletasNyxar" component={PaletasNyxar} durationInFrames={1} fps={30} width={1400} height={560} />
       <Composition id="HojaIconos" component={HojaIconos} durationInFrames={1} fps={30} width={1080} height={1120} />
       <Composition id="FlyerAyE" component={FlyerAyE} durationInFrames={1} fps={30} width={1080} height={1350} />
+      <Composition id="PruebaPapel" component={PruebaPapel} durationInFrames={1} fps={60} width={1080} height={1920} />
+      <Composition id="Vini" component={Vini} durationInFrames={DURACION_VINI} fps={60} width={1080} height={1920} />
       <Composition
         id="Pirateria"
         component={Pirateria}

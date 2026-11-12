@@ -57,8 +57,9 @@ const PIEL_CLARA = "#6d58a6";
  * Paletas de pelaje. "gris" es el Nyxar de los temas tristes (elegido por el usuario el 12 de noviembre de 2026):
  * gris azulado con un toque lavanda; el pañuelo rojo, el cascabel y las orejas rosas no cambian.
  */
-export type PaletaNyxar = "normal" | "gris";
+export type PaletaNyxar = "normal" | "gris" | "grisPapel";
 const PALETAS: Record<PaletaNyxar, Record<string, string>> = {
+  grisPapel: {},
   normal: {},
   gris: {
     "#54418e": "#8c90ab",
@@ -73,6 +74,8 @@ const PALETAS: Record<PaletaNyxar, Record<string, string>> = {
     "#1d3a7a": "#56627e",
   },
 };
+/** "grisPapel": el gris de los temas tristes con el contorno suavizado, para el estilo papel recortado (sin contornos negros). */
+PALETAS.grisPapel = { ...PALETAS.gris, "#1d1530": "#5a5470" };
 const TonoCtx = createContext<(c: string) => string>((c) => c);
 const useTono = () => useContext(TonoCtx);
 
@@ -112,13 +115,13 @@ const Brazo: React.FC<{
 }> = ({ x, y, angulo, children, enMano, parte = "todo" }) => (
   <g transform={`translate(${x} ${y}) rotate(${angulo})`}>
     {parte !== "pata" ? (
-      <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={useTono()(PIEL)} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+      <path d="M-17 0 L-15 100 A16 16 0 0 0 15 100 L17 0 Z" fill={useTono()(PIEL)} stroke={useTono()(LINEA)} strokeWidth={6} strokeLinejoin="round" />
     ) : null}
     {enMano}
     {parte !== "brazo" ? (
       <>
-        <circle cx={0} cy={110} r={23} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
-        <path d="M-8 122 L-8 130 M0 124 L0 133 M8 122 L8 130" stroke={LINEA} strokeWidth={3} strokeLinecap="round" />
+        <circle cx={0} cy={110} r={23} fill={useTono()(PIEL_CLARA)} stroke={useTono()(LINEA)} strokeWidth={6} />
+        <path d="M-8 122 L-8 130 M0 124 L0 133 M8 122 L8 130" stroke={useTono()(LINEA)} strokeWidth={3} strokeLinecap="round" />
       </>
     ) : null}
     {children}
@@ -132,13 +135,13 @@ export const EXPRESIONES: Expresion[] = ["normal", "feliz", "sorprendido", "enfa
 const ParpadoInclinado: React.FC<{ x1: number; y1: number; x2: number; y2: number }> = ({ x1, y1, x2, y2 }) => (
   <>
     <polygon points={`${x1 - 20},150 ${x2 + 20},150 ${x2 + 20},${y2} ${x1 - 20},${y1}`} fill={useTono()(PIEL)} />
-    <line x1={x1 - 20} y1={y1} x2={x2 + 20} y2={y2} stroke={LINEA} strokeWidth={6} />
+    <line x1={x1 - 20} y1={y1} x2={x2 + 20} y2={y2} stroke={useTono()(LINEA)} strokeWidth={6} />
   </>
 );
 
 /** Ojo cerrado contento: un arco "^". */
 const OjoFeliz: React.FC<{ cx: number }> = ({ cx }) => (
-  <path d={`M${cx - 42} 236 Q${cx} 196 ${cx + 42} 236`} stroke={LINEA} strokeWidth={8} fill="none" strokeLinecap="round" />
+  <path d={`M${cx - 42} 236 Q${cx} 196 ${cx + 42} 236`} stroke={useTono()(LINEA)} strokeWidth={8} fill="none" strokeLinecap="round" />
 );
 
 const Cabeza: React.FC<{
@@ -168,7 +171,7 @@ const Cabeza: React.FC<{
   const lid = (y0: number) => (
     <>
       <rect x={140} y={y0} width={290} height={100 * parpadeo} fill={useTono()(PIEL)} />
-      <rect x={140} y={y0 + 100 * parpadeo - 3} width={290} height={6} fill={LINEA} />
+      <rect x={140} y={y0 + 100 * parpadeo - 3} width={290} height={6} fill={useTono()(LINEA)} />
     </>
   );
   return (
@@ -192,17 +195,17 @@ const Cabeza: React.FC<{
       </defs>
       {/* Orejas */}
       <g transform={`rotate(${-ticOreja(frame, "i") - orejaBase - orejaPensativa} 180 160)`}>
-        <path d="M222 128 L124 58 L136 182 Z" fill={`url(#${id}-pelo)`} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+        <path d="M222 128 L124 58 L136 182 Z" fill={`url(#${id}-pelo)`} stroke={useTono()(LINEA)} strokeWidth={6} strokeLinejoin="round" />
         <path d="M196 124 L138 80 L146 160 Z" fill="#b8708a" />
       </g>
       <g transform={`rotate(${ticOreja(frame, "d") + orejaBase} 390 160)`}>
-        <path d="M356 122 L418 62 L430 186 Z" fill={`url(#${id}-pelo)`} stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+        <path d="M356 122 L418 62 L430 186 Z" fill={`url(#${id}-pelo)`} stroke={useTono()(LINEA)} strokeWidth={6} strokeLinejoin="round" />
         <path d="M374 120 L408 84 L416 160 Z" fill="#b8708a" />
       </g>
       {/* Cabeza con pelo de punta y mechones */}
       <path
         fill={`url(#${id}-pelo)`}
-        stroke={LINEA}
+        stroke={useTono()(LINEA)}
         strokeWidth={6}
         strokeLinejoin="round"
         d="M196 128 L222 104 C240 80 262 45 286 22 C292 36 294 60 296 78 C312 60 332 46 358 38 C350 56 340 70 334 84 C352 90 372 104 386 124 C408 150 432 180 446 206 L466 222 L448 234 L472 256 L446 262 L460 290 L426 290 C410 302 390 314 360 320 L350 332 L330 324 C305 334 255 334 230 324 L210 332 L198 320 C170 314 150 302 134 290 L102 292 L118 266 L94 256 L120 240 L104 222 L128 208 C140 176 166 148 196 128 Z"
@@ -210,10 +213,10 @@ const Cabeza: React.FC<{
       <ellipse cx={180} cy={276} rx={30} ry={16} fill={`url(#${id}-rubor)`} />
       <ellipse cx={388} cy={278} rx={30} ry={16} fill={`url(#${id}-rubor)`} />
       {/* Rizo */}
-      <ellipse cx={352} cy={96} rx={28} ry={12} transform="rotate(14 352 96)" fill={useTono()("#5c489c")} stroke={LINEA} strokeWidth={5} />
+      <ellipse cx={352} cy={96} rx={28} ry={12} transform="rotate(14 352 96)" fill={useTono()("#5c489c")} stroke={useTono()(LINEA)} strokeWidth={5} />
       <path d="M332 92 C342 88 356 90 366 96" stroke="#ffffff" strokeOpacity={0.35} strokeWidth={3} fill="none" strokeLinecap="round" />
       {/* Rayas */}
-      <g stroke={LINEA} strokeWidth={7} strokeLinecap="round" fill="none">
+      <g stroke={useTono()(LINEA)} strokeWidth={7} strokeLinecap="round" fill="none">
         <path d="M272 42 C270 70 268 92 266 116" />
         <path d="M314 62 C312 80 310 96 308 112" />
         <path d="M226 106 C232 112 236 118 240 126" />
@@ -245,7 +248,7 @@ const Cabeza: React.FC<{
             {expresion === "pensativo" ? <ParpadoInclinado x1={166} y1={214} x2={264} y2={214} /> : null}
             {parpadeo > 0 ? lid(176) : null}
           </g>
-          <path d={OJO_I} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+          <path d={OJO_I} fill="none" stroke={useTono()(LINEA)} strokeWidth={6} strokeLinejoin="round" />
         </>
       )}
       {cerradoD ? (
@@ -267,7 +270,7 @@ const Cabeza: React.FC<{
             {expresion === "triste" ? <ParpadoInclinado x1={300} y1={200} x2={398} y2={212} /> : null}
             {parpadeo > 0 ? lid(178) : null}
           </g>
-          <path d={OJO_D} fill="none" stroke={LINEA} strokeWidth={6} strokeLinejoin="round" />
+          <path d={OJO_D} fill="none" stroke={useTono()(LINEA)} strokeWidth={6} strokeLinejoin="round" />
         </>
       )}
       {/* Nariz */}
@@ -283,7 +286,7 @@ const Cabeza: React.FC<{
           <path
             d={`M${280 - anchoBoca} 297 C${280 - anchoBoca} ${297 + altoBoca * 1.3} ${280 + anchoBoca} ${297 + altoBoca * 1.3} ${280 + anchoBoca} 297 Z`}
             fill="#2a0d1c"
-            stroke={LINEA}
+            stroke={useTono()(LINEA)}
             strokeWidth={4}
             strokeLinejoin="round"
           />
@@ -292,35 +295,35 @@ const Cabeza: React.FC<{
       ) : null}
       {boca <= 0.08 && expresion === "feliz" ? (
         <g>
-          <path d="M246 292 Q280 338 314 292 Z" fill="#2a0d1c" stroke={LINEA} strokeWidth={4} strokeLinejoin="round" />
+          <path d="M246 292 Q280 338 314 292 Z" fill="#2a0d1c" stroke={useTono()(LINEA)} strokeWidth={4} strokeLinejoin="round" />
           <ellipse cx={280} cy={312} rx={14} ry={6} fill="#e0607e" />
         </g>
       ) : null}
       {boca <= 0.08 && expresion === "sorprendido" ? (
-        <ellipse cx={280} cy={308} rx={11} ry={14} fill="#2a0d1c" stroke={LINEA} strokeWidth={4} />
+        <ellipse cx={280} cy={308} rx={11} ry={14} fill="#2a0d1c" stroke={useTono()(LINEA)} strokeWidth={4} />
       ) : null}
       {expresion === "enfadado" ? (
         boca <= 0.08 ? (
           <g>
-            <path d="M246 306 Q262 296 280 300 Q298 296 314 306" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
-            <path d="M262 299 L266 312 L271 300 Z" fill="#fff" stroke={LINEA} strokeWidth={2} strokeLinejoin="round" />
+            <path d="M246 306 Q262 296 280 300 Q298 296 314 306" stroke={useTono()(LINEA)} strokeWidth={5} fill="none" strokeLinecap="round" />
+            <path d="M262 299 L266 312 L271 300 Z" fill="#fff" stroke={useTono()(LINEA)} strokeWidth={2} strokeLinejoin="round" />
           </g>
         ) : null
       ) : expresion === "triste" ? (
         boca <= 0.08 ? (
-          <path d="M250 308 Q280 290 310 308" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+          <path d="M250 308 Q280 290 310 308" stroke={useTono()(LINEA)} strokeWidth={5} fill="none" strokeLinecap="round" />
         ) : null
       ) : expresion === "pensativo" ? (
         boca <= 0.08 ? (
-          <path d="M258 304 Q284 298 306 292" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+          <path d="M258 304 Q284 298 306 292" stroke={useTono()(LINEA)} strokeWidth={5} fill="none" strokeLinecap="round" />
         ) : null
       ) : expresion === "guino" ? (
-        <path d="M236 290 Q260 312 282 296 Q306 314 330 284" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+        <path d="M236 290 Q260 312 282 296 Q306 314 330 284" stroke={useTono()(LINEA)} strokeWidth={5} fill="none" strokeLinecap="round" />
       ) : (
-        <path d="M234 288 Q257 312 280 295 Q303 312 326 288" stroke={LINEA} strokeWidth={5} fill="none" strokeLinecap="round" />
+        <path d="M234 288 Q257 312 280 295 Q303 312 326 288" stroke={useTono()(LINEA)} strokeWidth={5} fill="none" strokeLinecap="round" />
       )}
       {/* Bigotes */}
-      <g stroke={LINEA} strokeWidth={3} strokeLinecap="round">
+      <g stroke={useTono()(LINEA)} strokeWidth={3} strokeLinecap="round">
         <line x1={196} y1={282} x2={236} y2={290} />
         <line x1={192} y1={296} x2={234} y2={298} />
         <line x1={200} y1={310} x2={236} y2={304} />
@@ -383,36 +386,36 @@ const NyxarInterno: React.FC<{
       <ellipse cx={280 + p.x} cy={596} rx={150 - p.salto * 0.8} ry={18} fill="#000" opacity={0.28} />
       <g transform={`translate(${p.x} ${-p.salto}) rotate(${p.inclinar} 280 580)`}>
         {/* Cola rayada */}
-        <path d={cola} stroke={LINEA} strokeWidth={38} fill="none" strokeLinecap="round" />
+        <path d={cola} stroke={useTono()(LINEA)} strokeWidth={38} fill="none" strokeLinecap="round" />
         <path d={cola} stroke={useTono()(PIEL)} strokeWidth={26} fill="none" strokeLinecap="round" />
-        <path d={cola} stroke={LINEA} strokeWidth={26} fill="none" strokeDasharray="5 17" opacity={0.85} />
+        <path d={cola} stroke={useTono()(LINEA)} strokeWidth={26} fill="none" strokeDasharray="5 17" opacity={0.85} />
         {/* Patas */}
-        <ellipse cx={240} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
-        <ellipse cx={320} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={LINEA} strokeWidth={6} />
+        <ellipse cx={240} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={useTono()(LINEA)} strokeWidth={6} />
+        <ellipse cx={320} cy={575} rx={40} ry={21} fill={useTono()(PIEL_CLARA)} stroke={useTono()(LINEA)} strokeWidth={6} />
         {/* Torso */}
         <g transform={`translate(280 560) scale(${1 + respira * 0.012} ${1 - respira * 0.012}) translate(-280 -560)`}>
           <path
             d="M235 316 C198 360 184 440 191 500 C197 556 250 574 280 574 C310 574 363 556 369 500 C376 440 362 360 325 316 Z"
             fill={`url(#${id}-cuerpo)`}
-            stroke={LINEA}
+            stroke={useTono()(LINEA)}
             strokeWidth={6}
           />
           <ellipse cx={280} cy={478} rx={52} ry={66} fill={useTono()("#7a66b8")} opacity={0.45} />
-          <path d="M252 560 L252 540 M308 560 L308 540" stroke={LINEA} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
+          <path d="M252 560 L252 540 M308 560 L308 540" stroke={useTono()(LINEA)} strokeWidth={4} strokeLinecap="round" opacity={0.6} />
         </g>
         {/* Pañuelo y cascabel */}
-        <path d="M206 318 L354 318 L292 398 Z" fill="#8b2332" stroke={LINEA} strokeWidth={5} strokeLinejoin="round" />
+        <path d="M206 318 L354 318 L292 398 Z" fill="#8b2332" stroke={useTono()(LINEA)} strokeWidth={5} strokeLinejoin="round" />
         <path
           d="M206 318 L170 300 L178 334 Z M206 318 L176 344 L200 352 Z"
           fill="#7a1d2b"
-          stroke={LINEA}
+          stroke={useTono()(LINEA)}
           strokeWidth={4}
           strokeLinejoin="round"
         />
-        <circle cx={208} cy={322} r={10} fill="#a12b3c" stroke={LINEA} strokeWidth={4} />
+        <circle cx={208} cy={322} r={10} fill="#a12b3c" stroke={useTono()(LINEA)} strokeWidth={4} />
         <g transform={`rotate(${cascabel} 288 352)`}>
-          <line x1={288} y1={340} x2={288} y2={354} stroke={LINEA} strokeWidth={4} />
-          <circle cx={288} cy={370} r={16} fill="#e9b53b" stroke={LINEA} strokeWidth={4} />
+          <line x1={288} y1={340} x2={288} y2={354} stroke={useTono()(LINEA)} strokeWidth={4} />
+          <circle cx={288} cy={370} r={16} fill="#e9b53b" stroke={useTono()(LINEA)} strokeWidth={4} />
           <path d="M281 368 C281 360 295 360 295 368 C295 376 284 376 284 369" stroke="#8a5a10" strokeWidth={3} fill="none" />
         </g>
         {/* Cabeza y accesorios */}
@@ -436,10 +439,10 @@ const NyxarInterno: React.FC<{
           ) : null}
           {p.cascos > 0.01 ? (
             <g opacity={p.cascos}>
-              <path d="M133 220 C120 -40 440 -40 427 220" stroke={LINEA} strokeWidth={30} fill="none" strokeLinecap="round" />
+              <path d="M133 220 C120 -40 440 -40 427 220" stroke={useTono()(LINEA)} strokeWidth={30} fill="none" strokeLinecap="round" />
               <path d="M133 220 C120 -40 440 -40 427 220" stroke="#ff4d6d" strokeWidth={18} fill="none" strokeLinecap="round" />
-              <rect x={108} y={200} width={50} height={90} rx={22} fill="#ff4d6d" stroke={LINEA} strokeWidth={6} />
-              <rect x={402} y={200} width={50} height={90} rx={22} fill="#ff4d6d" stroke={LINEA} strokeWidth={6} />
+              <rect x={108} y={200} width={50} height={90} rx={22} fill="#ff4d6d" stroke={useTono()(LINEA)} strokeWidth={6} />
+              <rect x={402} y={200} width={50} height={90} rx={22} fill="#ff4d6d" stroke={useTono()(LINEA)} strokeWidth={6} />
             </g>
           ) : null}
         </g>
@@ -462,7 +465,7 @@ const NyxarInterno: React.FC<{
             <Brazo x={228} y={368} angulo={p.brazoI}>
               {p.carta > 0.01 ? (
                 <g opacity={p.carta} transform={`translate(0 120) rotate(${-p.brazoI + 8}) scale(${p.carta})`}>
-                  <rect x={-55} y={-120} width={110} height={140} rx={6} fill="#fdf6e3" stroke={LINEA} strokeWidth={5} />
+                  <rect x={-55} y={-120} width={110} height={140} rx={6} fill="#fdf6e3" stroke={useTono()(LINEA)} strokeWidth={5} />
                   {[0, 1, 2, 3, 4].map((k) => (
                     <line
                       key={k}
