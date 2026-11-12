@@ -7,7 +7,7 @@ import "@fontsource/lexend/300.css";
 import "@fontsource/lexend/400.css";
 import "@fontsource/lexend/600.css";
 import "@fontsource/baloo-2/800.css";
-import { AbsoluteFill, continueRender, delayRender } from "remotion";
+import { AbsoluteFill, continueRender, delayRender, Img, staticFile } from "remotion";
 
 if (typeof document !== "undefined") {
   const h = delayRender("Fuentes del flyer");
@@ -46,71 +46,20 @@ const DATOS = [
 
 /* ---------- Logo ---------- */
 
-/** "19" de cinta en dos tonos: azul arriba, verde abajo, con una banda oscura en el cruce. */
-const Diecinueve: React.FC<{ alto: number }> = ({ alto }) => {
-  const w = alto * 1.0;
-  return (
-    <svg width={w} height={alto} viewBox="0 0 250 250">
-      <g transform="translate(125 0) scale(0.92 1.28) translate(-125 0)">
-      <defs>
-        <clipPath id="fl-abajo">
-          <polygon points="0,112 250,70 250,200 0,200" />
-        </clipPath>
-        <clipPath id="fl-banda">
-          <polygon points="0,104 250,62 250,74 0,116" />
-        </clipPath>
-      </defs>
-      <text x={125} y={182} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={236} letterSpacing={-2} fill={L.azul}>
-        19
-      </text>
-      <g clipPath="url(#fl-abajo)">
-        <text x={125} y={182} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={236} letterSpacing={-2} fill={L.verde}>
-          19
-        </text>
-      </g>
-      <g clipPath="url(#fl-banda)">
-        <text x={125} y={182} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={236} letterSpacing={-2} fill={L.banda}>
-          19
-        </text>
-      </g>
-      </g>
-    </svg>
-  );
-};
-
-/** Persona saltando de perfil (brazos arriba, espalda arqueada, una pierna atrás), con trazos gruesos. */
-const Persona: React.FC<{ color: string; t?: string }> = ({ color, t }) => (
-  <g transform={t} stroke={color} strokeLinecap="round" strokeLinejoin="round" fill="none">
-    <circle cx={63} cy={22} r={10} fill={color} stroke="none" />
-    <path d="M58 40 C55 54 53 64 54 78" strokeWidth={13} />
-    <path d="M60 40 C68 30 76 18 86 4" strokeWidth={6} />
-    <path d="M56 40 C50 28 44 16 38 4" strokeWidth={6} />
-    <path d="M54 78 C64 86 74 94 86 104 L94 104" strokeWidth={7} />
-    <path d="M54 80 C50 92 54 102 62 114" strokeWidth={7} />
-  </g>
-);
-
-const FiguraSaltando: React.FC<{ alto: number }> = ({ alto }) => (
-  <svg width={alto * 0.8} height={alto} viewBox="0 0 100 120" style={{ overflow: "visible" }}>
-    <g style={{ mixBlendMode: "multiply" }} opacity={0.9}>
-      <Persona color={L.verde} t="translate(-14 -2) rotate(-6 55 60)" />
-      <Persona color={L.azul} t="translate(10 2) rotate(8 55 60)" />
-      <Persona color={L.verdeOsc} t="translate(0 6)" />
-    </g>
-  </svg>
-);
-
+/**
+ * Logo: el "19 años" y la figura se sacaron de la foto del logo separando sus colores (más fieles que redibujarlos);
+ * el texto fino se escribe con Lexend Light porque en la foto sale roto.
+ */
 export const LogoAyE: React.FC<{ escala?: number }> = ({ escala = 1 }) => (
   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-    <Diecinueve alto={290 * escala} />
-    <div style={{ fontFamily: "'Baloo 2', sans-serif", fontWeight: 800, fontSize: 64 * escala, color: L.verde, marginTop: -18 * escala, lineHeight: 1 }}>años</div>
-    <div style={{ display: "flex", alignItems: "center", gap: 6 * escala, marginTop: 22 * escala }}>
+    <Img src={staticFile("nutricion/logo-19-anos.png")} style={{ height: 330 * escala }} />
+    <div style={{ display: "flex", alignItems: "center", gap: 14 * escala, marginTop: 20 * escala }}>
       <div style={{ textAlign: "right", lineHeight: 0.95 }}>
         <div style={{ fontFamily: LEX, fontWeight: 300, fontSize: 70 * escala, color: L.azulTexto, letterSpacing: -1 }}>alimentación</div>
         <div style={{ fontFamily: LEX, fontWeight: 300, fontSize: 70 * escala, color: L.verde, letterSpacing: -1 }}>y equilibrio</div>
         <div style={{ fontFamily: LEX, fontWeight: 400, fontSize: 30 * escala, color: L.azulTexto, marginTop: 8 * escala }}>De Giovana Olivas</div>
       </div>
-      <FiguraSaltando alto={250 * escala} />
+      <Img src={staticFile("nutricion/logo-figura.png")} style={{ height: 250 * escala, marginTop: -40 * escala }} />
     </div>
   </div>
 );
