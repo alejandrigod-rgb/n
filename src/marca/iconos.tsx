@@ -238,6 +238,39 @@ export const IcoCasete: React.FC<P> = ({ color = C.cascabel, ...p }) => (
   </Lienzo>
 );
 
+
+/** Calculadora. */
+export const IcoCalculadora: React.FC<P> = ({ color = C.niebla, ...p }) => (
+  <Lienzo {...p}>
+    <rect x={18} y={6} width={64} height={88} rx={12} fill={color} stroke={LINEA} strokeWidth={T} />
+    <rect x={28} y={16} width={44} height={20} rx={4} fill="#1b2d3a" stroke={LINEA} strokeWidth={4} />
+    <path d="M62 30 H66" stroke={C.menta} strokeWidth={5} />
+    {[0, 1, 2].map((f) =>
+      [0, 1, 2].map((c) => <rect key={`${f}${c}`} x={28 + c * 16} y={46 + f * 15} width={11} height={10} rx={3} fill={f === 2 && c === 2 ? C.cascabel : "#ffffff"} stroke={LINEA} strokeWidth={3} />),
+    )}
+  </Lienzo>
+);
+
+/** Casa (hogar). */
+export const IcoCasa: React.FC<P> = ({ color = C.cascabel, ...p }) => (
+  <Lienzo {...p}>
+    <path d="M14 48 L50 14 L86 48 V90 H14 Z" fill={color} stroke={LINEA} strokeWidth={T} />
+    <path d="M6 52 L50 10 L94 52" fill="none" stroke={LINEA} strokeWidth={T + 2} />
+    <rect x={40} y={60} width={20} height={30} rx={4} fill={LINEA} />
+    <rect x={62} y={56} width={14} height={12} rx={2} fill="#ffe1a8" stroke={LINEA} strokeWidth={3} />
+    {brillo("M24 48 L44 30")}
+  </Lienzo>
+);
+
+/** Móvil. */
+export const IcoMovil: React.FC<P> = ({ color = "#2b3350", ...p }) => (
+  <Lienzo {...p}>
+    <rect x={26} y={4} width={48} height={92} rx={12} fill={color} stroke={LINEA} strokeWidth={T} />
+    <rect x={32} y={14} width={36} height={66} rx={4} fill="#16244a" />
+    <rect x={44} y={86} width={12} height={4} rx={2} fill={C.niebla} />
+  </Lienzo>
+);
+
 /** Todos los iconos, para la hoja de marca. */
 export const ICONOS = {
   descarga: IcoDescarga,
@@ -260,4 +293,7 @@ export const ICONOS = {
   persona: IcoPersona,
   corazon: IcoCorazon,
   casete: IcoCasete,
+  calculadora: IcoCalculadora,
+  casa: IcoCasa,
+  movil: IcoMovil,
 };

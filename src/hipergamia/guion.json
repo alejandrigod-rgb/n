@@ -1,0 +1,39 @@
+{
+  "carpeta": "hipergamia",
+  "ritmoVox": 0.9,
+  "mostrar": {
+    "uno": "1",
+    "ciento.": "%.",
+    "por": ""
+  },
+  "escenas": [
+    {
+      "id": "gancho",
+      "texto": "La palabra que deprime a internet."
+    },
+    {
+      "id": "que",
+      "texto": "Hipergamia: buscar pareja con más dinero o más estudios que tú. Es un término de la sociología."
+    },
+    {
+      "id": "regla",
+      "texto": "¿Por qué da tanta tristeza? Porque en redes la han convertido en una regla: si no tienes dinero, nadie te va a elegir."
+    },
+    {
+      "id": "comparar",
+      "texto": "Y las redes solo te enseñan al uno por ciento. Te comparas... y sientes que no eres suficiente."
+    },
+    {
+      "id": "datos",
+      "texto": "Pero los datos dicen otra cosa: la mayoría de las parejas se parecen entre sí. Y hoy es más común que ella tenga más estudios que él."
+    },
+    {
+      "id": "remate",
+      "texto": "Nadie elige con una calculadora. Elegimos a quien nos hace sentir en casa."
+    },
+    {
+      "id": "pregunta",
+      "texto": "¿Crees que hoy el dinero importa más que antes? Te leo."
+    }
+  ]
+}
