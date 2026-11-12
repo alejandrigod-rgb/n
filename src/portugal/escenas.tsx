@@ -77,7 +77,7 @@ export const Gancho: React.FC = () => {
       </div>
       <S id="silbato" en={0} volumen={0.35} />
       <S id="golpe" en={0} volumen={0.3} />
-      <S id="error" en={m("peor")} volumen={0.2} />
+      <S id="error" en={m("resultado") + 20} volumen={0.15} />
     </Escena>
   );
 };
