@@ -12,6 +12,7 @@ import { FlyerAyE } from "./nutricion/Flyer";
 import { PruebaPapel } from "./vini/PruebaPapel";
 import { DURACION_VINI, Vini } from "./vini/Vini";
 import { DisenoMarco } from "./serie/Marco";
+import { ExpresionesMarco } from "./serie/MarcoFeo";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
@@ -53,6 +54,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="PruebaPapel" component={PruebaPapel} durationInFrames={1} fps={60} width={1080} height={1920} />
       <Composition id="Vini" component={Vini} durationInFrames={DURACION_VINI} fps={60} width={1080} height={1920} />
       <Composition id="DisenoMarco" component={DisenoMarco} durationInFrames={1} fps={30} width={1500} height={1000} />
+      <Composition id="ExpresionesMarco" component={ExpresionesMarco} durationInFrames={1} fps={30} width={1800} height={900} />
       <Composition
         id="Pirateria"
         component={Pirateria}
