@@ -99,7 +99,7 @@ const Subtitulos: React.FC<{ id: Id; local: number; n: number }> = ({ id, local,
 
 /* Etiqueta de la escena (cinta mostaza) */
 const ETIQ: Record<Id, string> = {
-  gancho: "¿QUÉ LE PASÓ A VINI?",
+  gancho: "",
   cima: "2024: LA CIMA",
   mbappe: "2024-25",
   alonso: "2025-26",
@@ -321,12 +321,12 @@ const Imagen: React.FC = () => {
           ) : null}
           {!final ? (
             <>
-              <g transform="translate(540 440)">
+              {ETIQ[id] ? <g transform="translate(540 440)">
                 {ETIQUETA()}
                 <text x={0} y={14} textAnchor="middle" fontFamily={LILITA} fontSize={34} fill="#3A2416">
                   {ETIQ[id]}
                 </text>
-              </g>
+              </g> : null}
               <g transform="translate(540 790) scale(1.3) translate(-540 -790)">
                 <Escena id={id} tq={lq} n={n} />
               </g>
