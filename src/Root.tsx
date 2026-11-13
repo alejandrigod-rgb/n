@@ -14,6 +14,7 @@ import { DURACION_VINI, Vini } from "./vini/Vini";
 import { DisenoMarco } from "./serie/Marco";
 import { ExpresionesMarco } from "./serie/MarcoFeo";
 import { ExpresionesGordo } from "./serie/MarcoGordo";
+import { FotoPerfilMarco, PerfilesMarco } from "./serie/FotoPerfilMarco";
 import { DURACION_EP1, Episodio1 } from "./serie/ep1/Episodio1";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
@@ -58,6 +59,8 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="DisenoMarco" component={DisenoMarco} durationInFrames={1} fps={30} width={1500} height={1000} />
       <Composition id="ExpresionesMarco" component={ExpresionesMarco} durationInFrames={1} fps={30} width={1800} height={900} />
       <Composition id="ExpresionesGordo" component={ExpresionesGordo} durationInFrames={1} fps={30} width={2100} height={900} />
+      <Composition id="FotoPerfilMarco" component={FotoPerfilMarco} durationInFrames={1} fps={30} width={1080} height={1080} defaultProps={{ v: 1 }} />
+      <Composition id="PerfilesMarco" component={PerfilesMarco} durationInFrames={1} fps={30} width={1900} height={800} />
       <Composition id="MarcoEp1" component={Episodio1} durationInFrames={DURACION_EP1} fps={60} width={1080} height={1920} />
       <Composition
         id="Pirateria"
