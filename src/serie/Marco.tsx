@@ -16,9 +16,10 @@ const PALETAS: Record<VarianteMarco, Paleta> = {
   cueva: { piel: "#e7cdb8", pielS: "#c9ab95", pelo: "#8a5a2e", peloS: "#6a4220", sudadera: "#7a6fb0", sudaderaS: "#5d5390", pantalon: "#4b4b55" },
 };
 
-export const Marco: React.FC<{ variante?: VarianteMarco; ancho?: number; boca?: number; ojos?: "abiertos" | "confusos" | "cerrados" }> = ({ variante = "congelado", ancho = 400, boca = 0, ojos = "confusos" }) => {
+export const Marco: React.FC<{ variante?: VarianteMarco; ancho?: number; boca?: number; ojos?: "abiertos" | "confusos" | "cerrados"; joven?: boolean }> = ({ variante = "congelado", ancho = 400, boca = 0, ojos = "confusos", joven = false }) => {
+  // joven: Marco en 2016, antes de congelarse (sin barba, sin melena y sin hielo)
   const p = PALETAS[variante];
-  const largo = variante !== "despeinado"; // pelo largo de 10 años
+  const largo = variante !== "despeinado" && !joven; // pelo largo de 10 años
   const barba = variante !== "despeinado" ? 1 : 0.55;
   return (
     <svg width={ancho} height={ancho * 1.75} viewBox="0 0 400 700" style={{ overflow: "visible" }}>
@@ -60,8 +61,8 @@ export const Marco: React.FC<{ variante?: VarianteMarco; ancho?: number; boca?: 
         <ellipse cx={116} cy={178} rx={14} ry={22} fill={p.piel} stroke={L} strokeWidth={6} />
         <ellipse cx={284} cy={178} rx={14} ry={22} fill={p.piel} stroke={L} strokeWidth={6} />
         {/* Barba */}
-        <path d={`M128 200 Q132 ${262 + barba * 40} 200 ${282 + barba * 46} Q268 ${262 + barba * 40} 272 200 Q256 238 200 240 Q144 238 128 200 Z`} fill={p.pelo} stroke={L} strokeWidth={6} opacity={0.95} />
-        <path d="M168 228 Q200 214 232 228" fill="none" stroke={p.peloS} strokeWidth={8} />
+        {joven ? null : <path d={`M128 200 Q132 ${262 + barba * 40} 200 ${282 + barba * 46} Q268 ${262 + barba * 40} 272 200 Q256 238 200 240 Q144 238 128 200 Z`} fill={p.pelo} stroke={L} strokeWidth={6} opacity={0.95} />}
+        {joven ? null : <path d="M168 228 Q200 214 232 228" fill="none" stroke={p.peloS} strokeWidth={8} />}
         {/* Boca */}
         {boca > 0.05 ? (
           <ellipse cx={200} cy={250} rx={16} ry={6 + boca * 14} fill="#5a1f2a" stroke={L} strokeWidth={5} />
@@ -97,10 +98,10 @@ export const Marco: React.FC<{ variante?: VarianteMarco; ancho?: number; boca?: 
             <path d="M200 120 L340 120 Q350 132 336 140 L200 140 Z" fill={p.gorra} stroke={L} strokeWidth={7} />
             <path d="M112 128 Q98 170 104 210 M288 128 Q302 170 296 210" fill="none" stroke={p.pelo} strokeWidth={14} />
             {/* Escarcha: carámbanos y brillos */}
-            {[130, 160, 190, 220, 250].map((x, k) => (
+            {!joven && [130, 160, 190, 220, 250].map((x, k) => (
               <path key={k} d={`M${x} 128 L${x + 6} ${148 + (k % 2) * 10} L${x + 12} 128 Z`} fill={p.extra} stroke={L} strokeWidth={3} />
             ))}
-            <path d="M126 92 l6 -10 l6 10 l-6 10 Z M262 80 l5 -8 l5 8 l-5 8 Z" fill="#fff" />
+            {joven ? null : <path d="M126 92 l6 -10 l6 10 l-6 10 Z M262 80 l5 -8 l5 8 l-5 8 Z" fill="#fff" />}
           </>
         ) : variante === "despeinado" ? (
           <>

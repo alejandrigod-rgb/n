@@ -1,0 +1,22 @@
+{
+  "carpeta": "serie-ep1",
+  "ritmoVox": 0.9,
+  "mostrar": {
+    "Diez": "10",
+    "dos": "2016",
+    "mil": "",
+    "dieciséis": "",
+    "Ciento": "114",
+    "catorce": "",
+    "treinta": "30"
+  },
+  "escenas": [
+    { "id": "gancho", "texto": "Este es Marco. Diez años congelado." },
+    { "id": "como", "texto": "En dos mil dieciséis se quedó encerrado en la cámara frigorífica de su curro." },
+    { "id": "despierta", "texto": "Hoy despierta. Con hongos, la nariz helada y un móvil de hace diez años." },
+    { "id": "mensajes", "texto": "Ciento catorce mensajes. Su familia... y Laura." },
+    { "id": "flashback", "texto": "La chica que le dijo: llámame. Y él nunca llamó." },
+    { "id": "reto", "texto": "Tiene treinta días para recuperarse. Pero solo puede ver a uno primero." },
+    { "id": "voto", "texto": "¿Familia o Laura? Tú decides en comentarios." }
+  ]
+}
