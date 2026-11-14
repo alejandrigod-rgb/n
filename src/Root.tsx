@@ -16,6 +16,7 @@ import { ExpresionesMarco } from "./serie/MarcoFeo";
 import { ExpresionesGordo } from "./serie/MarcoGordo";
 import { DisenoLaura } from "./serie/Laura";
 import { DisenoPapa } from "./serie/Papa";
+import { DisenoMama } from "./serie/Mama";
 import { FotoPerfilMarco, PerfilesMarco } from "./serie/FotoPerfilMarco";
 import { DURACION_EP1, Episodio1 } from "./serie/ep1/Episodio1";
 import { DURACION_EP2, Episodio2 } from "./serie/ep2/Episodio2";
@@ -64,6 +65,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="ExpresionesGordo" component={ExpresionesGordo} durationInFrames={1} fps={30} width={2100} height={900} />
       <Composition id="DisenoLaura" component={DisenoLaura} durationInFrames={1} fps={30} width={2100} height={1000} />
       <Composition id="DisenoPapa" component={DisenoPapa} durationInFrames={1} fps={30} width={1900} height={900} />
+      <Composition id="DisenoMama" component={DisenoMama} durationInFrames={1} fps={30} width={1900} height={900} />
       <Composition id="FotoPerfilMarco" component={FotoPerfilMarco} durationInFrames={1} fps={30} width={1080} height={1080} defaultProps={{ v: 1 }} />
       <Composition id="PerfilesMarco" component={PerfilesMarco} durationInFrames={1} fps={30} width={1900} height={800} />
       <Composition id="MarcoEp1" component={Episodio1} durationInFrames={DURACION_EP1} fps={60} width={1080} height={1920} />

@@ -7,7 +7,9 @@ import React from "react";
 import { AbsoluteFill, Audio, Sequence, getInputProps, interpolate, random, staticFile, useCurrentFrame } from "remotion";
 import { IcoCorazon, IcoEdificio } from "../../marca/iconos";
 import { crearLinea, type Tiempos } from "../../marca/linea";
-import { Casa, Fondo, MarcoEn, Sello, Silueta, marca, type M } from "../kit";
+import { Fondo, MarcoEn, Sello, marca, type M } from "../kit";
+import { Bano, Calle, Casa, Cocina, Pasillo } from "../fondos";
+import { Mama } from "../Mama";
 import { Papa } from "../Papa";
 import { AMARILLO, CartaVoto, ContadorDia, FUENTE, Gordo, Ono, Subtitulo, TINTA, punch } from "../piezas";
 import tiemposJson from "./tiempos.json";
@@ -52,7 +54,7 @@ const Gancho: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   const b = marca(m, "reconoció.", 70);
   return f < b ? (
     <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
-      <Casa abierta />
+      <Casa abierta f={f} />
       <div style={{ position: "absolute", left: 415, top: 740 }}>
         <Papa ancho={250} expresion="susto" />
       </div>
@@ -68,7 +70,7 @@ const Gancho: React.FC<{ f: number; m: M }> = ({ f, m }) => {
     </AbsoluteFill>
   ) : (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
-      <Fondo a="#6b6f86" b="#1c1e2b" />
+      <Pasillo />
       <div style={{ position: "absolute", left: -10, top: 145 }}>
         <Papa ancho={1100} expresion="susto" />
       </div>
@@ -96,6 +98,9 @@ const Votasteis: React.FC<{ f: number; m: M }> = ({ f, m }) => {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
         <Fondo a="#4f86e0" b="#16306e" />
+        {Array.from({ length: 36 }, (_, i) => (
+          <div key={i} style={{ position: "absolute", left: random(`cx${i}`) * 1080, top: ((random(`cy${i}`) * 1900 + f * (4 + random(`cv${i}`) * 4)) % 2000) - 80, width: 22, height: 36, borderRadius: 4, background: ["#ffd400", "#ff7aa8", "#7dff9a", "#ffffff", "#7fb0ff"][i % 5], transform: `rotate(${f * 6 + i * 40}deg)`, opacity: 0.9 }} />
+        ))}
         <div style={{ position: "absolute", top: 300, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
           <Gordo tam={100}>VOTASTEIS</Gordo>
         </div>
@@ -106,11 +111,8 @@ const Votasteis: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   }
   return (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,#ffb36b 0%,#ffd9a0 55%,#9c8a6a 55%,#7a6a50 100%)" }} />
-      {/* casa a lo lejos */}
-      <div style={{ position: "absolute", left: 700, top: 820, width: 200, height: 150, background: "#f0d9b5", border: `7px solid ${TINTA}` }} />
-      <div style={{ position: "absolute", left: 680, top: 740, width: 240, height: 90, background: "#b8483a", border: `7px solid ${TINTA}`, clipPath: "polygon(50% 0,100% 100%,0 100%)" }} />
-      <MarcoEn cx={360 + (f - b) * 1.2} cy={880} ancho={620} expresion="confuso" f={f} />
+      <Calle avance={(f - b) * 7} f={f} tarde />
+      <MarcoEn cx={540} cy={860 - Math.abs(Math.sin((f - b) / 6)) * 14} ancho={620} expresion="confuso" f={f} />
       <div style={{ position: "absolute", left: 0, right: 0, top: 260, display: "flex", justifyContent: "center" }}>
         <Gordo tam={96} style={{ transform: "rotate(-3deg)" }}>
           <span style={{ color: AMARILLO }}>10 AÑOS</span> DESPUÉS
@@ -126,7 +128,7 @@ const Puerta: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   if (f < b) {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
-        <Casa abierta={false} />
+        <Casa abierta={false} f={f} />
         <MarcoEn cx={320} cy={1000} ancho={560} expresion="ilusion" brazoD={60} f={f} />
         <Ono texto="TOC TOC" f={f - 8} x={700} y={620} giro={8} tam={140} dura={60} />
       </AbsoluteFill>
@@ -134,8 +136,8 @@ const Puerta: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   }
   return (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
-      <Fondo a="#f0d9b5" b="#8a6a46" />
-      <div style={{ position: "absolute", left: 200, top: 250, width: 680, height: 1400, background: "#2a1e18", border: `14px solid ${TINTA}` }} />
+      <Pasillo />
+      <div style={{ position: "absolute", left: 150, top: 230, width: 780, height: 1500, border: `40px solid #e9d7b6`, outline: `10px solid ${TINTA}`, boxShadow: `inset 0 0 0 10px ${TINTA}` }} />
       <div style={{ position: "absolute", left: 220, top: 352 }}>
         <Papa ancho={640} expresion="serio" />
       </div>
@@ -154,9 +156,9 @@ const Madre: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   if (f < b) {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
-        <Fondo a="#ffc9dc" b="#b0406f" />
-        <div style={{ position: "absolute", left: 540 - 380, top: 230 }}>
-          <Silueta ancho={760} color="#4a2a44" mono ojos={f < 30 ? "susto" : "feliz"} />
+        <Pasillo />
+        <div style={{ position: "absolute", left: -10, top: 145 }}>
+          <Mama ancho={1100} expresion={f < 30 ? "susto" : "lagrimas"} frame={f} />
         </div>
         <Ono texto="¡HIJO!" f={f - 30} x={540} y={300} giro={-6} tam={170} dura={200} color="#ffffff" />
       </AbsoluteFill>
@@ -165,14 +167,17 @@ const Madre: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   const g = f - b;
   return (
     <AbsoluteFill style={{ transform: `scale(${punch(g)})` }}>
-      <Fondo a="#ffe0b5" b="#c46a3a" />
-      <MarcoEn cx={540} cy={60} ancho={1300} expresion="ilusion" f={f} olor={false} />
+      <Pasillo />
+      <MarcoEn cx={650} cy={620} ancho={760} expresion="ilusion" f={f} olor={false} />
+      <div style={{ position: "absolute", left: 20, top: 388 }}>
+        <Mama ancho={560} expresion="lagrimas" abraza frame={f} />
+      </div>
       {Array.from({ length: 8 }, (_, i) => (
         <div key={i} style={{ position: "absolute", left: 80 + random(`m${i}`) * 860, top: 900 - ((g * (2 + random(`v${i}`) * 2) + i * 60) % 700), opacity: g > 10 ? 1 : 0 }}>
           <IcoCorazon tamano={70 + random(`t${i}`) * 40} color="#ff7aa8" />
         </div>
       ))}
-      <div style={{ position: "absolute", left: 720, top: 420, transform: `rotate(10deg) scale(${interpolate(g, [6, 12, 16], [0, 1.2, 1], CL)})`, background: AMARILLO, border: `8px solid ${TINTA}`, borderRadius: 22, padding: "4px 26px 0", boxShadow: `0 8px 0 ${TINTA}` }}>
+      <div style={{ position: "absolute", left: 760, top: 900, transform: `rotate(10deg) scale(${interpolate(g, [6, 12, 16], [0, 1.2, 1], CL)})`, background: AMARILLO, border: `8px solid ${TINTA}`, borderRadius: 22, padding: "4px 26px 0", boxShadow: `0 8px 0 ${TINTA}` }}>
         <span style={{ fontFamily: FUENTE, fontWeight: 800, fontSize: 80, color: TINTA }}>2016</span>
       </div>
     </AbsoluteFill>
@@ -185,7 +190,7 @@ const Condicion: React.FC<{ f: number; m: M; dur: number }> = ({ f, m }) => {
   if (f < b) {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
-        <Fondo a="#9aa3b8" b="#2a2f40" />
+        <Cocina f={f} />
         <div style={{ position: "absolute", left: 200, top: 380 }}>
           <Papa ancho={680} expresion="enfado" apunta frame={f} />
         </div>
@@ -200,7 +205,8 @@ const Condicion: React.FC<{ f: number; m: M; dur: number }> = ({ f, m }) => {
   }
   return (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
-      <Fondo a="#f2ead8" b="#a8946a" />
+      <Cocina f={f} />
+      <div style={{ position: "absolute", left: 520, top: 260, width: 34, height: 34, borderRadius: 17, background: "#e0453b", border: `6px solid ${TINTA}`, zIndex: 2 }} />
       <div style={{ position: "absolute", left: 150, top: 300, width: 780, height: 820, background: "#fff", border: `10px solid ${TINTA}`, borderRadius: 24, boxShadow: `0 16px 0 ${TINTA}`, transform: "rotate(-2deg)", padding: "40px 50px", boxSizing: "border-box" }}>
         <Txt tam={70} color="#6b6170">
           NORMAS DE CASA
@@ -227,7 +233,8 @@ const Bascula: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   if (f < b) {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
-        <Fondo a="#9be0b0" b="#2a7a4a" />
+        <Bano />
+        <AbsoluteFill style={{ background: "rgba(20,60,40,0.45)" }} />
         <div style={{ position: "absolute", left: 0, right: 0, top: 300, display: "flex", flexDirection: "column", alignItems: "center", transform: `scale(${interpolate(f, [0, 6, 10], [0.4, 1.15, 1], CL)})` }}>
           <Gordo tam={240} color={AMARILLO}>
             DÍA 1
@@ -243,11 +250,7 @@ const Bascula: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   const temb = roto ? Math.sin(f * 3) * 10 : Math.sin(f * 1.8) * 3;
   return (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
-      <AbsoluteFill style={{ background: "linear-gradient(180deg,#cfe8ef 0%,#e9f4f6 62%,#b9c9cf 62%,#9fb0b6 100%)" }} />
-      {/* azulejos */}
-      {Array.from({ length: 9 }, (_, i) => (
-        <div key={i} style={{ position: "absolute", left: 0, right: 0, top: 120 * i, height: 4, background: "#b0cdd6" }} />
-      ))}
+      <Bano />
       <MarcoEn cx={540} cy={480} ancho={760} expresion={roto ? "susto" : "confuso"} f={f} />
       {/* la báscula */}
       <div style={{ position: "absolute", left: 230, top: 1400, width: 620, height: 150, background: "#e8ecef", border: `10px solid ${TINTA}`, borderRadius: 40, transform: `translateX(${temb}px)` }}>
