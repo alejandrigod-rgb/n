@@ -8,6 +8,7 @@ import { AbsoluteFill, Audio, Sequence, getInputProps, interpolate, random, stat
 import { IcoCorazon, IcoEdificio } from "../../marca/iconos";
 import { crearLinea, type Tiempos } from "../../marca/linea";
 import { Casa, Fondo, MarcoEn, Sello, Silueta, marca, type M } from "../kit";
+import { Papa } from "../Papa";
 import { AMARILLO, CartaVoto, ContadorDia, FUENTE, Gordo, Ono, Subtitulo, TINTA, punch } from "../piezas";
 import tiemposJson from "./tiempos.json";
 
@@ -52,8 +53,8 @@ const Gancho: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   return f < b ? (
     <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
       <Casa abierta />
-      <div style={{ position: "absolute", left: 430, top: 740 }}>
-        <Silueta ancho={220} color="#2c2c3a" ojos="susto" />
+      <div style={{ position: "absolute", left: 415, top: 740 }}>
+        <Papa ancho={250} expresion="susto" />
       </div>
       <MarcoEn cx={270} cy={1000} ancho={560} expresion="ilusion" f={f} />
       <Bocadillo f={f + 10} x={560} y={430}>
@@ -68,8 +69,8 @@ const Gancho: React.FC<{ f: number; m: M }> = ({ f, m }) => {
   ) : (
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
       <Fondo a="#6b6f86" b="#1c1e2b" />
-      <div style={{ position: "absolute", left: 540 - 450, top: 160 }}>
-        <Silueta ancho={900} color="#2c2c3a" ojos="susto" />
+      <div style={{ position: "absolute", left: -10, top: 145 }}>
+        <Papa ancho={1100} expresion="susto" />
       </div>
       <Ono texto="?" f={f - b} x={880} y={330} giro={14} tam={260} dura={80} />
       <Ono texto="?" f={f - b - 6} x={190} y={420} giro={-12} tam={180} dura={80} />
@@ -135,8 +136,8 @@ const Puerta: React.FC<{ f: number; m: M }> = ({ f, m }) => {
     <AbsoluteFill style={{ transform: `scale(${punch(f - b)})` }}>
       <Fondo a="#f0d9b5" b="#8a6a46" />
       <div style={{ position: "absolute", left: 200, top: 250, width: 680, height: 1400, background: "#2a1e18", border: `14px solid ${TINTA}` }} />
-      <div style={{ position: "absolute", left: 540 - 300, top: 420 }}>
-        <Silueta ancho={600} color="#2c2c3a" ojos="normal" />
+      <div style={{ position: "absolute", left: 220, top: 352 }}>
+        <Papa ancho={640} expresion="serio" />
       </div>
       <Bocadillo f={f - c + 4} x={540} y={250} giro={-3}>
         <Txt tam={90}>NO COMPRAMOS</Txt>
@@ -185,8 +186,8 @@ const Condicion: React.FC<{ f: number; m: M; dur: number }> = ({ f, m }) => {
     return (
       <AbsoluteFill style={{ transform: `scale(${punch(f)})` }}>
         <Fondo a="#9aa3b8" b="#2a2f40" />
-        <div style={{ position: "absolute", left: 540 - 330, top: 400 }}>
-          <Silueta ancho={660} color="#2c2c3a" ojos="enfado" brazoArriba />
+        <div style={{ position: "absolute", left: 200, top: 380 }}>
+          <Papa ancho={680} expresion="enfado" apunta frame={f} />
         </div>
         <Bocadillo f={f - 6} x={540} y={240} giro={-3}>
           <Txt tam={100}>CON UNA</Txt>
