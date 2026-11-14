@@ -1,0 +1,21 @@
+{
+  "carpeta": "serie-ep2",
+  "ritmoVox": 0.9,
+  "mostrar": {
+    "diez": "10",
+    "dos": "2016",
+    "mil": "",
+    "dieciséis.": "",
+    "treinta": "30",
+    "uno": "1"
+  },
+  "escenas": [
+    { "id": "gancho", "texto": "Su propio padre no le reconoció." },
+    { "id": "votasteis", "texto": "Votasteis familia. Así que Marco vuelve a casa, diez años después." },
+    { "id": "puerta", "texto": "Llama a la puerta. Su padre abre y le suelta: no compramos nada." },
+    { "id": "madre", "texto": "Pero su madre le reconoce al momento. Por la sudadera de dos mil dieciséis." },
+    { "id": "condicion", "texto": "Puede quedarse, con una condición: en treinta días, trabajo. O fuera." },
+    { "id": "bascula", "texto": "Día uno del glow up. Se sube a la báscula... y la báscula pide ayuda." },
+    { "id": "voto", "texto": "¿Por dónde empieza? ¿Gimnasio o buscar trabajo? Comenta." }
+  ]
+}
