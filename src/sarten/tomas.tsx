@@ -10,7 +10,9 @@ import { IcoBien, IcoHuella, IcoMal } from "../marca/iconos";
 import { Pop, Rafaga, Respira, Sfx, Subtitulos } from "../marca/kit";
 import { C, CLAMP, F, FPS } from "../marca/tema";
 import { Nyxar, POSE_BASE, type Expresion, type PoseNyxar } from "../personajes/Nyxar";
-import { Bote, CocinaNoche, Corte, Sarten, Vaso } from "./dibujos";
+import { Bote, Corte, Sarten, Vaso } from "./dibujos";
+import { DelanteAcuarela, MueblesAcuarela, ParedAcuarela } from "./acuarela/cocina";
+import { PAPEL, Papel } from "./acuarela/piel";
 import { CARPETA, IdEscena, LINEA, TIEMPOS } from "./linea";
 
 const L = "#1d1530";
@@ -52,15 +54,38 @@ export const camara = (f: number, cortes: [number, Cam][], suave = true): Cam =>
 /** Sacudida de cámara (px) con fuerza 0-1. */
 const sacudida = (f: number, fuerza: number) => ({ x: Math.sin(f * 2.7) * 18 * fuerza + Math.sin(f * 7.1) * 8 * fuerza, y: Math.cos(f * 3.3) * 14 * fuerza });
 
-const Camara: React.FC<{ cam: Cam; temblor?: number; children: React.ReactNode }> = ({ cam, temblor = 0, children }) => {
+/**
+ * Cámara con profundidad: la pared se mueve menos que la encimera, y la lámpara y la planta de delante, más.
+ * Así, al moverse, la cocina parece 3D. `cocina` pinta la pared y lo de delante (en acuarela).
+ */
+const Camara: React.FC<{ cam: Cam; temblor?: number; cocina?: boolean; children: React.ReactNode }> = ({ cam, temblor = 0, cocina = true, children }) => {
   const f = useCurrentFrame();
   const sh = sacudida(f, temblor);
   // deriva lenta: la cámara nunca está quieta
   const dx = Math.sin(f / 70) * 6,
     dy = Math.cos(f / 90) * 5;
+  const capa = (prof: number) => {
+    const x = cam.x + (cam.x - 540) * (prof - 1),
+      y = cam.y + (cam.y - 1000) * (prof - 1);
+    const s = cam.s * (1 + (prof - 1) * 0.25);
+    return `translate(${540 + sh.x * prof + dx * prof}px, ${960 + sh.y * prof + dy * prof}px) scale(${s}) translate(${-x}px, ${-y}px)`;
+  };
   return (
-    <AbsoluteFill style={{ overflow: "hidden" }}>
-      <AbsoluteFill style={{ transformOrigin: "0 0", transform: `translate(${540 + sh.x + dx}px, ${960 + sh.y + dy}px) scale(${cam.s}) translate(${-cam.x}px, ${-cam.y}px)` }}>{children}</AbsoluteFill>
+    <AbsoluteFill style={{ overflow: "hidden", background: PAPEL }}>
+      {cocina ? (
+        <AbsoluteFill style={{ transformOrigin: "0 0", transform: capa(0.86) }}>
+          <div style={{ position: "absolute", left: -200, top: -200, width: 1480, height: 2320 }}>
+            <Papel />
+          </div>
+          <ParedAcuarela />
+        </AbsoluteFill>
+      ) : null}
+      <AbsoluteFill style={{ transformOrigin: "0 0", transform: capa(1) }}>{children}</AbsoluteFill>
+      {cocina ? (
+        <AbsoluteFill style={{ transformOrigin: "0 0", transform: capa(1.3) }}>
+          <DelanteAcuarela />
+        </AbsoluteFill>
+      ) : null}
     </AbsoluteFill>
   );
 };
@@ -70,7 +95,7 @@ const Camara: React.FC<{ cam: Cam; temblor?: number; children: React.ReactNode }
 export const Pata: React.FC<{ x: number; y: number; giro?: number; desde?: "derecha" | "abajo"; largo?: number; children?: React.ReactNode }> = ({ x, y, giro = 0, desde = "derecha", largo = 900, children }) => {
   const ang = desde === "derecha" ? 0 : -90;
   return (
-    <div style={{ position: "absolute", left: x, top: y, transform: `rotate(${giro}deg)`, transformOrigin: "0 0" }}>
+    <div style={{ position: "absolute", left: x, top: y, transform: `rotate(${giro}deg)`, transformOrigin: "0 0", filter: "url(#acu-nyxar)" }}>
       <svg width={largo + 120} height={200} viewBox={`-60 -100 ${largo + 120} 200`} style={{ position: "absolute", left: -60, top: -100, overflow: "visible", transform: `rotate(${ang}deg)`, transformOrigin: "60px 100px" }}>
         <path d={`M0 -46 L${largo} -60 L${largo} 60 L0 46 Z`} fill={PIEL} stroke={L} strokeWidth={10} strokeLinejoin="round" />
         {[120, 230, 340, 450].map((k) => (
@@ -87,12 +112,18 @@ export const Pata: React.FC<{ x: number; y: number; giro?: number; desde?: "dere
 };
 
 /* ---------- el mundo: la cocina con el fogón, la sartén, el mando, el fregadero y Nyxar detrás de la encimera ---------- */
-const Fregadero: React.FC<{ chorro?: boolean; f: number }> = ({ chorro, f }) => (
+const Fregadero: React.FC<{ chorro?: boolean; f: number; grifo?: boolean }> = ({ chorro, f, grifo = true }) => (
   <svg width={300} height={300} viewBox="0 0 300 300" style={{ position: "absolute", left: 640, top: 950, overflow: "visible" }}>
-    <path d="M190 40 V10 Q190 -10 160 -10 H120" fill="none" stroke="#9aa6b8" strokeWidth={18} strokeLinecap="round" />
-    {chorro ? <rect x={110} y={-4} width={16} height={250} fill="#7fc8ff" opacity={0.8 + 0.2 * Math.sin(f)} /> : null}
-    <path d="M20 250 L280 250 L260 300 L40 300 Z" fill="#c9d3e0" stroke={L} strokeWidth={10} />
-    <rect x={40} y={244} width={220} height={16} rx={8} fill="#7f8ba0" />
+    {grifo ? (
+      <>
+        <path d="M200 250 V10 Q200 -10 170 -10 H120" fill="none" stroke="#9AA6B8" strokeWidth={18} strokeLinecap="round" />
+        <rect x={186} y={226} width={30} height={26} rx={6} fill="#7F8BA0" stroke={L} strokeWidth={5} />
+      </>
+    ) : null}
+    {chorro && grifo ? <rect x={110} y={-4} width={16} height={250} fill="#7fc8ff" opacity={0.8 + 0.2 * Math.sin(f)} /> : null}
+    {/* la pila: hundida en la encimera, con su sombra dentro */}
+    <path d="M20 252 L280 252 L268 276 L32 276 Z" fill="#8E9BAA" stroke={L} strokeWidth={8} />
+    <path d="M30 256 L270 256 L262 268 L38 268 Z" fill="#5E6B78" opacity={0.7} />
   </svg>
 );
 
@@ -121,33 +152,27 @@ export const Mundo: React.FC<EstadoMundo> = ({ llamas, tapa = 0, humo = 0, quema
   const s = f / FPS;
   return (
     <AbsoluteFill style={{ width: 1080, height: 1920 }}>
-      <CocinaNoche s={s} />
-      <AbsoluteFill style={{ background: "rgba(2,8,20,0.22)" }} />
-      {/* luz del fuego en la pared */}
-      <div style={{ position: "absolute", left: 0, top: 500, width: 900, height: 900, borderRadius: "50%", background: `radial-gradient(circle, ${C.cascabel}66 0%, transparent 65%)`, opacity: llamas * (0.7 + 0.3 * Math.sin(s * 11) * Math.sin(s * 6.3)), mixBlendMode: "screen" }} />
-      {/* Nyxar detrás de la encimera (solo en los planos generales) */}
+      {/* la luz del fuego pinta la pared de naranja */}
+      <div style={{ position: "absolute", left: -60, top: 380, width: 1000, height: 1000, borderRadius: "50%", background: `radial-gradient(circle, #FFB54788 0%, #FF7A3A33 35%, transparent 68%)`, opacity: llamas * (0.75 + 0.25 * Math.sin(s * 11) * Math.sin(s * 6.3)), mixBlendMode: "multiply" }} />
+      {/* Nyxar detrás de la encimera (solo en los planos generales), en acuarela */}
       {nyxar ? (
-        <div style={{ position: "absolute", left: 590, top: 690 }}>
+        <div style={{ position: "absolute", left: 590, top: 690, filter: "url(#acu-nyxar)" }}>
           <Nyxar ancho={430} pose={nyxar.pose} boca={LINEA.aperturaBoca(f)} frame={f} fps={FPS} expresion={nyxar.expresion} />
         </div>
       ) : null}
-      {/* encimera de delante y muebles */}
-      <svg width={1080} height={700} viewBox="0 0 1080 700" style={{ position: "absolute", left: 0, top: 1220 }}>
-        <rect x={-10} y={20} width={1100} height={64} fill="#2c4478" stroke={L} strokeWidth={10} />
-        <rect x={-10} y={84} width={1100} height={640} fill="#14244f" stroke={L} strokeWidth={10} />
-        {[0, 1, 2, 3].map((k) => (
-          <rect key={k} x={20 + k * 265} y={120} width={245} height={300} rx={10} fill="#1b2f5c" stroke={L} strokeWidth={6} />
-        ))}
-        {/* placa del fogón */}
-        <rect x={150} y={8} width={440} height={30} rx={8} fill="#1b1e2d" stroke={L} strokeWidth={8} />
-      </svg>
-      <Fregadero chorro={chorro} f={f} />
-      <Mando giro={mando} />
+      <MueblesAcuarela />
+      <div style={{ position: "absolute", inset: 0, filter: "url(#acu-objeto)" }}>
+        <Fregadero chorro={chorro} f={f} grifo={!nyxar} />
+        <Mando giro={mando} />
+      </div>
+      {/* sombra suave de la sartén en la placa */}
+      <div style={{ position: "absolute", left: 200, top: 1210, width: 420, height: 36, borderRadius: "50%", background: "#56636A", opacity: 0.35, filter: "blur(10px)" }} />
+      <div style={{ position: "absolute", left: 150, top: 1226, width: 450, height: 26, borderRadius: 8, background: "#2a2a33", filter: "url(#acu-objeto)" }} />
+      {quemador > 0 ? <div style={{ position: "absolute", left: 230, top: 1222, width: 300, height: 14, borderRadius: 8, background: C.menta, opacity: quemador * (0.5 + 0.2 * Math.sin(s * 14)), boxShadow: `0 0 30px ${C.menta}` }} /> : null}
       {/* sartén sobre el fuego */}
-      <div style={{ position: "absolute", left: 155, top: 870 }}>
+      <div style={{ position: "absolute", left: 155, top: 870, filter: "url(#acu-objeto)" }}>
         <Sarten s={s} llamas={llamas} tapa={tapa} humo={humo} ancho={520} />
       </div>
-      {quemador > 0 ? <div style={{ position: "absolute", left: 230, top: 1218, width: 300, height: 16, borderRadius: 8, background: C.menta, opacity: quemador * (0.5 + 0.2 * Math.sin(s * 14)), boxShadow: `0 0 30px ${C.menta}` }} /> : null}
     </AbsoluteFill>
   );
 };
@@ -295,8 +320,10 @@ export const Hunde: React.FC = () => {
           <Mundo f={f} llamas={1} />
         </Camara>
       ) : (
-        <AbsoluteFill style={{ background: "#3a2410" }}>
-          <div style={{ position: "absolute", left: 540, top: 1000, transform: `translate(-50%, -50%) translateY(${-bajar}px) scale(${interpolate(f, [dentro, dentro + 20], [1.8, 1.3], CLAMP)})` }}>
+        <AbsoluteFill style={{ background: PAPEL }}>
+          <Papel />
+          <AbsoluteFill style={{ background: "radial-gradient(circle at 50% 55%, #F2C27E 0%, #E9A25F88 45%, transparent 80%)", filter: "url(#acu-fondo)" }} />
+          <div style={{ position: "absolute", left: 540, top: 1000, filter: "url(#acu-objeto)", transform: `translate(-50%, -50%) translateY(${-bajar}px) scale(${interpolate(f, [dentro, dentro + 20], [1.8, 1.3], CLAMP)})` }}>
             <Corte s={f / FPS} gotas={g} vapor={0} llamas={0.5} />
             <Pop desde={m("aceite", 60)} style={{ position: "absolute", left: 300, top: 330 }}>
               <div style={{ fontFamily: F.titulo, fontWeight: 800, fontSize: 40, color: C.abismo, background: C.cascabel, padding: "6px 22px 0", borderRadius: 999 }}>ACEITE</div>
@@ -324,8 +351,10 @@ export const Hierve: React.FC = () => {
   const sh = sacudida(f, tiembla);
   return (
     <Toma id="hierve" claves={["grados", "golpe"]}>
-      <AbsoluteFill style={{ background: "#3a2410" }}>
-        <div style={{ position: "absolute", left: 540 + sh.x, top: 1000 + sh.y, transform: `translate(-50%, -50%) translateY(-160px) scale(${1.3 + v * 0.25})` }}>
+      <AbsoluteFill style={{ background: PAPEL }}>
+        <Papel />
+        <AbsoluteFill style={{ background: "radial-gradient(circle at 50% 55%, #F2C27E 0%, #E9A25F88 45%, transparent 80%)", filter: "url(#acu-fondo)" }} />
+        <div style={{ position: "absolute", left: 540 + sh.x, top: 1000 + sh.y, filter: "url(#acu-objeto)", transform: `translate(-50%, -50%) translateY(-160px) scale(${1.3 + v * 0.25})` }}>
           <Corte s={f / FPS} gotas={1} vapor={v} llamas={0.6 + v * 0.4} />
           <Pop desde={m("grados", 30)} style={{ position: "absolute", left: 230, top: -130 }}>
             <div style={{ fontFamily: F.titulo, fontWeight: 800, fontSize: 46, color: C.hueso, background: C.panuelo, padding: "8px 24px 2px", borderRadius: 999, whiteSpace: "nowrap" }}>CIENTOS DE GRADOS</div>
@@ -459,7 +488,7 @@ export const Bicarbonato: React.FC = () => {
           : null}
       </Camara>
       <Pop desde={har} giro={8} style={{ position: "absolute", left: 640, top: 540 }}>
-        <div style={{ position: "relative" }}>
+        <div style={{ position: "relative", filter: "url(#acu-objeto)" }}>
           <Bote texto="HARINA" color={C.panuelo} tamano={220} />
           <div style={{ position: "absolute", right: -40, top: -20 }}>
             <IcoMal tamano={130} />
