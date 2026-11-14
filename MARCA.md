@@ -25,6 +25,13 @@
 - **Expresiones en los videos:** cada escena elige la que encaja con lo que se cuenta. Como guía: `sorprendido` en el gancho, `pensativo` en el giro ("lo curioso es…"), `enfadado` o `triste` cuando se habla de algo malo (errores, riesgos, pérdidas), `feliz` en el remate y en la firma, y `guino` para un chiste o un truco. La expresión cambia a la vez que la pose.
 - **Sprites** en `public/marca/sprites/` (paquete: `public/marca/sprites-nyxar.zip`): PNGTuber (7 expresiones × boca cerrada/abierta × ojos abiertos/cerrados, alineados), caras, 12 poses, hoja de personaje, stickers 512×512 (PNG y WebP) y pixel art (caras, poses y 5 animaciones en tiras con JSON y GIF). Se regeneran con la composición `SpritesNyxar` (lista en `src/personajes/sprites.json`) y `scripts/sprites-nyxar.py`.
 
+## Formato "Qué hacer si…" (desde el 14 de noviembre de 2026, a petición del usuario)
+Inspirado en los videos de supervivencia que más se comparten (estudiado el de "qué hacer si un cable de luz cae cerca"): se toma la fórmula, no el personaje ni los temas.
+- **Nyxar sale de su cuarto y vive la situación donde toque:** calle, colegio, hotel, barrio, cárcel, cocina… El fondo es ese lugar, dibujado con los colores de la marca (de noche, azules, con un velo oscuro del 25–30 % para que se lea lo de delante). Ejemplo: `CocinaNoche` en `src/sarten/dibujos.tsx`.
+- **Fotos reales permitidas** cuando ayudan a creérselo (antes estaban prohibidas): en grande, con marco claro y zoom lento, y Nyxar delante en su escenario. Solo de Openverse con licencia libre (`scripts/imagenes.py`; mejor dominio público), sin personas reconocibles ni logos. Créditos de CC BY en la descripción.
+- **Estructura:** gancho en segunda persona con la situación ("Tu sartén acaba de prenderse fuego") → el error del instinto ("lo primero que harías… y es lo peor") → el porqué, dibujado (corte, esquema) → la foto real → lo que sí funciona, con pasos numerados → errores extra → pregunta que divide ("¿Tú le habrías echado agua?") y "mándaselo a…".
+- Los datos de seguridad, siempre de fuentes oficiales (bomberos, protección civil, universidades), y sin cifras que no tengan fuente.
+
 ## Color
 | Nombre | Hex | Uso |
 |---|---|---|
@@ -46,7 +53,7 @@ Proporción aproximada: 62 % noche, 20 % pelaje, 10 % hueso, 5 % menta, 2 % casc
 ## Composición (vertical 1080×1920)
 - **Subtítulos:** arriba, al 17 % de la altura, dentro de una caja oscura translúcida (`#020814` al ~72 %) con borde menta fino y esquinas de 12-16 px. Una o dos líneas, máximo 5 palabras.
 - **Palabra clave:** una por frase como mucho, con un **subrayado de rotulador menta** detrás (ligeramente torcido) que entra de izquierda a derecha.
-- **Objeto protagonista:** en el centro, formas planas con contorno de color que brilla y late, como la célula. Nada de fotos ni personas reconocibles.
+- **Objeto protagonista:** en el centro, formas planas con contorno de color que brilla y late, como la célula. Nada de personas reconocibles; fotos reales solo en el formato "Qué hacer si…" (ver arriba).
 - **Firma:** bolita morada + `@ithnoir`, arriba a la izquierda, al 55 % de opacidad.
 - **Zonas prohibidas** (las tapa TikTok): el 19 % inferior y el 15 % derecho desde la mitad hacia abajo.
 

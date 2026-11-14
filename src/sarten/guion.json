@@ -1,0 +1,15 @@
+{
+  "carpeta": "sarten",
+  "ritmoVox": 0.9,
+  "escenas": [
+    { "id": "gancho", "texto": "Tu sartén acaba de prenderse fuego." },
+    { "id": "instinto", "texto": "Lo primero que harías es echarle agua. Y es justo lo que no debes hacer." },
+    { "id": "hunde", "texto": "El agua pesa más que el aceite, así que se hunde hasta el fondo." },
+    { "id": "hierve", "texto": "Pero el aceite está a cientos de grados, y el agua hierve de golpe." },
+    { "id": "bola", "texto": "Se convierte en vapor, sale disparada y lanza el aceite ardiendo hacia arriba. Una bola de fuego." },
+    { "id": "tapa", "texto": "Lo que sí funciona: apaga el fuego y tapa la sartén con una tapa de metal." },
+    { "id": "aire", "texto": "Sin aire, la llama se ahoga. Y no la muevas, ni la lleves al fregadero." },
+    { "id": "bicarbonato", "texto": "Si el fuego es pequeño, échale bicarbonato. Nunca harina." },
+    { "id": "pregunta", "texto": "¿Tú le habrías echado agua? Mándaselo a quien cocina en casa." }
+  ]
+}

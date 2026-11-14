@@ -24,6 +24,7 @@ import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
 import { DURACION_PRECARGA, Precarga } from "./precarga/Precarga";
+import { DURACION_SARTEN, SartenArde } from "./sarten/Sarten";
 import { DURACION_MRROBOT, MrRobot } from "./mrrobot/MrRobot";
 import { DURACION_NOSTALGIA, Nostalgia } from "./nostalgia/Nostalgia";
 import { DURACION_HIPERGAMIA, Hipergamia } from "./hipergamia/Hipergamia";
@@ -45,6 +46,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="Backrooms" component={BackroomsVideo} durationInFrames={DURACION_BACKROOMS} fps={60} width={1080} height={1920} />
       <Composition id="EsperaGTA" component={EsperaGTA} durationInFrames={DURACION_ESPERA} fps={60} width={1080} height={1920} />
       <Composition id="Precarga" component={Precarga} durationInFrames={DURACION_PRECARGA} fps={60} width={1080} height={1920} />
+      <Composition id="SartenArde" component={SartenArde} durationInFrames={DURACION_SARTEN} fps={60} width={1080} height={1920} />
       <Composition id="MrRobot" component={MrRobot} durationInFrames={DURACION_MRROBOT} fps={60} width={1080} height={1920} />
       <Composition id="Nostalgia" component={Nostalgia} durationInFrames={DURACION_NOSTALGIA} fps={60} width={1080} height={1920} />
       <Composition id="Hipergamia" component={Hipergamia} durationInFrames={DURACION_HIPERGAMIA} fps={60} width={1080} height={1920} />
