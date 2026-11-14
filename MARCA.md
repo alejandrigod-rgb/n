@@ -28,6 +28,7 @@
 ## Formato "Qué hacer si…" (desde el 14 de noviembre de 2026, a petición del usuario)
 Inspirado en los videos de supervivencia que más se comparten (estudiado el de "qué hacer si un cable de luz cae cerca"): se toma la fórmula, no el personaje ni los temas.
 - **Nyxar sale de su cuarto y vive la situación donde toque:** calle, colegio, hotel, barrio, cárcel, cocina… El fondo es ese lugar, dibujado con los colores de la marca (de noche, azules, con un velo oscuro del 25–30 % para que se lea lo de delante). Ejemplo: `CocinaNoche` en `src/sarten/dibujos.tsx`.
+- **La mayoría del video es dibujo.** Las fotos reales salen solo en **pocas escenas** (1 o 2 por video, como mucho; en el de la sartén, 1 de 9), en el momento en que más ayudan a creérselo.
 - **Fotos reales permitidas** cuando ayudan a creérselo (antes estaban prohibidas): en grande, con marco claro y zoom lento, y Nyxar delante en su escenario. Solo de Openverse con licencia libre (`scripts/imagenes.py`; mejor dominio público), sin personas reconocibles ni logos. Créditos de CC BY en la descripción.
 - **Estructura:** gancho en segunda persona con la situación ("Tu sartén acaba de prenderse fuego") → el error del instinto ("lo primero que harías… y es lo peor") → el porqué, dibujado (corte, esquema) → la foto real → lo que sí funciona, con pasos numerados → errores extra → pregunta que divide ("¿Tú le habrías echado agua?") y "mándaselo a…".
 - Los datos de seguridad, siempre de fuentes oficiales (bomberos, protección civil, universidades), y sin cifras que no tengan fuente.
