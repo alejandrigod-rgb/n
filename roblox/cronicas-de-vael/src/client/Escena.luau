@@ -1,0 +1,554 @@
+--!strict
+-- La escena 2D en el cliente: cámara de lado, muñecos de recortes sobre cada jugador y cada enemigo,
+-- y la vida del mapa (pasto y flores que se mecen, nubes, molino, niebla, vecinos que pasean y hablan,
+-- monstruos que asoman junto a su guarida, mariposas y luciérnagas). Todo se mueve en RenderStepped (60 fps).
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+
+local Datos = require(ReplicatedStorage:WaitForChild("Vael"):WaitForChild("Datos")) :: any
+local Munecos = require(script.Parent:WaitForChild("Munecos"))
+
+local Escena = {}
+Escena.enBatalla = false
+
+local jugador = Players.LocalPlayer
+local camara = workspace.CurrentCamera
+local NEGRO = Color3.fromRGB(25, 20, 30)
+
+local porEntidad: { [string]: Munecos.Muneco } = {}
+local anclaDe: { [string]: BasePart } = {}
+local munecoDeModelo: { [Model]: Munecos.Muneco } = {}
+
+--- El muñeco de una entidad del combate ("j123" para jugadores, "e1"... para enemigos).
+function Escena.muneco(id: string): Munecos.Muneco?
+	local m = porEntidad[id]
+	if m and m.raiz:IsDescendantOf(game) then
+		return m
+	end
+	return nil
+end
+
+--- Dónde está (en el mundo) el centro de una entidad del combate.
+function Escena.posicion(id: string): Vector3?
+	local a = anclaDe[id]
+	if a and a:IsDescendantOf(workspace) then
+		return a.Position
+	end
+	return nil
+end
+
+local function billboard(adornee: BasePart, ancho: number, alto: number, desplazamientoY: number): BillboardGui
+	local b = Instance.new("BillboardGui")
+	b.Name = "Recorte"
+	b.Size = UDim2.fromScale(ancho, alto)
+	b.StudsOffset = Vector3.new(0, desplazamientoY, 0)
+	b.LightInfluence = 0
+	b.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	b.MaxDistance = 220
+	b.Adornee = adornee
+	b.Parent = adornee
+	return b
+end
+
+local function nombreFlotante(padre: BillboardGui, texto: string, color: Color3)
+	local t = Instance.new("TextLabel")
+	t.AnchorPoint = Vector2.new(0.5, 1)
+	t.Position = UDim2.fromScale(0.5, -0.02)
+	t.Size = UDim2.fromScale(1.6, 0.13)
+	t.BackgroundTransparency = 1
+	t.Text = texto
+	t.Font = Enum.Font.FredokaOne
+	t.TextScaled = true
+	t.TextColor3 = color
+	local s = Instance.new("UIStroke")
+	s.Thickness = 2
+	s.Color = NEGRO
+	s.Parent = t
+	t.Parent = padre
+end
+
+-- ===================== JUGADORES =====================
+type Heroe = { m: Munecos.Muneco, b: BillboardGui, raiz: BasePart, clase: string }
+local heroes: { [Player]: Heroe } = {}
+
+local function esconderAvatar(ch: Model)
+	local function esconder(d: Instance)
+		if d:IsA("BasePart") then
+			d.Transparency = 1
+		elseif d:IsA("Decal") then
+			d.Transparency = 1
+		end
+	end
+	for _, d in ch:GetDescendants() do
+		esconder(d)
+	end
+	ch.DescendantAdded:Connect(esconder)
+	local hum = ch:FindFirstChildOfClass("Humanoid")
+	if hum then
+		hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	end
+end
+
+local function montarHeroe(p: Player)
+	local ch = p.Character
+	if not ch then
+		return
+	end
+	local raiz = ch:WaitForChild("HumanoidRootPart", 10) :: BasePart?
+	if not raiz then
+		return
+	end
+	local anterior = heroes[p]
+	if anterior then
+		anterior.b:Destroy()
+	end
+	esconderAvatar(ch)
+	local clase = (p:GetAttribute("Clase") :: string?) or "guerrero"
+	local b = billboard(raiz, 4.6, 6, 0.05)
+	local m = Munecos.crear(b, "clase", clase, 3)
+	nombreFlotante(b, p.DisplayName, p == jugador and Color3.fromRGB(255, 230, 120) or Color3.new(1, 1, 1))
+	heroes[p] = { m = m, b = b, raiz = raiz, clase = clase }
+	porEntidad["j" .. p.UserId] = m
+	anclaDe["j" .. p.UserId] = raiz
+end
+
+local function seguirJugador(p: Player)
+	p.CharacterAdded:Connect(function()
+		task.wait(0.1)
+		montarHeroe(p)
+	end)
+	p:GetAttributeChangedSignal("Clase"):Connect(function()
+		montarHeroe(p)
+	end)
+	if p.Character then
+		task.spawn(montarHeroe, p)
+	end
+end
+for _, p in Players:GetPlayers() do
+	seguirJugador(p)
+end
+Players.PlayerAdded:Connect(seguirJugador)
+Players.PlayerRemoving:Connect(function(p)
+	heroes[p] = nil
+end)
+
+-- ===================== ENEMIGOS DEL COMBATE =====================
+local function montarEnemigo(modelo: Model)
+	local eid = modelo:GetAttribute("EnemigoId") :: string?
+	local id = modelo:GetAttribute("EntidadId") :: string?
+	local ancla = modelo:WaitForChild("Ancla", 5) :: BasePart?
+	if not eid or not id or not ancla then
+		return
+	end
+	local def = Datos.Enemigos[eid]
+	local t = def and def.tamano or 3
+	local lado = t * 1.3
+	local b = billboard(ancla, lado, lado, lado / 2 - t / 2)
+	local m = Munecos.crear(b, "enemigo", eid, eid == "reyHongo" and 4 or 3)
+	m.mirar = -1
+	munecoDeModelo[modelo] = m
+	modelo.Destroying:Connect(function()
+		munecoDeModelo[modelo] = nil
+	end)
+	porEntidad[id] = m
+	anclaDe[id] = ancla
+	modelo:GetAttributeChangedSignal("Caido"):Connect(function()
+		Munecos.caer(m, modelo:GetAttribute("Caido") == true)
+	end)
+	-- entrada: aparece de un salto
+	local escala = Instance.new("UIScale")
+	escala.Scale = 0
+	escala.Parent = m.raiz
+	TweenService:Create(escala, TweenInfo.new(0.45, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+end
+
+workspace.ChildAdded:Connect(function(h)
+	if h:IsA("Model") then
+		task.defer(function()
+			if h:GetAttribute("EnemigoId") then
+				montarEnemigo(h)
+			end
+		end)
+	end
+end)
+
+--- Cuando hay varios combates a la vez, todos usan los ids "e1", "e2"…: esto apunta cada id a los enemigos
+--- del combate de este jugador (los que están cerca del centro de su batalla).
+function Escena.enemigosCerca(centro: Vector3)
+	for modelo, m in munecoDeModelo do
+		local id = modelo:GetAttribute("EntidadId") :: string?
+		if id and modelo.PrimaryPart and (modelo.PrimaryPart.Position - centro).Magnitude < 40 then
+			porEntidad[id] = m
+			anclaDe[id] = modelo.PrimaryPart
+		end
+	end
+end
+
+-- ===================== VIDA DEL MAPA =====================
+type Balanceo = { m: Model, base: CFrame, x: number }
+local balanceos: { Balanceo } = {}
+local nubes: { { m: Model, v: number } } = {}
+local giran: { { m: Model, base: CFrame, v: number } } = {}
+local nieblas: { { p: BasePart, base: CFrame, v: number } } = {}
+local chorros: { { p: BasePart, base: CFrame } } = {}
+local vistos: { [Instance]: boolean } = {}
+
+--- Busca lo que se anima en el mapa. Se repite cada poco porque, con StreamingEnabled, las partes lejanas
+--- llegan al cliente (y se van) según dónde estés.
+local function escanear(mundo: Instance)
+	local pasto = mundo:FindFirstChild("Pasto")
+	if pasto then
+		for _, m in pasto:GetChildren() do
+			if m:IsA("Model") and not vistos[m] then
+				vistos[m] = true
+				local piv = m:GetPivot()
+				table.insert(balanceos, { m = m, base = piv, x = piv.Position.X })
+			end
+		end
+	end
+	for _, d in mundo:GetChildren() do
+		if not vistos[d] then
+			if d:IsA("Model") and d:GetAttribute("Nube") then
+				vistos[d] = true
+				table.insert(nubes, { m = d, v = d:GetAttribute("Nube") :: number })
+			elseif d:IsA("Model") and d:GetAttribute("Gira") then
+				vistos[d] = true
+				table.insert(giran, { m = d, base = d:GetPivot(), v = d:GetAttribute("Gira") :: number })
+			elseif d:IsA("Model") and d:GetAttribute("Chorro") then
+				vistos[d] = true
+				for _, p in d:GetChildren() do
+					if p:IsA("BasePart") then
+						table.insert(chorros, { p = p, base = p.CFrame })
+					end
+				end
+			elseif d:IsA("BasePart") and d:GetAttribute("Niebla") then
+				vistos[d] = true
+				table.insert(nieblas, { p = d, base = d.CFrame, v = d:GetAttribute("Niebla") :: number })
+			end
+		end
+	end
+	-- olvidar lo que ya no está
+	for i = #balanceos, 1, -1 do
+		if not balanceos[i].m.Parent then
+			vistos[balanceos[i].m] = nil
+			table.remove(balanceos, i)
+		end
+	end
+	for i = #nubes, 1, -1 do
+		if not nubes[i].m.Parent then
+			vistos[nubes[i].m] = nil
+			table.remove(nubes, i)
+		end
+	end
+end
+
+task.spawn(function()
+	local mundo = workspace:WaitForChild("MundoVael", 60)
+	while mundo and mundo.Parent do
+		escanear(mundo)
+		task.wait(2)
+	end
+end)
+
+-- ----- personajes del mapa (solo en este cliente) -----
+type Paseante = { m: Munecos.Muneco, ancla: Part, x: number, z: number, desde: number, hasta: number, vel: number, dir: number, espera: number, burbuja: BillboardGui?, frases: { string }?, proxFrase: number, vuela: boolean }
+local paseantes: { Paseante } = {}
+
+local carpetaVida = Instance.new("Folder")
+carpetaVida.Name = "VidaDelMapa"
+carpetaVida.Parent = workspace
+
+local function anclaLocal(x: number, y: number, z: number): Part
+	local p = Instance.new("Part")
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.Transparency = 1
+	p.Size = Vector3.new(0.2, 0.2, 0.2)
+	p.Position = Vector3.new(x, y, z)
+	p.Parent = carpetaVida
+	return p
+end
+
+local function burbuja(pa: Paseante, texto: string)
+	if pa.burbuja then
+		pa.burbuja:Destroy()
+	end
+	local b = Instance.new("BillboardGui")
+	b.Size = UDim2.fromOffset(230, 64)
+	b.StudsOffset = Vector3.new(0, 4.6, 0)
+	b.LightInfluence = 0
+	b.MaxDistance = 70
+	b.Adornee = pa.ancla
+	local f = Instance.new("Frame")
+	f.Size = UDim2.fromScale(1, 1)
+	f.BackgroundColor3 = Color3.new(1, 1, 1)
+	f.BorderSizePixel = 0
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 16)
+	c.Parent = f
+	local s = Instance.new("UIStroke")
+	s.Thickness = 3
+	s.Color = NEGRO
+	s.Parent = f
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.new(1, -16, 1, -10)
+	t.Position = UDim2.fromOffset(8, 5)
+	t.BackgroundTransparency = 1
+	t.Text = texto
+	t.Font = Enum.Font.FredokaOne
+	t.TextScaled = true
+	t.TextWrapped = true
+	t.TextColor3 = NEGRO
+	t.Parent = f
+	f.Parent = b
+	local escala = Instance.new("UIScale")
+	escala.Scale = 0
+	escala.Parent = f
+	b.Parent = pa.ancla
+	pa.burbuja = b
+	TweenService:Create(escala, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	Munecos.hablar(pa.m, 1.2)
+	task.delay(3.4, function()
+		if pa.burbuja == b then
+			TweenService:Create(escala, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0 }):Play()
+			task.wait(0.3)
+			b:Destroy()
+			if pa.burbuja == b then
+				pa.burbuja = nil
+			end
+		end
+	end)
+end
+
+local FRASES_VECINOS = {
+	"¡Buen día, aventurero!",
+	"La fuente de la plaza cura del todo.",
+	"Dicen que en la cueva vive un rey… ¡un hongo!",
+	"En el pantano hay ranas que dan lengüetazos.",
+	"El mercader vende pociones a 15 de oro.",
+	"Con amigos se pelea mejor.",
+	"¿Has visto el molino? Lo hizo mi abuelo.",
+	"Cuidado con el gólem de las ruinas.",
+	"Los lobos salen en la pradera.",
+	"¡Qué buen tiempo hace hoy!",
+}
+
+local function crearPaseante(tipo: string, id: string, x: number, z: number, desde: number, hasta: number, ancho: number, alto: number, vel: number, frases: { string }?): Paseante
+	local ancla = anclaLocal(x, alto / 2, z)
+	local b = billboard(ancla, ancho, alto, 0)
+	b.MaxDistance = 120
+	local m = Munecos.crear(b, tipo, id, 3)
+	local pa: Paseante = { m = m, ancla = ancla, x = x, z = z, desde = desde, hasta = hasta, vel = vel, dir = math.random() < 0.5 and -1 or 1, espera = math.random() * 3, burbuja = nil, frases = frases, proxFrase = os.clock() + 3 + math.random() * 12, vuela = m.vuela }
+	table.insert(paseantes, pa)
+	return pa
+end
+
+do
+	-- vecinos de la ciudad
+	for k = 1, 10 do
+		local x = -185 + k * 20 + math.random(-5, 5)
+		local z = ({ -10.4, -9.2, -3.5, 6.5 })[math.random(1, 4)]
+		local chico = math.random() < 0.25
+		crearPaseante("vecino", tostring(k * 7919), x, z, x - 18, x + 18, chico and 3.4 or 4.4, chico and 4.4 or 5.7, chico and 7 or 4.5, FRASES_VECINOS)
+	end
+	-- el mercader, quieto tras su mostrador
+	local mercader = crearPaseante("vecino", "424242", -26, -9.9, -26, -26, 4.4, 5.7, 0, { "¡Pociones frescas!", "¡Éter para tu maná!", "Pasa, pasa, mira sin compromiso." })
+	mercader.espera = math.huge
+	-- monstruos que asoman junto a cada guarida
+	local guaridas = { pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+	for _, zona in Datos.Zonas do
+		local gx = guaridas[zona.id]
+		if gx then
+			local vistos: { [string]: boolean } = {}
+			local n = 0
+			for _, grupo in zona.grupos do
+				for _, eid in grupo do
+					if not vistos[eid] and n < 3 and eid ~= "reyHongo" then
+						vistos[eid] = true
+						n += 1
+						local t = Datos.Enemigos[eid].tamano * 0.85
+						local lado = n % 2 == 0 and 1 or -1
+						local x = gx + lado * (8 + n * 3)
+						crearPaseante("enemigo", eid, x, -11.6, x - 5, x + 5, t * 1.3, t * 1.3, 3, nil)
+					end
+				end
+			end
+		end
+	end
+	-- el Rey Hongo vigila en la entrada de su cueva
+	local rey = crearPaseante("enemigo", "reyHongo", 548, -12.2, 548, 548, 9, 9, 0, { "¡¿Quién osa entrar en mi cueva?!", "¡Grrr… hongos, atacad!" })
+	rey.espera = math.huge
+	-- mariposas en la pradera y luciérnagas en el pantano y la cueva (decoración pequeña)
+end
+
+type Bicho = { f: Frame, ancla: Part, base: Vector3, fase: number, alas: { Frame }? }
+local bichos: { Bicho } = {}
+local function crearBicho(x: number, y: number, z: number, color: Color3, luciernaga: boolean)
+	local ancla = anclaLocal(x, y, z)
+	local b = Instance.new("BillboardGui")
+	b.Size = UDim2.fromScale(luciernaga and 0.5 or 1.2, luciernaga and 0.5 or 1)
+	b.LightInfluence = 0
+	b.MaxDistance = 90
+	b.Adornee = ancla
+	b.Parent = ancla
+	local f = Instance.new("Frame")
+	f.Size = UDim2.fromScale(1, 1)
+	f.BackgroundTransparency = 1
+	f.Parent = b
+	local alas: { Frame } = {}
+	if luciernaga then
+		local l = Instance.new("Frame")
+		l.Size = UDim2.fromScale(1, 1)
+		l.BackgroundColor3 = color
+		l.BorderSizePixel = 0
+		local c = Instance.new("UICorner")
+		c.CornerRadius = UDim.new(0.5, 0)
+		c.Parent = l
+		l.Parent = f
+	else
+		for k = 0, 1 do
+			local a = Instance.new("Frame")
+			a.AnchorPoint = Vector2.new(k == 0 and 1 or 0, 0.5)
+			a.Position = UDim2.fromScale(0.5, 0.5)
+			a.Size = UDim2.fromScale(0.45, 0.8)
+			a.BackgroundColor3 = color
+			a.BorderSizePixel = 0
+			local c = Instance.new("UICorner")
+			c.CornerRadius = UDim.new(0.5, 0)
+			c.Parent = a
+			local s = Instance.new("UIStroke")
+			s.Thickness = 2
+			s.Color = NEGRO
+			s.Parent = a
+			a.Parent = f
+			table.insert(alas, a)
+		end
+	end
+	table.insert(bichos, { f = f, ancla = ancla, base = Vector3.new(x, y, z), fase = math.random() * 10, alas = alas })
+end
+do
+	local colores = { Color3.fromRGB(255, 200, 80), Color3.fromRGB(250, 130, 180), Color3.fromRGB(140, 200, 255), Color3.new(1, 1, 1) }
+	for _ = 1, 14 do
+		crearBicho(math.random(-150, 165), math.random(2, 5), math.random(-10, 6), colores[math.random(1, #colores)], false)
+	end
+	for _ = 1, 22 do
+		local x = math.random() < 0.5 and math.random(165, 262) or math.random(465, 600)
+		crearBicho(x, math.random(1, 6), math.random(-11, 6), Color3.fromRGB(230, 255, 120), true)
+	end
+end
+
+-- ===================== BUCLE POR FOTOGRAMA =====================
+local camX: number? = nil
+local tiempo = 0
+
+RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, function(dt)
+	tiempo += dt
+	local ch = jugador.Character
+	local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
+
+	-- cámara de lado (en combate la controla la interfaz de combate)
+	if not Escena.enBatalla and raiz then
+		camara.CameraType = Enum.CameraType.Scriptable
+		camara.FieldOfView = 42
+		local objetivoX = raiz.Position.X
+		camX = camX and (camX + (objetivoX - camX) * (1 - math.exp(-dt * 5))) or objetivoX
+		local x = camX :: number
+		local deseada = CFrame.lookAt(Vector3.new(x, 11.5, 44), Vector3.new(x, 4.5, -2))
+		camara.CFrame = camara.CFrame:Lerp(deseada, 1 - math.exp(-dt * 10))
+	end
+	local cx = camara.CFrame.Position.X
+
+	-- muñecos de los jugadores: andar y mirar según cómo se mueven
+	for p, h in heroes do
+		if h.raiz.Parent then
+			local v = h.raiz.AssemblyLinearVelocity
+			local plano = Vector3.new(v.X, 0, v.Z).Magnitude
+			local objetivo = (plano > 1.5 and not h.raiz.Anchored) and 1 or 0
+			h.m.andar += (objetivo - h.m.andar) * math.min(1, dt * 10)
+			if h.raiz.Anchored then
+				h.m.mirar = 1
+			elseif math.abs(v.X) > 1 then
+				h.m.mirar = math.sign(v.X)
+			end
+		end
+	end
+
+	-- pasto y flores que se mecen (solo lo que se ve)
+	for _, b in balanceos do
+		if math.abs(b.x - cx) < 75 then
+			local ang = math.sin(tiempo * 2.1 + b.x * 0.35) * 0.09
+			if raiz and math.abs(raiz.Position.X - b.x) < 2.2 and math.abs(raiz.Position.Z - b.base.Position.Z) < 2.5 then
+				ang += (raiz.Position.X < b.x and -0.35 or 0.35)
+			end
+			b.m:PivotTo(b.base * CFrame.Angles(0, 0, ang))
+		end
+	end
+	for _, n in nubes do
+		local piv = n.m:GetPivot()
+		local nx = piv.Position.X + n.v * dt * 2
+		if nx > 820 then
+			nx = -320
+		end
+		n.m:PivotTo(CFrame.new(nx, piv.Position.Y, piv.Position.Z))
+	end
+	for _, g in giran do
+		g.m:PivotTo(g.base * CFrame.Angles(0, 0, -tiempo * g.v))
+	end
+	for _, n in nieblas do
+		n.p.CFrame = n.base + Vector3.new(math.sin(tiempo * 0.3 * n.v) * 6, 0, 0)
+	end
+	for k, c in chorros do
+		c.p.CFrame = c.base + Vector3.new(0, math.sin(tiempo * 6 + k) * 0.35, 0)
+	end
+
+	-- paseantes
+	local ahora = os.clock()
+	for _, pa in paseantes do
+		if pa.espera > 0 then
+			pa.espera -= dt
+			pa.m.andar += (0 - pa.m.andar) * math.min(1, dt * 8)
+		else
+			pa.x += pa.dir * pa.vel * dt
+			if pa.x > pa.hasta or pa.x < pa.desde then
+				pa.x = math.clamp(pa.x, pa.desde, pa.hasta)
+				pa.dir = -pa.dir
+				pa.espera = 1 + math.random() * 3
+			end
+			pa.m.andar += (1 - pa.m.andar) * math.min(1, dt * 8)
+		end
+		pa.m.mirar = pa.dir
+		if pa.m.aspecto == 1 then
+			Munecos.espejo(pa.m, pa.dir > 0) -- los monstruos están dibujados mirando a la izquierda
+		end
+		pa.ancla.Position = Vector3.new(pa.x, pa.ancla.Position.Y, pa.z)
+		-- durante un combate se apartan de escena los que están cerca (que no haya dos Reyes Hongo)
+		local bb = pa.m.raiz.Parent
+		if bb and bb:IsA("BillboardGui") then
+			bb.Enabled = not (Escena.enBatalla and math.abs(pa.x - cx) < 40)
+		end
+		if pa.frases and ahora > pa.proxFrase and math.abs(pa.x - cx) < 45 then
+			pa.proxFrase = ahora + 9 + math.random() * 14
+			burbuja(pa, pa.frases[math.random(1, #pa.frases)])
+		end
+	end
+
+	-- bichos
+	for _, b in bichos do
+		if math.abs(b.base.X - cx) < 80 then
+			local t = tiempo + b.fase
+			b.ancla.Position = b.base + Vector3.new(math.sin(t * 0.7) * 4, math.sin(t * 1.9) * 0.8, math.cos(t * 0.5) * 1.5)
+			if b.alas then
+				for _, a in b.alas do
+					a.Size = UDim2.fromScale(0.45, 0.2 + math.abs(math.sin(t * 14)) * 0.6)
+				end
+			end
+		end
+	end
+end)
+
+return Escena

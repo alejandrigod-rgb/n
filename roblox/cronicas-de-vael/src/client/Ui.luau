@@ -1,28 +1,33 @@
 --!strict
--- Piezas de interfaz de Crónicas de Vael. TODO lo que se mueve usa TweenService (interpolado por el motor en cada
--- fotograma, a los 60 fps del cliente), nunca bucles con task.wait: así los menús van fluidos.
+-- Piezas de interfaz de Crónicas de Vael, en estilo dibujo animado: contorno negro grueso, colores planos con
+-- un degradado suave, esquinas con adornos dorados e iconos dibujados con Frames (sin imágenes).
+-- TODO lo que se mueve usa TweenService (interpolado por el motor en cada fotograma, a 60 fps).
 
 local TweenService = game:GetService("TweenService")
 
 local Ui = {}
 
 Ui.Colores = {
-	fondo = Color3.fromRGB(22, 20, 34),
-	panel = Color3.fromRGB(34, 31, 52),
-	borde = Color3.fromRGB(232, 190, 92),
-	texto = Color3.fromRGB(245, 240, 228),
-	suave = Color3.fromRGB(170, 162, 190),
-	vida = Color3.fromRGB(226, 72, 84),
-	mana = Color3.fromRGB(70, 140, 236),
-	xp = Color3.fromRGB(150, 220, 100),
+	fondo = Color3.fromRGB(28, 22, 44),
+	panel = Color3.fromRGB(58, 44, 96),
+	borde = Color3.fromRGB(255, 205, 90),
+	texto = Color3.fromRGB(255, 250, 235),
+	suave = Color3.fromRGB(205, 195, 230),
+	vida = Color3.fromRGB(240, 72, 84),
+	mana = Color3.fromRGB(70, 150, 250),
+	xp = Color3.fromRGB(150, 225, 90),
 	oro = Color3.fromRGB(255, 205, 80),
-	peligro = Color3.fromRGB(230, 70, 70),
+	peligro = Color3.fromRGB(240, 70, 70),
+	tinta = Color3.fromRGB(25, 20, 30),
 }
 
 Ui.Fuente = Enum.Font.FredokaOne
-Ui.FuenteTexto = Enum.Font.GothamBold
+Ui.FuenteTexto = Enum.Font.FredokaOne
 
---- Tween de una instancia (por defecto 0,35 s con curva suave de entrada y salida).
+-- claves propias que no son propiedades de Roblox
+local PROPIAS = { Contorno = true, BorderColor = true, Icono = true, ColorIcono = true }
+
+--- Tween de una instancia (por defecto 0,35 s con curva suave).
 function Ui.tween(obj: Instance, props: { [string]: any }, tiempo: number?, estilo: Enum.EasingStyle?, dir: Enum.EasingDirection?): Tween
 	local t = TweenService:Create(obj, TweenInfo.new(tiempo or 0.35, estilo or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out), props)
 	t:Play()
@@ -33,7 +38,7 @@ end
 function Ui.crear(clase: string, props: { [string]: any }, hijos: { Instance }?): any
 	local o = Instance.new(clase)
 	for k, v in props do
-		if k ~= "Parent" then
+		if k ~= "Parent" and not PROPIAS[k] then
 			(o :: any)[k] = v
 		end
 	end
@@ -53,17 +58,29 @@ function Ui.esquinas(o: GuiObject, radio: number?)
 end
 
 function Ui.borde(o: GuiObject, color: Color3?, grosor: number?)
-	Ui.crear("UIStroke", { Color = color or Ui.Colores.borde, Thickness = grosor or 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = o })
+	Ui.crear("UIStroke", { Color = color or Ui.Colores.tinta, Thickness = grosor or 3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = o })
 end
 
---- Panel oscuro con borde dorado y esquinas redondeadas.
+local function degradado(o: GuiObject, oscuro: number?)
+	Ui.crear("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.new(1, 1, 1):Lerp(Color3.new(0, 0, 0), oscuro or 0.25)), Parent = o })
+end
+
+--- Panel de cuento: relleno con degradado, contorno negro grueso, filete dorado por dentro y rombos en las esquinas.
 function Ui.panel(props: { [string]: any }): Frame
 	local f = Ui.crear("Frame", props)
 	f.BackgroundColor3 = props.BackgroundColor3 or Ui.Colores.panel
 	f.BorderSizePixel = 0
-	Ui.esquinas(f, 16)
-	Ui.borde(f)
-	Ui.crear("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(190, 185, 210)), Parent = f })
+	Ui.esquinas(f, 18)
+	Ui.borde(f, Ui.Colores.tinta, 4)
+	degradado(f, 0.3)
+	local z = f.ZIndex
+	local filete = Ui.crear("Frame", { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.fromOffset(6, 6), BackgroundTransparency = 1, ZIndex = z, Parent = f })
+	Ui.esquinas(filete, 13)
+	Ui.borde(filete, Ui.Colores.borde, 2)
+	for _, p in { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } } do
+		local r = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(p[1], p[1] == 0 and 6 or -6, p[2], p[2] == 0 and 6 or -6), Size = UDim2.fromOffset(12, 12), Rotation = 45, BackgroundColor3 = Ui.Colores.borde, BorderSizePixel = 0, ZIndex = z, Parent = f })
+		Ui.borde(r, Ui.Colores.tinta, 2)
+	end
 	return f
 end
 
@@ -75,10 +92,71 @@ function Ui.texto(props: { [string]: any }): TextLabel
 	if props.TextScaled == nil then
 		t.TextScaled = true
 	end
+	if props.Contorno ~= false then
+		Ui.crear("UIStroke", { Thickness = 2, Color = Ui.Colores.tinta, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual, Parent = t })
+	end
 	return t
 end
 
---- Botón con animación: crece al pasar el ratón, se hunde al pulsar.
+-- ===================== ICONOS DIBUJADOS =====================
+local function pz(padre: Instance, x: number, y: number, w: number, h: number, color: Color3, radio: number?, rot: number?, z: number?, borde: boolean?): Frame
+	local f = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(x, y), Size = UDim2.fromScale(w, h), Rotation = rot or 0, BackgroundColor3 = color, BorderSizePixel = 0, ZIndex = z or 1, Parent = padre })
+	if radio then
+		Ui.crear("UICorner", { CornerRadius = UDim.new(radio, 0), Parent = f })
+	end
+	if borde ~= false then
+		Ui.crear("UIStroke", { Thickness = 2, Color = Ui.Colores.tinta, Parent = f })
+	end
+	return f
+end
+
+--- Icono dibujado: espada, magia, pocion, escudo, huir, corazon, gota, moneda, estrella, volver, eter.
+function Ui.icono(tipo: string, padre: Instance, pos: UDim2, tam: UDim2, z: number?): Frame
+	local c = Ui.crear("Frame", { Position = pos, Size = tam, BackgroundTransparency = 1, ZIndex = z or 1, Parent = padre })
+	Ui.crear("UIAspectRatioConstraint", { AspectRatio = 1, Parent = c })
+	local zi = (z or 1)
+	if tipo == "espada" then
+		pz(c, 0.55, 0.42, 0.16, 0.62, Color3.fromRGB(225, 232, 245), 0.3, 45, zi)
+		pz(c, 0.3, 0.68, 0.38, 0.1, Color3.fromRGB(250, 200, 70), 0.3, 45, zi + 1)
+		pz(c, 0.2, 0.8, 0.1, 0.2, Color3.fromRGB(130, 85, 50), 0.3, 45, zi)
+	elseif tipo == "magia" or tipo == "estrella" then
+		local col = tipo == "magia" and Color3.fromRGB(190, 140, 255) or Color3.fromRGB(255, 215, 80)
+		pz(c, 0.5, 0.5, 0.56, 0.56, col, 0.15, 45, zi)
+		pz(c, 0.5, 0.5, 0.56, 0.56, col, 0.15, 0, zi)
+		pz(c, 0.42, 0.42, 0.14, 0.14, Color3.new(1, 1, 1), 0.5, 0, zi + 1, false)
+	elseif tipo == "pocion" or tipo == "eter" then
+		local col = tipo == "pocion" and Color3.fromRGB(240, 70, 90) or Color3.fromRGB(80, 160, 255)
+		pz(c, 0.5, 0.62, 0.62, 0.56, col, 0.5, 0, zi)
+		pz(c, 0.5, 0.26, 0.24, 0.22, Color3.fromRGB(200, 230, 245), 0.2, 0, zi)
+		pz(c, 0.5, 0.13, 0.3, 0.1, Color3.fromRGB(150, 100, 60), 0.3, 0, zi + 1)
+		pz(c, 0.38, 0.55, 0.12, 0.16, Color3.new(1, 1, 1), 0.5, 0, zi + 1, false).BackgroundTransparency = 0.3
+	elseif tipo == "escudo" then
+		pz(c, 0.5, 0.45, 0.66, 0.6, Color3.fromRGB(90, 150, 230), 0.25, 0, zi)
+		pz(c, 0.5, 0.7, 0.36, 0.36, Color3.fromRGB(90, 150, 230), 0.15, 45, zi)
+		pz(c, 0.5, 0.5, 0.1, 0.5, Color3.fromRGB(255, 210, 80), 0, 0, zi + 1, false)
+	elseif tipo == "huir" or tipo == "volver" then
+		local col = tipo == "huir" and Color3.fromRGB(200, 200, 215) or Color3.fromRGB(255, 205, 90)
+		local dir = tipo == "huir" and 1 or -1
+		pz(c, 0.45 - dir * 0.05, 0.5, 0.56, 0.2, col, 0.3, 0, zi)
+		pz(c, 0.5 + dir * 0.18, 0.5, 0.36, 0.36, col, 0.15, 45, zi)
+	elseif tipo == "corazon" then
+		pz(c, 0.5, 0.58, 0.5, 0.5, Color3.fromRGB(240, 72, 84), 0.1, 45, zi)
+		pz(c, 0.33, 0.38, 0.4, 0.4, Color3.fromRGB(240, 72, 84), 0.5, 0, zi)
+		pz(c, 0.67, 0.38, 0.4, 0.4, Color3.fromRGB(240, 72, 84), 0.5, 0, zi)
+		pz(c, 0.32, 0.36, 0.12, 0.12, Color3.new(1, 1, 1), 0.5, 0, zi + 1, false)
+	elseif tipo == "gota" then
+		pz(c, 0.5, 0.42, 0.4, 0.4, Color3.fromRGB(70, 150, 250), 0.15, 45, zi)
+		pz(c, 0.5, 0.6, 0.56, 0.56, Color3.fromRGB(70, 150, 250), 0.5, 0, zi)
+		pz(c, 0.4, 0.58, 0.12, 0.16, Color3.new(1, 1, 1), 0.5, 0, zi + 1, false)
+	elseif tipo == "moneda" then
+		pz(c, 0.5, 0.5, 0.78, 0.78, Color3.fromRGB(255, 205, 80), 0.5, 0, zi)
+		pz(c, 0.5, 0.5, 0.48, 0.48, Color3.fromRGB(240, 170, 50), 0.5, 0, zi + 1)
+		pz(c, 0.5, 0.5, 0.1, 0.3, Color3.fromRGB(255, 230, 140), 0.3, 0, zi + 2, false)
+	end
+	return c
+end
+
+--- Botón de dibujo: crece y se ladea al pasar el ratón, se hunde al pulsar. props.Icono pone un icono a la izquierda.
 function Ui.boton(props: { [string]: any }, alPulsar: () -> ()): TextButton
 	local b = Ui.crear("TextButton", props)
 	b.AutoButtonColor = false
@@ -87,21 +165,32 @@ function Ui.boton(props: { [string]: any }, alPulsar: () -> ()): TextButton
 	b.TextScaled = true
 	b.BorderSizePixel = 0
 	b.BackgroundColor3 = props.BackgroundColor3 or Ui.Colores.panel
-	Ui.esquinas(b, 12)
-	Ui.borde(b, props.BorderColor or Ui.Colores.borde, 2)
-	Ui.crear("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6), Parent = b })
+	Ui.esquinas(b, 14)
+	Ui.borde(b, props.BorderColor or Ui.Colores.tinta, 3)
+	degradado(b, 0.35)
+	local izq = props.Icono and 44 or 10
+	Ui.crear("UIPadding", { PaddingLeft = UDim.new(0, izq), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 7), PaddingBottom = UDim.new(0, 7), Parent = b })
+	-- contorno del texto con el trazo clásico (el UIStroke ya se usa para el borde del botón)
+	b.TextStrokeColor3 = Ui.Colores.tinta
+	b.TextStrokeTransparency = 0
+	if props.Icono then
+		local ic = Ui.icono(props.Icono, b, UDim2.new(0, -38, 0.5, 0), UDim2.new(0, 32, 0, 32), b.ZIndex + 1)
+		ic.AnchorPoint = Vector2.new(0, 0.5)
+	end
 	local escala = Ui.crear("UIScale", { Scale = 1, Parent = b })
 	b.MouseEnter:Connect(function()
-		Ui.tween(escala, { Scale = 1.06 }, 0.15)
+		Ui.tween(escala, { Scale = 1.07 }, 0.18, Enum.EasingStyle.Back)
+		Ui.tween(b, { Rotation = math.random() < 0.5 and -2 or 2 }, 0.18, Enum.EasingStyle.Back)
 	end)
 	b.MouseLeave:Connect(function()
 		Ui.tween(escala, { Scale = 1 }, 0.2)
+		Ui.tween(b, { Rotation = 0 }, 0.2)
 	end)
 	b.MouseButton1Down:Connect(function()
-		Ui.tween(escala, { Scale = 0.94 }, 0.08)
+		Ui.tween(escala, { Scale = 0.92 }, 0.08)
 	end)
 	b.MouseButton1Up:Connect(function()
-		Ui.tween(escala, { Scale = 1.06 }, 0.15, Enum.EasingStyle.Back)
+		Ui.tween(escala, { Scale = 1.07 }, 0.2, Enum.EasingStyle.Back)
 	end)
 	b.Activated:Connect(alPulsar)
 	return b
@@ -110,17 +199,20 @@ end
 --- Barra con relleno que se desliza suave (y una "estela" que baja más despacio, como en los RPG).
 export type Barra = { marco: Frame, set: (actual: number, maximo: number, instantaneo: boolean?) -> () }
 function Ui.barra(padre: Instance, pos: UDim2, tam: UDim2, color: Color3, conTexto: boolean?): Barra
-	local marco = Ui.crear("Frame", { Position = pos, Size = tam, BackgroundColor3 = Color3.fromRGB(16, 14, 24), BorderSizePixel = 0, Parent = padre, ClipsDescendants = true })
+	local marco = Ui.crear("Frame", { Position = pos, Size = tam, BackgroundColor3 = Color3.fromRGB(20, 16, 30), BorderSizePixel = 0, Parent = padre, ClipsDescendants = true })
 	Ui.esquinas(marco, 999)
-	local estela = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.35, BorderSizePixel = 0, Parent = marco })
+	Ui.borde(marco, Ui.Colores.tinta, 2.5)
+	local estela = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.25, BorderSizePixel = 0, Parent = marco })
 	Ui.esquinas(estela, 999)
 	local relleno = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = color, BorderSizePixel = 0, Parent = marco })
 	Ui.esquinas(relleno, 999)
-	Ui.crear("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.fromRGB(170, 170, 170)), Parent = relleno })
+	degradado(relleno, 0.3)
+	-- brillo de dibujo arriba
+	local brillo = Ui.crear("Frame", { Position = UDim2.new(0, 6, 0.18, 0), Size = UDim2.new(1, -12, 0.22, 0), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.55, BorderSizePixel = 0, Parent = relleno })
+	Ui.esquinas(brillo, 999)
 	local etiqueta: TextLabel? = nil
 	if conTexto then
-		etiqueta = Ui.texto({ Size = UDim2.fromScale(1, 1), Text = "", TextColor3 = Color3.new(1, 1, 1), Font = Ui.FuenteTexto, Parent = marco, ZIndex = 3 })
-		Ui.crear("UIStroke", { Thickness = 1.2, Color = Color3.new(0, 0, 0), Parent = etiqueta })
+		etiqueta = Ui.texto({ Size = UDim2.fromScale(1, 1), Text = "", TextColor3 = Color3.new(1, 1, 1), Parent = marco, ZIndex = 3 })
 	end
 	local function set(actual: number, maximo: number, instantaneo: boolean?)
 		local k = maximo > 0 and math.clamp(actual / maximo, 0, 1) or 0
@@ -138,7 +230,7 @@ function Ui.barra(padre: Instance, pos: UDim2, tam: UDim2, color: Color3, conTex
 	return { marco = marco, set = set }
 end
 
---- Hace aparecer un elemento con un pequeño rebote (escala 0,6 → 1 y transparencia).
+--- Hace aparecer un elemento con un pequeño rebote (escala 0,6 → 1).
 function Ui.aparecer(o: GuiObject, retraso: number?)
 	local escala = o:FindFirstChildOfClass("UIScale") or Ui.crear("UIScale", { Parent = o })
 	escala.Scale = 0.6

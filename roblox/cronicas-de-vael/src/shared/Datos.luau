@@ -43,6 +43,10 @@ Datos.Habilidades = {
 	esporas = { id = "esporas", nombre = "Nube de esporas", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigos", base = "mag", poder = 0.7, nivelMinimo = 1, efecto = "veneno" },
 	hechizoOscuro = { id = "hechizoOscuro", nombre = "Hechizo oscuro", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigo", base = "mag", poder = 1.6, nivelMinimo = 1 },
 	golpeRey = { id = "golpeRey", nombre = "Puñetazo real", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigo", base = "atk", poder = 2.0, nivelMinimo = 1 },
+	picadura = { id = "picadura", nombre = "Picadura", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigo", base = "atk", poder = 0.9, nivelMinimo = 1, efecto = "veneno" },
+	lengua = { id = "lengua", nombre = "Lengüetazo", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigo", base = "atk", poder = 1.4, nivelMinimo = 1 },
+	raices = { id = "raices", nombre = "Raíces", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigos", base = "atk", poder = 0.8, nivelMinimo = 1 },
+	terremoto = { id = "terremoto", nombre = "Terremoto", descripcion = "", coste = 0, tipo = "dano", objetivo = "enemigos", base = "atk", poder = 0.9, nivelMinimo = 1 },
 } :: { [string]: Habilidad }
 
 -- ============ CLASES ============
@@ -76,12 +80,25 @@ Datos.OrdenClases = { "guerrero", "maga", "arquero", "sanador" }
 export type Enemigo = { id: string, nombre: string, color: Color3, tamano: number, forma: string, stats: Stats, xp: number, oro: number, habilidades: { string }, probHabilidad: number }
 
 Datos.Enemigos = {
-	babosa = { id = "babosa", nombre = "Babosa de musgo", color = Color3.fromRGB(120, 190, 80), tamano = 3, forma = "gota", stats = { hp = 38, mp = 0, atk = 8, def = 3, mag = 2, spd = 5 }, xp = 8, oro = 4, habilidades = {}, probHabilidad = 0 },
-	lobo = { id = "lobo", nombre = "Lobo sombrío", color = Color3.fromRGB(70, 70, 95), tamano = 4, forma = "bestia", stats = { hp = 55, mp = 0, atk = 13, def = 4, mag = 2, spd = 13 }, xp = 14, oro = 7, habilidades = { "mordisco" }, probHabilidad = 0.35 },
-	duende = { id = "duende", nombre = "Duende lancero", color = Color3.fromRGB(150, 170, 60), tamano = 3.5, forma = "humanoide", stats = { hp = 60, mp = 0, atk = 14, def = 7, mag = 4, spd = 10 }, xp = 18, oro = 10, habilidades = {}, probHabilidad = 0 },
-	esqueleto = { id = "esqueleto", nombre = "Esqueleto errante", color = Color3.fromRGB(225, 220, 200), tamano = 4.5, forma = "humanoide", stats = { hp = 85, mp = 0, atk = 17, def = 10, mag = 6, spd = 8 }, xp = 28, oro = 15, habilidades = {}, probHabilidad = 0 },
-	murcielago = { id = "murcielago", nombre = "Murciélago de cripta", color = Color3.fromRGB(110, 60, 130), tamano = 3, forma = "volador", stats = { hp = 45, mp = 0, atk = 12, def = 4, mag = 12, spd = 16 }, xp = 20, oro = 9, habilidades = { "hechizoOscuro" }, probHabilidad = 0.3 },
-	reyHongo = { id = "reyHongo", nombre = "Rey Hongo", color = Color3.fromRGB(200, 70, 60), tamano = 9, forma = "jefe", stats = { hp = 420, mp = 0, atk = 22, def = 12, mag = 18, spd = 7 }, xp = 160, oro = 120, habilidades = { "esporas", "golpeRey" }, probHabilidad = 0.45 },
+	-- pradera
+	babosa = { id = "babosa", nombre = "Babosa de musgo", color = Color3.fromRGB(120, 190, 80), tamano = 3.2, forma = "babosa", stats = { hp = 38, mp = 0, atk = 8, def = 3, mag = 2, spd = 5 }, xp = 8, oro = 4, habilidades = {}, probHabilidad = 0 },
+	hongo = { id = "hongo", nombre = "Hongo saltarín", color = Color3.fromRGB(230, 130, 60), tamano = 3, forma = "hongo", stats = { hp = 32, mp = 0, atk = 7, def = 3, mag = 4, spd = 7 }, xp = 7, oro = 4, habilidades = {}, probHabilidad = 0 },
+	abeja = { id = "abeja", nombre = "Abeja zumbona", color = Color3.fromRGB(250, 200, 50), tamano = 2.8, forma = "abeja", stats = { hp = 26, mp = 0, atk = 9, def = 2, mag = 2, spd = 15 }, xp = 7, oro = 3, habilidades = { "picadura" }, probHabilidad = 0.3 },
+	lobo = { id = "lobo", nombre = "Lobo sombrío", color = Color3.fromRGB(85, 85, 115), tamano = 4.2, forma = "lobo", stats = { hp = 55, mp = 0, atk = 13, def = 4, mag = 2, spd = 13 }, xp = 14, oro = 7, habilidades = { "mordisco" }, probHabilidad = 0.35 },
+	-- pantano
+	rana = { id = "rana", nombre = "Sapo del pantano", color = Color3.fromRGB(90, 170, 110), tamano = 3.6, forma = "rana", stats = { hp = 50, mp = 0, atk = 11, def = 5, mag = 5, spd = 9 }, xp = 12, oro = 6, habilidades = { "lengua" }, probHabilidad = 0.3 },
+	planta = { id = "planta", nombre = "Planta carnívora", color = Color3.fromRGB(200, 60, 80), tamano = 4.4, forma = "planta", stats = { hp = 62, mp = 0, atk = 12, def = 6, mag = 8, spd = 4 }, xp = 14, oro = 7, habilidades = { "mordisco" }, probHabilidad = 0.35 },
+	fantasma = { id = "fantasma", nombre = "Fantasma de niebla", color = Color3.fromRGB(225, 235, 250), tamano = 3.8, forma = "fantasma", stats = { hp = 48, mp = 0, atk = 6, def = 3, mag = 15, spd = 12 }, xp = 18, oro = 9, habilidades = { "hechizoOscuro" }, probHabilidad = 0.4 },
+	-- bosque
+	duende = { id = "duende", nombre = "Duende lancero", color = Color3.fromRGB(150, 180, 70), tamano = 3.8, forma = "duende", stats = { hp = 60, mp = 0, atk = 14, def = 7, mag = 4, spd = 10 }, xp = 18, oro = 10, habilidades = {}, probHabilidad = 0 },
+	arana = { id = "arana", nombre = "Araña tejedora", color = Color3.fromRGB(60, 50, 70), tamano = 3.8, forma = "arana", stats = { hp = 58, mp = 0, atk = 14, def = 6, mag = 4, spd = 12 }, xp = 18, oro = 9, habilidades = { "picadura" }, probHabilidad = 0.35 },
+	tronco = { id = "tronco", nombre = "Tronco furioso", color = Color3.fromRGB(130, 90, 55), tamano = 6, forma = "tronco", stats = { hp = 120, mp = 0, atk = 16, def = 12, mag = 2, spd = 3 }, xp = 30, oro = 14, habilidades = { "raices" }, probHabilidad = 0.3 },
+	-- ruinas
+	esqueleto = { id = "esqueleto", nombre = "Esqueleto errante", color = Color3.fromRGB(235, 230, 210), tamano = 4.6, forma = "esqueleto", stats = { hp = 85, mp = 0, atk = 17, def = 10, mag = 6, spd = 8 }, xp = 28, oro = 15, habilidades = {}, probHabilidad = 0 },
+	murcielago = { id = "murcielago", nombre = "Murciélago de cripta", color = Color3.fromRGB(120, 70, 150), tamano = 3.2, forma = "murcielago", stats = { hp = 45, mp = 0, atk = 12, def = 4, mag = 12, spd = 16 }, xp = 20, oro = 9, habilidades = { "hechizoOscuro" }, probHabilidad = 0.3 },
+	golem = { id = "golem", nombre = "Gólem de piedra", color = Color3.fromRGB(140, 140, 150), tamano = 6.5, forma = "golem", stats = { hp = 150, mp = 0, atk = 20, def = 16, mag = 2, spd = 4 }, xp = 40, oro = 20, habilidades = { "terremoto" }, probHabilidad = 0.3 },
+	-- jefe
+	reyHongo = { id = "reyHongo", nombre = "Rey Hongo", color = Color3.fromRGB(210, 60, 55), tamano = 9, forma = "reyHongo", stats = { hp = 420, mp = 0, atk = 22, def = 12, mag = 18, spd = 7 }, xp = 160, oro = 120, habilidades = { "esporas", "golpeRey" }, probHabilidad = 0.45 },
 } :: { [string]: Enemigo }
 
 -- ============ OBJETOS ============
@@ -94,10 +111,11 @@ Datos.OrdenObjetos = { "pocion", "eter" }
 -- ============ ZONAS DEL MAPA ============
 -- Cada zona dispara un combate al pisarla. `grupos`: posibles grupos de enemigos (se elige uno al azar).
 Datos.Zonas = {
-	{ id = "pradera", nombre = "Pradera de Vael", nivel = 1, color = Color3.fromRGB(140, 210, 110), grupos = { { "babosa", "babosa" }, { "babosa", "lobo" }, { "lobo" } } },
-	{ id = "bosque", nombre = "Bosque Susurrante", nivel = 3, color = Color3.fromRGB(70, 140, 80), grupos = { { "duende", "lobo" }, { "duende", "duende" }, { "lobo", "lobo", "babosa" } } },
-	{ id = "ruinas", nombre = "Ruinas de Ceniza", nivel = 5, color = Color3.fromRGB(150, 140, 130), grupos = { { "esqueleto", "murcielago" }, { "esqueleto", "esqueleto" }, { "murcielago", "murcielago", "duende" } } },
-	{ id = "cueva", nombre = "Cueva del Rey Hongo", nivel = 7, color = Color3.fromRGB(200, 70, 60), grupos = { { "reyHongo", "babosa", "babosa" } } },
+	{ id = "pradera", nombre = "Pradera de Vael", nivel = 1, color = Color3.fromRGB(140, 210, 110), grupos = { { "babosa", "babosa" }, { "hongo", "abeja" }, { "abeja", "abeja", "babosa" }, { "lobo" }, { "hongo", "hongo", "babosa" } } },
+	{ id = "pantano", nombre = "Pantano Brumoso", nivel = 2, color = Color3.fromRGB(110, 160, 140), grupos = { { "rana", "babosa" }, { "planta", "rana" }, { "fantasma", "rana" }, { "planta", "planta" } } },
+	{ id = "bosque", nombre = "Bosque Susurrante", nivel = 3, color = Color3.fromRGB(70, 140, 80), grupos = { { "duende", "lobo" }, { "arana", "duende" }, { "tronco" }, { "lobo", "lobo", "arana" }, { "duende", "duende" } } },
+	{ id = "ruinas", nombre = "Ruinas de Ceniza", nivel = 5, color = Color3.fromRGB(170, 150, 130), grupos = { { "esqueleto", "murcielago" }, { "golem" }, { "fantasma", "esqueleto" }, { "esqueleto", "esqueleto", "murcielago" } } },
+	{ id = "cueva", nombre = "Cueva del Rey Hongo", nivel = 7, color = Color3.fromRGB(210, 70, 60), grupos = { { "reyHongo", "hongo", "hongo" } } },
 }
 
 -- ============ FÓRMULAS ============

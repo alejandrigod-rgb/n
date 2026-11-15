@@ -33,6 +33,8 @@ local function enviarEstado(j: Player)
 		return
 	end
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
+	-- los clientes dibujan el muñeco 2D de cada jugador según su clase
+	j:SetAttribute("Clase", perfil.clase)
 	remoto("EstadoJugador"):FireClient(j, {
 		clase = perfil.clase,
 		nivel = perfil.nivel,
@@ -111,11 +113,11 @@ for disco, zona in zonas do
 			end
 		end
 		ocupada[disco] = true
-		disco.Transparency = 0.9
+		disco:SetAttribute("Ocupada", true)
 		local b = Combate.empezar(zona, disco.Position - Vector3.new(0, disco.Position.Y, 0), equipo)
 		if not b then
 			ocupada[disco] = false
-			disco.Transparency = 0.55
+			disco:SetAttribute("Ocupada", false)
 		end
 	end)
 end
@@ -125,7 +127,7 @@ Combate.alTerminar = function(b)
 		if zona == b.zona and ocupada[disco] then
 			ocupada[disco] = false
 			enfriamiento[disco] = os.clock() + 4
-			disco.Transparency = 0.55
+			disco:SetAttribute("Ocupada", false)
 		end
 	end
 end

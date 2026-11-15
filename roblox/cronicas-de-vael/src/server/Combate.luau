@@ -119,98 +119,61 @@ function Combate.curarDelTodo(j: Player)
 end
 
 -- ===================== MODELOS DE LOS ENEMIGOS =====================
-local function pieza(m: Model, forma: Enum.PartType, tam: Vector3, cf: CFrame, color: Color3, material: Enum.Material?): Part
-	local p = Instance.new("Part")
-	p.Shape = forma
-	p.Size = tam
-	p.CFrame = cf
-	p.Color = color
-	p.Material = material or Enum.Material.SmoothPlastic
-	p.Anchored = true
-	p.CanCollide = false
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
-	p.Parent = m
-	return p
-end
-
-local function crearModelo(def: Datos.Enemigo, cf: CFrame): Model
+-- El servidor solo pone un "ancla" invisible por enemigo. Cada cliente le pega encima su muñeco 2D de recortes
+-- (src/client/Munecos.luau), animado a 60 fps en el propio cliente. Así el servidor mueve el ancla (embestida)
+-- y el muñeco la sigue sin tirones.
+local function crearModelo(def: Datos.Enemigo, cf: CFrame, entidadId: string): Model
 	local m = Instance.new("Model")
 	m.Name = def.nombre
 	local t = def.tamano
-	local cuerpo: Part
-	if def.forma == "gota" then
-		cuerpo = pieza(m, Enum.PartType.Ball, Vector3.new(t, t * 0.8, t), cf * CFrame.new(0, t * 0.4, 0), def.color, Enum.Material.Glass)
-		cuerpo.Transparency = 0.15
-	elseif def.forma == "bestia" then
-		cuerpo = pieza(m, Enum.PartType.Block, Vector3.new(t * 0.7, t * 0.6, t * 1.3), cf * CFrame.new(0, t * 0.6, 0), def.color)
-		pieza(m, Enum.PartType.Block, Vector3.new(t * 0.55, t * 0.5, t * 0.6), cf * CFrame.new(0, t * 0.85, -t * 0.8), def.color)
-		for _, x in { -1, 1 } do
-			for _, z in { -1, 1 } do
-				pieza(m, Enum.PartType.Block, Vector3.new(t * 0.18, t * 0.5, t * 0.18), cf * CFrame.new(x * t * 0.25, t * 0.25, z * t * 0.45), def.color)
-			end
-			pieza(m, Enum.PartType.Block, Vector3.new(t * 0.12, t * 0.25, t * 0.08), cf * CFrame.new(x * t * 0.18, t * 1.15, -t * 0.75), def.color)
-		end
-	elseif def.forma == "volador" then
-		cuerpo = pieza(m, Enum.PartType.Ball, Vector3.new(t * 0.6, t * 0.6, t * 0.6), cf * CFrame.new(0, t * 1.4, 0), def.color)
-		for _, x in { -1, 1 } do
-			pieza(m, Enum.PartType.Block, Vector3.new(t * 0.9, t * 0.08, t * 0.5), cf * CFrame.new(x * t * 0.7, t * 1.5, 0) * CFrame.Angles(0, 0, x * math.rad(15)), def.color:Lerp(Color3.new(0, 0, 0), 0.3))
-		end
-	elseif def.forma == "jefe" then
-		cuerpo = pieza(m, Enum.PartType.Cylinder, Vector3.new(t * 0.7, t * 0.45, t * 0.45), cf * CFrame.new(0, t * 0.35, 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(240, 230, 210))
-		pieza(m, Enum.PartType.Ball, Vector3.new(t * 1.1, t * 0.55, t * 1.1), cf * CFrame.new(0, t * 0.8, 0), def.color)
-		for k = 0, 5 do
-			local a = k / 6 * math.pi * 2
-			pieza(m, Enum.PartType.Ball, Vector3.new(t * 0.14, t * 0.08, t * 0.14), cf * CFrame.new(math.cos(a) * t * 0.35, t * 1.04, math.sin(a) * t * 0.35), Color3.new(1, 1, 1))
-		end
-		pieza(m, Enum.PartType.Block, Vector3.new(t * 0.5, t * 0.12, t * 0.05), cf * CFrame.new(0, t * 1.12, -t * 0.1), Color3.fromRGB(255, 210, 60), Enum.Material.Neon)
-	else -- humanoide
-		cuerpo = pieza(m, Enum.PartType.Block, Vector3.new(t * 0.5, t * 0.6, t * 0.3), cf * CFrame.new(0, t * 0.75, 0), def.color)
-		pieza(m, Enum.PartType.Ball, Vector3.new(t * 0.38, t * 0.38, t * 0.38), cf * CFrame.new(0, t * 1.25, 0), def.color)
-		for _, x in { -1, 1 } do
-			pieza(m, Enum.PartType.Block, Vector3.new(t * 0.15, t * 0.45, t * 0.15), cf * CFrame.new(x * t * 0.13, t * 0.23, 0), def.color:Lerp(Color3.new(0, 0, 0), 0.25))
-			pieza(m, Enum.PartType.Block, Vector3.new(t * 0.13, t * 0.5, t * 0.13), cf * CFrame.new(x * t * 0.34, t * 0.75, 0), def.color)
-		end
-		pieza(m, Enum.PartType.Block, Vector3.new(t * 0.06, t * 1.3, t * 0.06), cf * CFrame.new(t * 0.45, t * 0.9, -t * 0.1), Color3.fromRGB(120, 90, 60), Enum.Material.Wood)
-	end
-	-- ojos (miran hacia los héroes, que están en -Z del CFrame del enemigo)
-	local alturaOjos = cuerpo.Position.Y - cf.Position.Y + cuerpo.Size.Y * 0.1
-	for _, x in { -1, 1 } do
-		pieza(m, Enum.PartType.Ball, Vector3.new(t * 0.14, t * 0.14, t * 0.14), cf * CFrame.new(x * t * 0.12, alturaOjos, -cuerpo.Size.Z * 0.48), def.forma == "jefe" and Color3.fromRGB(255, 240, 120) or Color3.new(1, 1, 1), Enum.Material.Neon)
-	end
-	m.PrimaryPart = cuerpo
-	-- cartel con nombre y barra de vida
+	local ancla = Instance.new("Part")
+	ancla.Name = "Ancla"
+	ancla.Size = Vector3.new(t, t, 0.5)
+	ancla.CFrame = cf * CFrame.new(0, t / 2, 0)
+	ancla.Transparency = 1
+	ancla.Anchored = true
+	ancla.CanCollide = false
+	ancla.CanQuery = false
+	ancla.Parent = m
+	m.PrimaryPart = ancla
+	m:SetAttribute("EnemigoId", def.id)
+	m:SetAttribute("EntidadId", entidadId)
+	-- cartel con nombre y barra de vida (estilo dibujo: contorno negro grueso)
 	local b = Instance.new("BillboardGui")
 	b.Name = "Vida"
-	b.Size = UDim2.fromOffset(170, 46)
-	b.StudsOffsetWorldSpace = Vector3.new(0, t * 1.2 + 2, 0)
+	b.Size = UDim2.fromOffset(170, 44)
+	b.StudsOffsetWorldSpace = Vector3.new(0, t * 0.62 + 1.6, 0)
 	b.AlwaysOnTop = true
-	b.MaxDistance = 120
-	b.Adornee = cuerpo
+	b.MaxDistance = 150
+	b.Adornee = ancla
 	local nombre = Instance.new("TextLabel")
 	nombre.Size = UDim2.new(1, 0, 0.55, 0)
 	nombre.BackgroundTransparency = 1
 	nombre.Text = def.nombre
-	nombre.Font = Enum.Font.GothamBold
+	nombre.Font = Enum.Font.FredokaOne
 	nombre.TextScaled = true
 	nombre.TextColor3 = Color3.new(1, 1, 1)
-	nombre.TextStrokeTransparency = 0.2
+	nombre.TextStrokeTransparency = 0
 	nombre.Parent = b
 	local fondo = Instance.new("Frame")
-	fondo.Size = UDim2.new(1, 0, 0.3, 0)
-	fondo.Position = UDim2.fromScale(0, 0.62)
+	fondo.Size = UDim2.new(1, -8, 0.3, 0)
+	fondo.Position = UDim2.new(0, 4, 0.62, 0)
 	fondo.BackgroundColor3 = Color3.fromRGB(40, 20, 25)
 	fondo.BorderSizePixel = 0
 	Instance.new("UICorner", fondo).CornerRadius = UDim.new(1, 0)
+	local borde = Instance.new("UIStroke")
+	borde.Thickness = 2.5
+	borde.Color = Color3.new(0, 0, 0)
+	borde.Parent = fondo
 	fondo.Parent = b
 	local barra = Instance.new("Frame")
 	barra.Name = "Barra"
 	barra.Size = UDim2.fromScale(1, 1)
-	barra.BackgroundColor3 = Color3.fromRGB(230, 70, 70)
+	barra.BackgroundColor3 = Color3.fromRGB(240, 70, 70)
 	barra.BorderSizePixel = 0
 	Instance.new("UICorner", barra).CornerRadius = UDim.new(1, 0)
 	barra.Parent = fondo
-	b.Parent = cuerpo
+	b.Parent = ancla
 	m.Parent = workspace
 	return m
 end
@@ -292,6 +255,7 @@ local function resumen(e: Entidad, paraJugador: Player?): any
 		nombre = e.nombre,
 		lado = e.lado,
 		clase = e.claseId,
+		enemigo = e.enemigoId,
 		nivel = e.nivel,
 		hp = e.hp,
 		maxHp = e.max.hp,
@@ -367,10 +331,10 @@ end
 
 local function caer(e: Entidad)
 	if e.modelo then
-		for _, p in e.modelo:GetDescendants() do
-			if p:IsA("BasePart") then
-				TweenService:Create(p, TweenInfo.new(0.6), { Transparency = 1 }):Play()
-			end
+		e.modelo:SetAttribute("Caido", true)
+		local vidaGui = e.modelo.PrimaryPart and e.modelo.PrimaryPart:FindFirstChild("Vida")
+		if vidaGui then
+			(vidaGui :: BillboardGui).Enabled = false
 		end
 	end
 end
@@ -643,9 +607,9 @@ local function entidadJugador(b: Batalla, j: Player, indice: number): Entidad?
 	end
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
 	local stats = Datos.statsDe(perfil.clase, perfil.nivel)
-	local x = (indice - 2.5) * 7
-	local pos = b.centro + Vector3.new(x, 3, 11)
-	local casa = CFrame.lookAt(pos, Vector3.new(b.centro.X + x * 0.5, pos.Y, b.centro.Z - 10))
+	-- vista de lado: el equipo a la izquierda, los enemigos a la derecha, con un poco de profundidad alterna
+	local pos = b.centro + Vector3.new(-7 - (indice - 1) * 4.2, 3, indice % 2 == 0 and -2.2 or 1.6)
+	local casa = CFrame.lookAt(pos, pos + Vector3.new(1, 0, 0))
 	congelar(j, casa)
 	batallaDe[j] = b
 	return {
@@ -776,6 +740,7 @@ end
 
 --- Empieza un combate en una zona con los jugadores dados (hasta 4).
 function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Batalla?
+	centro = Vector3.new(centro.X, 0, 0)
 	siguienteId += 1
 	local b: Batalla = { id = siguienteId, zona = zona, centro = centro, aliados = {}, enemigos = {}, pendientes = {}, ronda = 0, terminada = false, respuestas = {}, huida = false }
 	for i, j in jugadores do
@@ -794,9 +759,8 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 	local escala = 1 + 0.45 * (#b.aliados - 1)
 	for i, eid in grupo do
 		local def = Datos.Enemigos[eid]
-		local x = (i - (#grupo + 1) / 2) * 9
-		local pos = centro + Vector3.new(x, 0, -9)
-		local cf = CFrame.lookAt(pos, Vector3.new(centro.X + x * 0.5, pos.Y, centro.Z + 10)) * CFrame.Angles(0, math.pi, 0)
+		local pos = centro + Vector3.new(7 + (i - 1) * (def.tamano * 0.55 + 2.6), 0, i % 2 == 0 and -2.4 or 1.4)
+		local cf = CFrame.new(pos)
 		local stats = table.clone(def.stats)
 		stats.hp = math.floor(stats.hp * escala)
 		local e: Entidad = {
@@ -812,7 +776,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 			vivo = true,
 			casa = cf,
 		}
-		e.modelo = crearModelo(def, cf)
+		e.modelo = crearModelo(def, cf, e.id)
 		table.insert(b.enemigos, e)
 	end
 	-- anillo para que otros se unan
@@ -820,7 +784,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 	anillo.Anchored = true
 	anillo.CanCollide = false
 	anillo.Shape = Enum.PartType.Cylinder
-	anillo.Size = Vector3.new(0.4, 40, 40)
+	anillo.Size = Vector3.new(0.4, 44, 44)
 	anillo.CFrame = CFrame.new(centro + Vector3.new(0, 0.7, 0)) * CFrame.Angles(0, 0, math.rad(90))
 	anillo.Material = Enum.Material.ForceField
 	anillo.Color = Color3.fromRGB(255, 220, 120)

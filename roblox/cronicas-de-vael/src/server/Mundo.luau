@@ -1,127 +1,645 @@
 --!strict
--- Construye el mundo de Vael si el lugar está vacío (así se puede probar con un Baseplate nuevo).
--- Si ya existe una carpeta "MundoVael" en Workspace (por ejemplo, porque lo decoraste a mano), no toca nada:
--- solo busca dentro las partes con el atributo "Zona" para usarlas como zonas de combate.
+-- Construye el mundo de Vael en estilo 2D de recortes de papel: todo son piezas planas que miran a la cámara
+-- (de lado), con contorno negro detrás, colores planos y capas de fondo para dar profundidad.
+-- El mundo es una franja larga de izquierda a derecha:
+--   Ciudad de Vael → Pradera → Pantano → Bosque → Ruinas → Cueva del Rey Hongo.
+-- Si ya existe una carpeta "MundoVael" en Workspace (hecha a mano), no construye nada: solo busca las zonas.
 
+local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Datos = require(ReplicatedStorage.Vael.Datos)
 
 local Mundo = {}
 
--- posición de cada zona (centro del círculo de combate)
-local POSICIONES: { [string]: Vector3 } = {
-	pradera = Vector3.new(0, 0, -130),
-	bosque = Vector3.new(-150, 0, -170),
-	ruinas = Vector3.new(150, 0, -170),
-	cueva = Vector3.new(0, 0, -300),
-}
+-- dónde está la guarida de cada zona (en X; todas en el fondo del camino)
+Mundo.Guaridas = { pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+Mundo.Inicio = -60 -- x de la plaza de la ciudad (aparición)
+Mundo.Limites = { -195, 605 }
 
 local raiz: Folder
+local pasto: Folder
+local NEGRO = Color3.fromRGB(25, 20, 30)
 
-local function parte(props: { [string]: any }): BasePart
-	local tipo = props.Clase or "Part"
-	local p = Instance.new(tipo) :: BasePart
-	p.Anchored = true
-	p.TopSurface = Enum.SurfaceType.Smooth
-	p.BottomSurface = Enum.SurfaceType.Smooth
+local function nueva(clase: string, props: { [string]: any }, padre: Instance?): any
+	local p = Instance.new(clase)
 	for k, v in props do
-		if k ~= "Clase" and k ~= "Padre" then
-			(p :: any)[k] = v
-		end
+		(p :: any)[k] = v
 	end
-	p.Parent = props.Padre or raiz
+	p.Parent = padre or raiz
 	return p
 end
 
-local function cartel(adorno: BasePart, texto: string, sub: string, color: Color3)
-	local b = Instance.new("BillboardGui")
-	b.Size = UDim2.fromOffset(260, 80)
-	b.StudsOffset = Vector3.new(0, 4, 0)
-	b.AlwaysOnTop = false
-	b.MaxDistance = 220
-	local t = Instance.new("TextLabel")
-	t.Size = UDim2.new(1, 0, 0.6, 0)
-	t.BackgroundTransparency = 1
-	t.Text = texto
-	t.Font = Enum.Font.FredokaOne
-	t.TextScaled = true
-	t.TextColor3 = Color3.new(1, 1, 1)
-	t.TextStrokeTransparency = 0
-	t.TextStrokeColor3 = color
-	t.Parent = b
-	local s = Instance.new("TextLabel")
-	s.Size = UDim2.new(1, 0, 0.4, 0)
-	s.Position = UDim2.fromScale(0, 0.6)
-	s.BackgroundTransparency = 1
-	s.Text = sub
-	s.Font = Enum.Font.GothamBold
-	s.TextScaled = true
-	s.TextColor3 = Color3.fromRGB(255, 235, 150)
-	s.TextStrokeTransparency = 0.3
-	s.Parent = b
-	b.Parent = adorno
+local function base(p: BasePart)
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CastShadow = false
+	p.Material = Enum.Material.SmoothPlastic
+	p.TopSurface = Enum.SurfaceType.Smooth
+	p.BottomSurface = Enum.SurfaceType.Smooth
 end
 
-local function arbol(pos: Vector3, escala: number, colorCopa: Color3?)
-	parte({ Shape = Enum.PartType.Cylinder, Size = Vector3.new(9, 1.6, 1.6) * escala, CFrame = CFrame.new(pos + Vector3.new(0, 4.5 * escala, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood })
-	parte({ Clase = "Part", Shape = Enum.PartType.Ball, Size = Vector3.new(8, 8, 8) * escala, Position = pos + Vector3.new(0, 10 * escala, 0), Color = colorCopa or Color3.fromRGB(80, 150, 70), Material = Enum.Material.Grass })
+--- Rectángulo plano que mira a la cámara. (x, y) es el centro.
+local function plano(x: number, y: number, z: number, w: number, h: number, color: Color3, borde: boolean?, padre: Instance?, giro: number?): Part
+	local cf = CFrame.new(x, y, z) * CFrame.Angles(0, 0, math.rad(giro or 0))
+	if borde ~= false then
+		local b = Instance.new("Part")
+		base(b)
+		b.Size = Vector3.new(w + 0.5, h + 0.5, 0.2)
+		b.CFrame = cf * CFrame.new(0, 0, -0.3)
+		b.Color = NEGRO
+		b.Parent = padre or raiz
+	end
+	local p = Instance.new("Part")
+	base(p)
+	p.Size = Vector3.new(w, h, 0.4)
+	p.CFrame = cf
+	p.Color = color
+	p.Parent = padre or raiz
+	return p
 end
 
-local function casa(pos: Vector3, giro: number, color: Color3)
-	local cf = CFrame.new(pos) * CFrame.Angles(0, math.rad(giro), 0)
-	parte({ Size = Vector3.new(16, 10, 14), CFrame = cf * CFrame.new(0, 5, 0), Color = color, Material = Enum.Material.Plaster })
-	parte({ Clase = "WedgePart", Size = Vector3.new(16, 6, 7.5), CFrame = cf * CFrame.new(0, 13, -3.6), Color = Color3.fromRGB(170, 70, 55), Material = Enum.Material.Slate })
-	parte({ Clase = "WedgePart", Size = Vector3.new(16, 6, 7.5), CFrame = cf * CFrame.new(0, 13, 3.6) * CFrame.Angles(0, math.rad(180), 0), Color = Color3.fromRGB(170, 70, 55), Material = Enum.Material.Slate })
-	parte({ Size = Vector3.new(3.5, 6, 0.4), CFrame = cf * CFrame.new(0, 3, -7.1), Color = Color3.fromRGB(110, 70, 40), Material = Enum.Material.Wood })
-	parte({ Size = Vector3.new(3, 3, 0.4), CFrame = cf * CFrame.new(-5, 6, -7.1), Color = Color3.fromRGB(255, 225, 140), Material = Enum.Material.Neon })
-	parte({ Size = Vector3.new(3, 3, 0.4), CFrame = cf * CFrame.new(5, 6, -7.1), Color = Color3.fromRGB(255, 225, 140), Material = Enum.Material.Neon })
+--- Círculo plano que mira a la cámara.
+local function disco(x: number, y: number, z: number, d: number, color: Color3, borde: boolean?, padre: Instance?): Part
+	local giro = CFrame.Angles(0, math.rad(90), 0)
+	if borde ~= false then
+		local b = Instance.new("Part")
+		base(b)
+		b.Shape = Enum.PartType.Cylinder
+		b.Size = Vector3.new(0.2, d + 0.5, d + 0.5)
+		b.CFrame = CFrame.new(x, y, z - 0.3) * giro
+		b.Color = NEGRO
+		b.Parent = padre or raiz
+	end
+	local p = Instance.new("Part")
+	base(p)
+	p.Shape = Enum.PartType.Cylinder
+	p.Size = Vector3.new(0.4, d, d)
+	p.CFrame = CFrame.new(x, y, z) * giro
+	p.Color = color
+	p.Parent = padre or raiz
+	return p
 end
 
-local function camino(desde: Vector3, hasta: Vector3)
-	local medio = (desde + hasta) / 2
-	local largo = (hasta - desde).Magnitude
-	parte({ Size = Vector3.new(10, 0.3, largo), CFrame = CFrame.lookAt(medio + Vector3.new(0, 0.15, 0), hasta + Vector3.new(0, 0.15, 0)), Color = Color3.fromRGB(200, 175, 125), Material = Enum.Material.Ground, CanCollide = false })
+--- Triángulo plano (dos cuñas) con la base en yBase. Con h negativo, apunta hacia abajo (banderines, estalactitas).
+local function tri(x: number, yBase: number, z: number, w: number, h: number, color: Color3, borde: boolean?, padre: Instance?)
+	local abajo = h < 0
+	local alto = math.abs(h)
+	local function mitad(dx: number, ang: number, ww: number, hh: number, zz: number, col: Color3, yb: number)
+		local c = Instance.new("WedgePart")
+		base(c)
+		c.Size = Vector3.new(zz == z and 0.4 or 0.2, hh, ww / 2)
+		if abajo then
+			-- girada media vuelta: la cuña de cada lado pasa al lado contrario
+			c.CFrame = CFrame.new(x - dx, yb - hh / 2, zz) * CFrame.Angles(0, 0, math.pi) * CFrame.Angles(0, math.rad(ang), 0)
+		else
+			c.CFrame = CFrame.new(x + dx, yb + hh / 2, zz) * CFrame.Angles(0, math.rad(ang), 0)
+		end
+		c.Color = col
+		c.Parent = padre or raiz
+	end
+	if borde ~= false then
+		local yb = abajo and yBase + 0.25 or yBase - 0.25
+		mitad(-(w + 0.8) / 4, 90, w + 0.8, alto + 0.6, z - 0.3, NEGRO, yb)
+		mitad((w + 0.8) / 4, -90, w + 0.8, alto + 0.6, z - 0.3, NEGRO, yb)
+	end
+	mitad(-w / 4, 90, w, alto, z, color, yBase)
+	mitad(w / 4, -90, w, alto, z, color, yBase)
 end
 
-local function decorarZona(id: string, centro: Vector3, rng: Random)
-	if id == "pradera" then
-		for _ = 1, 30 do
-			local p = centro + Vector3.new(rng:NextNumber(-45, 45), 0.4, rng:NextNumber(-45, 45))
-			if (p - centro).Magnitude > 20 then
-				parte({ Shape = Enum.PartType.Ball, Size = Vector3.new(1, 1, 1), Position = p, Color = ({ Color3.fromRGB(255, 220, 90), Color3.fromRGB(240, 120, 160), Color3.new(1, 1, 1) })[rng:NextInteger(1, 3)], Material = Enum.Material.SmoothPlastic, CanCollide = false })
+--- Cartel de texto pintado sobre una tabla.
+local function letrero(x: number, y: number, z: number, w: number, h: number, texto: string, fondo: Color3, colorTexto: Color3?): Part
+	local p = plano(x, y, z, w, h, fondo)
+	local sg = nueva("SurfaceGui", { Face = Enum.NormalId.Back, SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud, PixelsPerStud = 40, LightInfluence = 0 }, p)
+	local t = nueva("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = texto, Font = Enum.Font.FredokaOne, TextScaled = true, TextColor3 = colorTexto or Color3.new(1, 1, 1) }, sg)
+	nueva("UIStroke", { Thickness = 3, Color = NEGRO }, t)
+	nueva("UIPadding", { PaddingLeft = UDim.new(0.06, 0), PaddingRight = UDim.new(0.06, 0), PaddingTop = UDim.new(0.1, 0), PaddingBottom = UDim.new(0.1, 0) }, t)
+	return p
+end
+
+--- Un grupo (Model) que el cliente anima: se balancea desde la base (pasto, flores) o gira.
+local function grupoBalanceo(x: number, z: number): Model
+	local m = Instance.new("Model")
+	m.Parent = pasto
+	m.WorldPivot = CFrame.new(x, 0, z)
+	return m
+end
+
+local VERDES = { Color3.fromRGB(96, 178, 70), Color3.fromRGB(120, 200, 80), Color3.fromRGB(78, 150, 62) }
+
+local function mata(x: number, z: number, escala: number, rng: Random, tono: Color3?)
+	local m = grupoBalanceo(x, z)
+	for k = -1, 1 do
+		local alto = (1.3 + rng:NextNumber(0, 0.9)) * escala
+		local color = tono or VERDES[rng:NextInteger(1, #VERDES)]
+		local p = Instance.new("Part")
+		base(p)
+		p.Size = Vector3.new(0.38 * escala, alto, 0.15)
+		p.CFrame = CFrame.new(x + k * 0.32 * escala, 0, z) * CFrame.Angles(0, 0, math.rad(-k * 18 + rng:NextNumber(-6, 6))) * CFrame.new(0, alto / 2, 0)
+		p.Color = color
+		p.Parent = m
+	end
+end
+
+local COLORES_FLOR = { Color3.fromRGB(255, 220, 80), Color3.fromRGB(245, 120, 165), Color3.new(1, 1, 1), Color3.fromRGB(160, 130, 245), Color3.fromRGB(255, 140, 70) }
+
+local function flor(x: number, z: number, escala: number, rng: Random)
+	local m = grupoBalanceo(x, z)
+	local alto = (1.4 + rng:NextNumber(0, 1)) * escala
+	plano(x, alto / 2, z, 0.18 * escala, alto, Color3.fromRGB(70, 140, 60), false, m)
+	plano(x + 0.35 * escala, alto * 0.45, z + 0.05, 0.6 * escala, 0.25 * escala, Color3.fromRGB(80, 160, 70), false, m, 25)
+	disco(x, alto, z + 0.1, 1.1 * escala, COLORES_FLOR[rng:NextInteger(1, #COLORES_FLOR)], true, m)
+	disco(x, alto, z + 0.35, 0.45 * escala, Color3.fromRGB(255, 200, 60), false, m)
+end
+
+local function arbol(x: number, z: number, escala: number, copa: Color3?)
+	local s = escala
+	plano(x, 3.2 * s, z, 1.4 * s, 6.4 * s, Color3.fromRGB(120, 80, 50))
+	local c = copa or Color3.fromRGB(80, 160, 70)
+	disco(x - 2 * s, 7 * s, z + 0.2, 5 * s, c)
+	disco(x + 2 * s, 7.3 * s, z + 0.4, 5 * s, c:Lerp(Color3.new(0, 0, 0), 0.08))
+	disco(x, 9 * s, z + 0.6, 5.6 * s, c:Lerp(Color3.new(1, 1, 1), 0.08))
+	disco(x - 1 * s, 9.6 * s, z + 0.8, 1.2 * s, c:Lerp(Color3.new(1, 1, 1), 0.35), false)
+end
+
+local function pino(x: number, z: number, escala: number, color: Color3?)
+	local s = escala
+	local c = color or Color3.fromRGB(45, 110, 70)
+	plano(x, 1.5 * s, z, 1.2 * s, 3 * s, Color3.fromRGB(100, 70, 45))
+	tri(x, 2.5 * s, z + 0.1, 8 * s, 5 * s, c)
+	tri(x, 5.2 * s, z + 0.3, 6.4 * s, 4.6 * s, c:Lerp(Color3.new(1, 1, 1), 0.06))
+	tri(x, 7.8 * s, z + 0.5, 4.6 * s, 4.2 * s, c:Lerp(Color3.new(1, 1, 1), 0.12))
+end
+
+local function farola(x: number, z: number)
+	plano(x, 4.5, z, 0.6, 9, Color3.fromRGB(50, 50, 60))
+	plano(x, 9.2, z + 0.2, 1.8, 0.5, Color3.fromRGB(50, 50, 60))
+	local luz = disco(x, 9.9, z + 0.3, 1.5, Color3.fromRGB(255, 225, 120))
+	luz.Material = Enum.Material.Neon
+end
+
+local function casa(x: number, z: number, w: number, h: number, pared: Color3, techo: Color3, cartel: string?, rng: Random)
+	plano(x, h / 2, z, w, h, pared)
+	-- vigas de madera (estilo de cuento)
+	plano(x, h - 0.3, z + 0.25, w, 0.5, Color3.fromRGB(110, 70, 45), false)
+	plano(x, 0.3, z + 0.25, w, 0.6, Color3.fromRGB(110, 70, 45), false)
+	-- tejado y chimenea
+	plano(x + w * 0.25, h + h * 0.45, z - 0.5, 1.6, 3.5, Color3.fromRGB(150, 90, 70))
+	tri(x, h - 0.2, z + 0.1, w + 3, h * 0.6, techo)
+	-- puerta
+	plano(x - w * 0.18, 2, z + 0.3, 2.4, 4, Color3.fromRGB(120, 75, 45))
+	disco(x - w * 0.18 + 0.7, 2, z + 0.6, 0.35, Color3.fromRGB(240, 200, 80), false)
+	-- ventanas iluminadas con cruz
+	local function ventana(vx: number, vy: number)
+		plano(vx, vy, z + 0.3, 2.2, 2.2, Color3.fromRGB(255, 225, 140))
+		plano(vx, vy, z + 0.6, 2.2, 0.2, Color3.fromRGB(110, 70, 45), false)
+		plano(vx, vy, z + 0.6, 0.2, 2.2, Color3.fromRGB(110, 70, 45), false)
+		plano(vx, vy - 1.3, z + 0.6, 2.8, 0.4, Color3.fromRGB(110, 70, 45), false)
+		-- jardinera con flores
+		if rng:NextNumber() < 0.6 then
+			for k = -1, 1 do
+				disco(vx + k * 0.7, vy - 1.15, z + 0.8, 0.55, COLORES_FLOR[rng:NextInteger(1, #COLORES_FLOR)], false)
 			end
 		end
+	end
+	ventana(x + w * 0.2, h * 0.38)
+	if h > 9 then
+		ventana(x - w * 0.18, h * 0.75)
+		ventana(x + w * 0.2, h * 0.75)
+	end
+	if cartel then
+		letrero(x - w * 0.18, 5.2, z + 0.7, math.max(5, #cartel * 0.75), 1.6, cartel, Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 240, 200))
+	end
+end
+
+local function nube(x: number, y: number, z: number, escala: number, velocidad: number)
+	local m = Instance.new("Model")
+	m.Name = "Nube"
+	m:SetAttribute("Nube", velocidad)
+	m.Parent = raiz
+	disco(x, y, z, 6 * escala, Color3.new(1, 1, 1), true, m)
+	disco(x + 4 * escala, y - 0.6 * escala, z + 0.2, 4.6 * escala, Color3.new(1, 1, 1), false, m)
+	disco(x - 4 * escala, y - 0.8 * escala, z + 0.2, 4 * escala, Color3.new(1, 1, 1), false, m)
+	plano(x, y - 1.9 * escala, z + 0.1, 11 * escala, 2 * escala, Color3.new(1, 1, 1), false, m)
+end
+
+local function guarida(z: any)
+	local x = Mundo.Guaridas[z.id]
+	-- zona invisible: al entrar, empieza el combate (está al fondo, el camino de delante queda libre)
+	local caja = Instance.new("Part")
+	base(caja)
+	caja.Name = "Zona_" .. z.id
+	caja.Size = Vector3.new(10, 12, 7)
+	caja.Position = Vector3.new(x, 6, -8.5)
+	caja.Transparency = 1
+	caja:SetAttribute("Zona", z.id)
+	caja.Parent = raiz
+	-- marca en el suelo con el color de la zona
+	local marca = plano(x, 0.08, -8.5, 11, 0.12, z.color, false)
+	marca.Size = Vector3.new(11, 0.12, 7)
+	marca.Material = Enum.Material.Neon
+	marca.Transparency = 0.45
+	-- cartel con flecha
+	plano(x - 9, 3, -10.5, 0.7, 6, Color3.fromRGB(120, 80, 50))
+	letrero(x - 9, 6.4, -10.2, 9, 2.2, z.nombre, z.color:Lerp(NEGRO, 0.35))
+	letrero(x - 9, 4.4, -10.2, 6, 1.4, "Nivel " .. z.nivel, Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 230, 150))
+	-- aviso flotante
+	local bb = nueva("BillboardGui", { Size = UDim2.fromOffset(220, 60), StudsOffset = Vector3.new(0, 7.5, 0), MaxDistance = 90, LightInfluence = 0 }, caja)
+	local t = nueva("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "¡Monstruos!\nentra para luchar", Font = Enum.Font.FredokaOne, TextScaled = true, TextColor3 = Color3.fromRGB(255, 235, 120) }, bb)
+	nueva("UIStroke", { Thickness = 3, Color = NEGRO }, t)
+	return caja
+end
+
+-- ===================== CONSTRUCCIÓN =====================
+local function luces()
+	pcall(function()
+		Lighting.GlobalShadows = false
+		Lighting.Ambient = Color3.fromRGB(175, 175, 180)
+		Lighting.OutdoorAmbient = Color3.fromRGB(190, 190, 195)
+		Lighting.Brightness = 1.6
+		Lighting.ClockTime = 14
+		Lighting.EnvironmentDiffuseScale = 0
+		Lighting.EnvironmentSpecularScale = 0
+	end)
+end
+
+local function cielo()
+	local fondo = Instance.new("Part")
+	base(fondo)
+	fondo.Name = "Cielo"
+	fondo.Size = Vector3.new(3000, 700, 1)
+	fondo.Position = Vector3.new(205, 120, -260)
+	fondo.Color = Color3.fromRGB(150, 210, 250)
+	fondo.Parent = raiz
+	local sg = nueva("SurfaceGui", { Face = Enum.NormalId.Back, SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud, PixelsPerStud = 1, LightInfluence = 0 }, fondo)
+	local f = nueva("Frame", { Size = UDim2.fromScale(1, 1), BorderSizePixel = 0, BackgroundColor3 = Color3.new(1, 1, 1) }, sg)
+	nueva("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 140, 225)),
+			ColorSequenceKeypoint.new(0.55, Color3.fromRGB(140, 205, 250)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 245, 250)),
+		}),
+	}, f)
+	local sol = disco(-20, 95, -240, 34, Color3.fromRGB(255, 220, 90))
+	sol.Material = Enum.Material.Neon
+	disco(-20, 95, -241, 46, Color3.fromRGB(255, 240, 170), false).Transparency = 0.5
+end
+
+local function fondoLejano(rng: Random)
+	-- montañas azuladas con nieve
+	local x = -320
+	while x < 820 do
+		local w = rng:NextNumber(130, 210)
+		local h = rng:NextNumber(70, 120)
+		tri(x, -5, -170, w, h, Color3.fromRGB(150, 165, 205))
+		tri(x, -5 + h * 0.72, -169.4, w * 0.28, h * 0.28, Color3.new(1, 1, 1), false)
+		x += w * 0.6
+	end
+	-- colinas lejanas y cercanas
+	x = -300
+	while x < 800 do
+		disco(x, -30, -110, rng:NextNumber(90, 130), Color3.fromRGB(135, 200, 120))
+		x += rng:NextNumber(55, 80)
+	end
+	x = -290
+	while x < 800 do
+		if x < 440 then
+			disco(x, -22, -60, rng:NextNumber(55, 75), Color3.fromRGB(105, 180, 90))
+		end
+		x += rng:NextNumber(38, 55)
+	end
+	for _ = 1, 16 do
+		nube(rng:NextNumber(-300, 800), rng:NextNumber(48, 80), rng:NextNumber(-140, -95), rng:NextNumber(1, 1.8), rng:NextNumber(0.6, 1.6))
+	end
+end
+
+local function suelo()
+	local s = Instance.new("Part")
+	base(s)
+	s.Name = "Suelo"
+	s.CanCollide = true
+	s.CanQuery = true
+	s.Size = Vector3.new(860, 4, 70)
+	s.Position = Vector3.new(205, -1.95, -21)
+	s.Color = Color3.fromRGB(112, 190, 82)
+	s.Parent = raiz
+	-- borde delantero de tierra (el corte del papel)
+	plano(205, -6, 14.6, 860, 12, Color3.fromRGB(125, 85, 55))
+	plano(205, -0.3, 14.9, 860, 1, Color3.fromRGB(85, 155, 62), false)
+	for k = 0, 80 do
+		disco(-215 + k * 10.6, -4 - (k % 3) * 2.5, 15, 1.2 + (k % 4) * 0.4, Color3.fromRGB(100, 68, 45), false)
+	end
+	-- camino de tierra
+	local camino = plano(205, 0.06, 1, 860, 0.1, Color3.fromRGB(225, 200, 140), false)
+	camino.Size = Vector3.new(860, 0.1, 6)
+	-- paredes invisibles para quedarse en el carril (como en un juego 2D con algo de fondo)
+	for _, datos in { { 205, -12.8, 860, 1 }, { 205, 10.8, 860, 1 } } do
+		local muro = Instance.new("Part")
+		base(muro)
+		muro.CanCollide = true
+		muro.Transparency = 1
+		muro.Size = Vector3.new(datos[3], 40, datos[4])
+		muro.Position = Vector3.new(datos[1], 20, datos[2])
+		muro.Parent = raiz
+	end
+	for _, x in Mundo.Limites do
+		local muro = Instance.new("Part")
+		base(muro)
+		muro.CanCollide = true
+		muro.Transparency = 1
+		muro.Size = Vector3.new(1, 40, 30)
+		muro.Position = Vector3.new(x, 20, 0)
+		muro.Parent = raiz
+	end
+	-- manchas de suelo por zona
+	local function mancha(x0: number, x1: number, color: Color3)
+		local p = plano((x0 + x1) / 2, 0.04, -21, x1 - x0, 0.08, color, false)
+		p.Size = Vector3.new(x1 - x0, 0.08, 66)
+	end
+	mancha(165, 262, Color3.fromRGB(105, 140, 85))
+	mancha(262, 362, Color3.fromRGB(80, 150, 70))
+	mancha(362, 462, Color3.fromRGB(165, 155, 120))
+	mancha(462, 610, Color3.fromRGB(110, 105, 100))
+end
+
+local function ciudad(rng: Random): (BasePart, BasePart)
+	-- muralla del fondo con almenas
+	plano(-80, 6, -27, 230, 12, Color3.fromRGB(175, 165, 150))
+	for k = 0, 57 do
+		plano(-193 + k * 4, 12.8, -27, 2.2, 2, Color3.fromRGB(175, 165, 150))
+	end
+	for k = 0, 22 do
+		plano(-190 + k * 10, 3 + (k % 2) * 4, -26.5, 3, 1.4, Color3.fromRGB(150, 140, 128), false)
+	end
+	-- torre del reloj
+	plano(-60, 14, -23, 9, 28, Color3.fromRGB(205, 185, 160))
+	tri(-60, 28, -22.8, 12, 9, Color3.fromRGB(70, 90, 150))
+	disco(-60, 22, -22.5, 6, Color3.fromRGB(250, 245, 230))
+	plano(-60, 22.9, -22.1, 0.35, 2, NEGRO, false)
+	plano(-59.4, 22, -22.1, 1.5, 0.35, NEGRO, false)
+	plano(-60, 9, -22.5, 3, 5, Color3.fromRGB(120, 75, 45))
+	-- casas
+	local paredes = { Color3.fromRGB(245, 230, 195), Color3.fromRGB(205, 225, 240), Color3.fromRGB(240, 205, 195), Color3.fromRGB(215, 235, 200), Color3.fromRGB(240, 220, 160) }
+	local techos = { Color3.fromRGB(195, 75, 60), Color3.fromRGB(70, 110, 170), Color3.fromRGB(150, 80, 140), Color3.fromRGB(80, 140, 90) }
+	local carteles = { [-170] = "Herrería", [-140] = "Panadería", [-100] = "Taberna", [-20] = "Posada", [12] = "Magia" }
+	for _, x in { -170, -140, -118, -100, -36, -20, 12 } do
+		local w = rng:NextNumber(12, 16)
+		local h = x == -100 and 13 or rng:NextNumber(8, 12)
+		casa(x, -19 + rng:NextNumber(-1.5, 1), w, h, paredes[rng:NextInteger(1, #paredes)], techos[rng:NextInteger(1, #techos)], carteles[x], rng)
+	end
+	-- farolas y banderines
+	for x = -180, 30, 21 do
+		farola(x, -11.5)
+	end
+	for x = -178, 28, 2.2 do
+		local col = COLORES_FLOR[(math.floor(x) % #COLORES_FLOR) + 1]
+		tri(x, 8.2 + math.sin(x * 0.29) * 0.4, -11.2, 1.4, -1.6, col, false)
+	end
+	-- árboles y arbustos
+	for _, x in { -186, -155, -128, -84, -45, 0, 28 } do
+		arbol(x, -14 + rng:NextNumber(-1, 0.5), rng:NextNumber(0.8, 1.1))
+	end
+	for x = -188, 36, 7 do
+		disco(x + rng:NextNumber(-2, 2), 1, -12.4, rng:NextNumber(2.2, 3.4), Color3.fromRGB(85, 160, 70))
+	end
+	-- barriles, cajas y bancos
+	for _, x in { -162, -108, -30, 4 } do
+		plano(x, 1.2, -10.5, 2, 2.4, Color3.fromRGB(150, 100, 60))
+		plano(x, 1.8, -10.2, 2.1, 0.25, Color3.fromRGB(90, 90, 100), false)
+		plano(x, 0.6, -10.2, 2.1, 0.25, Color3.fromRGB(90, 90, 100), false)
+		plano(x + 2.4, 1, -10.4, 2, 2, Color3.fromRGB(190, 145, 90))
+	end
+	for _, x in { -148, -76, -44 } do
+		plano(x, 1.3, -10.6, 4, 0.5, Color3.fromRGB(140, 90, 55))
+		plano(x - 1.5, 0.6, -10.8, 0.4, 1.2, Color3.fromRGB(110, 70, 45))
+		plano(x + 1.5, 0.6, -10.8, 0.4, 1.2, Color3.fromRGB(110, 70, 45))
+	end
+	-- fuente de la plaza (cura): pila de piedra, agua y chorros
+	local x = Mundo.Inicio + 14
+	plano(x, 1.3, -7, 13, 2.6, Color3.fromRGB(175, 175, 190))
+	plano(x, 4, -7.6, 2, 6, Color3.fromRGB(175, 175, 190))
+	disco(x, 7.2, -7.4, 4.2, Color3.fromRGB(175, 175, 190))
+	local agua = plano(x, 2.5, -6.7, 12, 0.6, Color3.fromRGB(90, 190, 235), false)
+	agua.Material = Enum.Material.Neon
+	agua.Transparency = 0.2
+	local m = Instance.new("Model")
+	m.Name = "Chorros"
+	m:SetAttribute("Chorro", true)
+	m.Parent = raiz
+	for k = -1, 1 do
+		local c = disco(x + k * 1.6, 8.6 - math.abs(k) * 0.8, -7.2, 1.1, Color3.fromRGB(160, 225, 250), false, m)
+		c.Transparency = 0.15
+	end
+	local fuente = Instance.new("Part")
+	base(fuente)
+	fuente.Name = "Fuente"
+	fuente.Size = Vector3.new(13, 8, 7)
+	fuente.Position = Vector3.new(x, 4, -7)
+	fuente.Transparency = 1
+	fuente:SetAttribute("Fuente", true)
+	fuente.Parent = raiz
+	letrero(x, 11.3, -7.8, 10, 1.8, "Fuente de Vael · cura", Color3.fromRGB(60, 130, 200))
+	-- puesto del mercader (toldo de rayas)
+	local mx = Mundo.Inicio + 34
+	local mostrador = plano(mx, 1.6, -9, 9, 3.2, Color3.fromRGB(160, 105, 60))
+	mostrador:SetAttribute("Mercader", true)
+	mostrador.CanQuery = true
+	plano(mx - 4.2, 4, -9.4, 0.5, 8, Color3.fromRGB(110, 70, 45))
+	plano(mx + 4.2, 4, -9.4, 0.5, 8, Color3.fromRGB(110, 70, 45))
+	for k = 0, 5 do
+		plano(mx - 4.5 + k * 1.8 + 0.9, 7.6, -8.8, 1.8, 1.6, k % 2 == 0 and Color3.fromRGB(220, 60, 60) or Color3.new(1, 1, 1), false)
+	end
+	for k = 0, 5 do
+		disco(mx - 4.5 + k * 1.8 + 0.9, 6.8, -8.7, 1.8, k % 2 == 0 and Color3.fromRGB(220, 60, 60) or Color3.new(1, 1, 1), false)
+	end
+	for k = -1, 1 do
+		disco(mx + k * 2.4, 3.6, -8.6, 1.3, k == 0 and Color3.fromRGB(90, 160, 240) or Color3.fromRGB(230, 70, 80))
+		plano(mx + k * 2.4, 4.5, -8.6, 0.5, 0.8, Color3.fromRGB(200, 200, 210))
+	end
+	letrero(mx, 9.4, -8.8, 8, 1.8, "Mercader", Color3.fromRGB(200, 120, 40))
+	-- puerta de la ciudad
+	plano(40, 9, -13, 5, 18, Color3.fromRGB(170, 160, 145))
+	plano(40, 9, 9.5, 5, 18, Color3.fromRGB(170, 160, 145))
+	tri(40, 18, -12.8, 7, 5, Color3.fromRGB(70, 90, 150))
+	letrero(40, 15, -12.6, 6, 2, "VAEL", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 230, 150))
+	return fuente, mostrador
+end
+
+local function pradera(rng: Random)
+	-- molino (las aspas giran en el cliente)
+	plano(78, 9, -24, 8, 18, Color3.fromRGB(240, 230, 210))
+	tri(78, 18, -23.8, 10, 6, Color3.fromRGB(195, 75, 60))
+	plano(78, 3, -23.5, 2.4, 4, Color3.fromRGB(120, 75, 45))
+	local aspas = Instance.new("Model")
+	aspas.Name = "Aspas"
+	aspas:SetAttribute("Gira", 0.8)
+	aspas.Parent = raiz
+	for k = 0, 3 do
+		local a = math.rad(k * 90)
+		local p = plano(78 + math.cos(a) * 5, 15 + math.sin(a) * 5, -22.8, 10, 1.8, Color3.fromRGB(230, 220, 190), true, aspas, k * 90)
+		p.Name = "Aspa"
+	end
+	disco(78, 15, -22.4, 1.6, Color3.fromRGB(120, 75, 45), true, aspas)
+	aspas.WorldPivot = CFrame.new(78, 15, -22.6)
+	-- vallas y heno
+	for x = 50, 158, 4 do
+		plano(x, 1.4, -11.8, 0.5, 2.8, Color3.fromRGB(200, 160, 110))
+	end
+	plano(104, 2, -11.6, 108, 0.4, Color3.fromRGB(200, 160, 110), false)
+	plano(104, 1, -11.6, 108, 0.4, Color3.fromRGB(200, 160, 110), false)
+	for _, x in { 64, 140 } do
+		disco(x, 2, -15, 4, Color3.fromRGB(235, 200, 100))
+		plano(x, 1, -14.6, 4, 2, Color3.fromRGB(235, 200, 100), false)
+	end
+	for _, x in { 55, 96, 128, 152 } do
+		arbol(x, -17 + rng:NextNumber(-3, 0), rng:NextNumber(0.9, 1.3))
+	end
+	-- guarida: un arbusto enorme con ojos que miran
+	local gx = Mundo.Guaridas.pradera
+	disco(gx - 3, 3.5, -11, 7, Color3.fromRGB(70, 145, 60))
+	disco(gx + 3, 3.8, -11.2, 7.5, Color3.fromRGB(80, 155, 65))
+	disco(gx, 5.8, -11.4, 7, Color3.fromRGB(90, 165, 70))
+	for _, o in { { -2.5, 4.8 }, { 2.2, 6.2 }, { 0.5, 3 } } do
+		disco(gx + o[1] - 0.4, o[2], -10.4, 0.7, Color3.new(1, 1, 1), false)
+		disco(gx + o[1] + 0.4, o[2], -10.4, 0.7, Color3.new(1, 1, 1), false)
+	end
+	for _ = 1, 60 do
+		flor(rng:NextNumber(45, 165), rng:NextNumber(-11, -4), rng:NextNumber(0.7, 1.1), rng)
+	end
+end
+
+local function pantano(rng: Random)
+	for _, d in { { 185, 14 }, { 240, 18 } } do
+		local p = plano(d[1], 0.1, -9, d[2], 0.1, Color3.fromRGB(70, 110, 100), false)
+		p.Size = Vector3.new(d[2], 0.1, 5)
 		for _ = 1, 4 do
-			arbol(centro + Vector3.new(rng:NextNumber(-50, 50), 0, rng:NextNumber(-55, -30)), rng:NextNumber(0.8, 1.2))
+			disco(d[1] + rng:NextNumber(-d[2] / 2.5, d[2] / 2.5), 0.4, rng:NextNumber(-10, -7), 1.6, Color3.fromRGB(110, 180, 90))
 		end
-	elseif id == "bosque" then
-		for _ = 1, 26 do
-			local p = centro + Vector3.new(rng:NextNumber(-60, 60), 0, rng:NextNumber(-60, 60))
-			if (p - centro).Magnitude > 24 then
-				arbol(p, rng:NextNumber(1, 1.8), Color3.fromRGB(45, 110, 60))
-			end
+	end
+	-- juncos y árboles muertos
+	for _ = 1, 30 do
+		local x = rng:NextNumber(165, 262)
+		local z = rng:NextNumber(-12, -5)
+		local m = grupoBalanceo(x, z)
+		local h = rng:NextNumber(3, 5)
+		plano(x, h / 2, z, 0.25, h, Color3.fromRGB(110, 140, 70), false, m)
+		plano(x, h - 0.5, z + 0.1, 0.5, 1.4, Color3.fromRGB(110, 70, 45), true, m)
+	end
+	for _, x in { 172, 200, 232, 255 } do
+		local z = -16 + rng:NextNumber(-3, 1)
+		plano(x, 5, z, 1.4, 10, Color3.fromRGB(90, 75, 70))
+		plano(x - 1.8, 8, z + 0.1, 4, 0.7, Color3.fromRGB(90, 75, 70), true, nil, 35)
+		plano(x + 1.6, 6.5, z + 0.1, 3.4, 0.6, Color3.fromRGB(90, 75, 70), true, nil, -30)
+	end
+	-- niebla que se mueve (cliente)
+	for _ = 1, 8 do
+		local n = plano(rng:NextNumber(165, 262), rng:NextNumber(1.2, 3), rng:NextNumber(-14, -6), rng:NextNumber(14, 24), rng:NextNumber(1.5, 3), Color3.fromRGB(230, 240, 240), false)
+		n.Transparency = 0.55
+		n:SetAttribute("Niebla", rng:NextNumber(0.5, 1.5))
+	end
+	-- guarida: charca oscura con burbujas
+	local gx = Mundo.Guaridas.pantano
+	plano(gx, 0.15, -8.5, 10, 0.1, Color3.fromRGB(45, 70, 70), false).Size = Vector3.new(10, 0.1, 5)
+	plano(gx, 1.2, -11.2, 12, 2.4, Color3.fromRGB(60, 90, 85))
+	for k = -2, 2 do
+		disco(gx + k * 2, 2.6 + (k % 2) * 0.6, -10.8, 0.9, Color3.fromRGB(150, 200, 180))
+	end
+end
+
+local function bosque(rng: Random)
+	for _ = 1, 26 do
+		pino(rng:NextNumber(262, 362), rng:NextNumber(-34, -14), rng:NextNumber(1.1, 1.9))
+	end
+	for _ = 1, 10 do
+		pino(rng:NextNumber(262, 362), rng:NextNumber(-13, -12), rng:NextNumber(0.6, 0.9), Color3.fromRGB(60, 130, 80))
+	end
+	for _ = 1, 14 do
+		local x = rng:NextNumber(262, 362)
+		plano(x, 0.5, -10, 0.4, 1, Color3.fromRGB(240, 230, 210))
+		disco(x, 1.1, -9.8, 1.4, Color3.fromRGB(215, 70, 60))
+	end
+	-- guarida: tronco hueco gigante
+	local gx = Mundo.Guaridas.bosque
+	plano(gx, 4, -11, 12, 8, Color3.fromRGB(120, 80, 50))
+	disco(gx, 3.6, -10.6, 6, Color3.fromRGB(35, 25, 25))
+	for k = -2, 2 do
+		plano(gx + k * 2.4, 8.2, -10.7, 0.4, 0.9, Color3.fromRGB(90, 60, 40), false)
+	end
+	disco(gx - 1, 3.8, -10.2, 0.6, Color3.fromRGB(255, 220, 80), false)
+	disco(gx + 1, 3.8, -10.2, 0.6, Color3.fromRGB(255, 220, 80), false)
+end
+
+local function ruinas(rng: Random)
+	for _, x in { 372, 392, 438, 455 } do
+		local h = rng:NextNumber(6, 15)
+		local z = -15 + rng:NextNumber(-4, 2)
+		plano(x, h / 2, z, 3, h, Color3.fromRGB(190, 180, 165))
+		plano(x, h + 0.4, z + 0.1, 4, 1, Color3.fromRGB(170, 160, 145))
+		plano(x + 0.4, h * 0.6, z + 0.3, 0.2, h * 0.3, Color3.fromRGB(120, 110, 100), false, nil, 20)
+	end
+	-- arco roto
+	plano(404, 7, -20, 3, 14, Color3.fromRGB(185, 175, 160))
+	plano(426, 5, -20, 3, 10, Color3.fromRGB(185, 175, 160))
+	plano(411, 14.5, -19.8, 18, 2.4, Color3.fromRGB(175, 165, 150), true, nil, -4)
+	for _ = 1, 8 do
+		plano(rng:NextNumber(365, 460), 0.7, rng:NextNumber(-12, -9), rng:NextNumber(1.5, 3), 1.4, Color3.fromRGB(165, 155, 140), true, nil, rng:NextNumber(-20, 20))
+	end
+	for _ = 1, 6 do
+		local x = rng:NextNumber(365, 460)
+		local c = plano(x, 1.2, -10.4, 0.9, 2.4, Color3.fromRGB(180, 120, 240), true, nil, rng:NextNumber(-15, 15))
+		c.Material = Enum.Material.Neon
+	end
+	-- guarida: puerta de cripta
+	local gx = Mundo.Guaridas.ruinas
+	plano(gx, 5, -11.4, 10, 10, Color3.fromRGB(150, 140, 130))
+	plano(gx, 3.5, -11, 5, 7, Color3.fromRGB(30, 25, 35))
+	tri(gx, 10, -11.2, 12, 3, Color3.fromRGB(130, 120, 110))
+	disco(gx - 0.8, 4.5, -10.6, 0.5, Color3.fromRGB(255, 80, 80), false)
+	disco(gx + 0.8, 4.5, -10.6, 0.5, Color3.fromRGB(255, 80, 80), false)
+end
+
+local function cueva(rng: Random)
+	-- la montaña de roca donde vive el Rey Hongo
+	tri(540, 0, -16, 120, 46, Color3.fromRGB(110, 100, 105))
+	tri(505, 0, -15, 60, 30, Color3.fromRGB(125, 115, 118))
+	tri(585, 0, -15, 70, 34, Color3.fromRGB(100, 92, 98))
+	local gx = Mundo.Guaridas.cueva
+	disco(gx, 2, -11.5, 13, Color3.fromRGB(25, 20, 25))
+	for k = -2, 2 do
+		tri(gx + k * 2.6, 8.4, -11, 1.6, -2.4, Color3.fromRGB(110, 100, 105), true)
+	end
+	disco(gx - 1.4, 4, -11, 0.9, Color3.fromRGB(255, 220, 70), false).Material = Enum.Material.Neon
+	disco(gx + 1.4, 4, -11, 0.9, Color3.fromRGB(255, 220, 70), false).Material = Enum.Material.Neon
+	letrero(gx, 16, -11, 12, 2.4, "¡Cuidado! Rey Hongo", Color3.fromRGB(160, 40, 40))
+	-- hongos brillantes
+	for _ = 1, 14 do
+		local x = rng:NextNumber(465, 600)
+		if math.abs(x - gx) > 8 then
+			local s = rng:NextNumber(0.7, 1.4)
+			plano(x, 0.7 * s, -10.5, 0.5 * s, 1.4 * s, Color3.fromRGB(240, 230, 210))
+			local cap = disco(x, 1.5 * s, -10.3, 1.8 * s, ({ Color3.fromRGB(120, 220, 255), Color3.fromRGB(200, 120, 255), Color3.fromRGB(255, 120, 120) })[rng:NextInteger(1, 3)])
+			cap.Material = Enum.Material.Neon
 		end
-	elseif id == "ruinas" then
-		for k = 0, 9 do
-			local a = k / 10 * math.pi * 2
-			local p = centro + Vector3.new(math.cos(a) * 28, 0, math.sin(a) * 28)
-			local alto = rng:NextNumber(4, 16)
-			parte({ Size = Vector3.new(4, alto, 4), Position = p + Vector3.new(0, alto / 2, 0), Color = Color3.fromRGB(165, 155, 145), Material = Enum.Material.Cobblestone, Orientation = Vector3.new(0, 0, rng:NextNumber(-8, 8)) })
+	end
+end
+
+local function pastoPorTodas(rng: Random)
+	for _ = 1, 260 do
+		local x = rng:NextNumber(-190, 600)
+		if not (x > 462) then
+			mata(x, rng:NextNumber(-12, -3), rng:NextNumber(0.8, 1.2), rng)
 		end
-		parte({ Size = Vector3.new(30, 2, 4), Position = centro + Vector3.new(0, 17, -28), Color = Color3.fromRGB(150, 140, 130), Material = Enum.Material.Cobblestone })
-	elseif id == "cueva" then
-		for k = 0, 14 do
-			local a = math.rad(-150 + k * 20)
-			local p = centro + Vector3.new(math.cos(a) * 34, 0, math.sin(a) * 34)
-			parte({ Size = Vector3.new(10, rng:NextNumber(10, 24), 10), Position = p + Vector3.new(0, 6, 0), Color = Color3.fromRGB(85, 75, 80), Material = Enum.Material.Rock, Orientation = Vector3.new(rng:NextNumber(-10, 10), rng:NextNumber(0, 90), 0) })
-		end
-		for _ = 1, 8 do
-			local p = centro + Vector3.new(rng:NextNumber(-30, 30), 0, rng:NextNumber(-30, 30))
-			if (p - centro).Magnitude > 18 then
-				parte({ Size = Vector3.new(0.8, 3, 0.8), Position = p + Vector3.new(0, 1.5, 0), Color = Color3.fromRGB(240, 230, 210), Material = Enum.Material.SmoothPlastic })
-				parte({ Shape = Enum.PartType.Ball, Size = Vector3.new(3.5, 1.6, 3.5), Position = p + Vector3.new(0, 3.2, 0), Color = Color3.fromRGB(210, 80, 70), Material = Enum.Material.SmoothPlastic })
-			end
-		end
+	end
+	-- primer plano (más grande, delante del camino)
+	for _ = 1, 170 do
+		local x = rng:NextNumber(-190, 600)
+		local tono = x > 462 and Color3.fromRGB(90, 110, 90) or nil
+		mata(x, rng:NextNumber(5, 10), rng:NextNumber(1.1, 1.7), rng, tono)
+	end
+	for _ = 1, 50 do
+		local x = rng:NextNumber(-190, 360)
+		flor(x, rng:NextNumber(6, 10), rng:NextNumber(0.9, 1.3), rng)
 	end
 end
 
@@ -145,55 +663,61 @@ function Mundo.construir(): { [BasePart]: any }
 
 	raiz = Instance.new("Folder")
 	raiz.Name = "MundoVael"
-	raiz.Parent = workspace
+	pasto = Instance.new("Folder")
+	pasto.Name = "Pasto"
+	pasto.Parent = raiz
 	local rng = Random.new(2026)
 
-	-- suelo (si no hay Baseplate)
-	if not workspace:FindFirstChild("Baseplate") then
-		parte({ Name = "Suelo", Size = Vector3.new(900, 2, 900), Position = Vector3.new(0, -1, -150), Color = Color3.fromRGB(110, 170, 90), Material = Enum.Material.Grass })
+	luces()
+	-- la placa gris de la plantilla Baseplate no pega con el dibujo: se esconde (el suelo es nuestro)
+	local placa = workspace:FindFirstChild("Baseplate")
+	if placa and placa:IsA("BasePart") then
+		placa.Transparency = 1
+		placa.CanCollide = false
+		for _, h in placa:GetChildren() do
+			if h:IsA("Texture") or h:IsA("Decal") then
+				h:Destroy()
+			end
+		end
 	end
-	-- punto de aparición
+	for _, d in workspace:GetDescendants() do
+		if d:IsA("SpawnLocation") then
+			d.Enabled = false
+			d.Transparency = 1
+			d.CanCollide = false
+			for _, h in d:GetChildren() do
+				if h:IsA("Decal") then
+					h:Destroy()
+				end
+			end
+		end
+	end
+
+	cielo()
+	fondoLejano(rng)
+	suelo()
+	ciudad(rng)
+	pradera(rng)
+	pantano(rng)
+	bosque(rng)
+	ruinas(rng)
+	cueva(rng)
+	pastoPorTodas(rng)
+
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true
-	sp.Size = Vector3.new(8, 1, 8)
-	sp.Position = Vector3.new(0, 0.5, 15)
-	sp.Color = Color3.fromRGB(240, 200, 80)
-	sp.Material = Enum.Material.Marble
+	sp.Size = Vector3.new(6, 1, 6)
+	sp.Position = Vector3.new(Mundo.Inicio, 0.5, 2)
+	sp.Transparency = 1
+	sp.CanCollide = false
+	sp.Neutral = true
+	sp.Duration = 0
 	sp.Parent = raiz
 
-	-- aldea
-	local colores = { Color3.fromRGB(240, 225, 190), Color3.fromRGB(200, 220, 235), Color3.fromRGB(235, 200, 190), Color3.fromRGB(215, 235, 200) }
-	casa(Vector3.new(-40, 0, 35), 30, colores[1])
-	casa(Vector3.new(40, 0, 35), -30, colores[2])
-	casa(Vector3.new(-45, 0, -15), 90, colores[3])
-	casa(Vector3.new(45, 0, -15), -90, colores[4])
-	for _ = 1, 10 do
-		arbol(Vector3.new(rng:NextNumber(-80, 80), 0, rng:NextNumber(50, 90)), rng:NextNumber(0.9, 1.4))
-	end
-
-	-- fuente curativa
-	local fuente = parte({ Name = "Fuente", Shape = Enum.PartType.Cylinder, Size = Vector3.new(2, 16, 16), CFrame = CFrame.new(0, 1, -10) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(170, 170, 180), Material = Enum.Material.Marble })
-	local agua = parte({ Name = "AguaFuente", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.4, 13, 13), CFrame = CFrame.new(0, 2.1, -10) * CFrame.Angles(0, 0, math.rad(90)), Color = Color3.fromRGB(90, 190, 230), Material = Enum.Material.Glass, Transparency = 0.2, CanCollide = false })
-	agua:SetAttribute("Fuente", true)
-	cartel(fuente, "Fuente de Vael", "Cura vida y maná", Color3.fromRGB(60, 140, 200))
-
-	-- mercader
-	local puesto = parte({ Name = "Mercader", Size = Vector3.new(8, 4, 4), Position = Vector3.new(22, 2, 0), Color = Color3.fromRGB(150, 100, 60), Material = Enum.Material.Wood })
-	parte({ Size = Vector3.new(9, 0.5, 5), Position = Vector3.new(22, 7, 0), Color = Color3.fromRGB(214, 69, 65), Material = Enum.Material.Fabric })
-	puesto:SetAttribute("Mercader", true)
-	cartel(puesto, "Mercader", "Pociones y éteres", Color3.fromRGB(200, 120, 40))
-
-	-- zonas de combate
 	for _, z in Datos.Zonas do
-		local centro = POSICIONES[z.id]
-		local disco = parte({ Name = "Zona_" .. z.id, Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 30, 30), CFrame = CFrame.new(centro + Vector3.new(0, 0.3, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color = z.color, Material = Enum.Material.Neon, Transparency = 0.55, CanCollide = false })
-		disco:SetAttribute("Zona", z.id)
-		local poste = parte({ Size = Vector3.new(1, 8, 1), Position = centro + Vector3.new(0, 4, 18), Color = Color3.fromRGB(110, 75, 45), Material = Enum.Material.Wood })
-		cartel(poste, z.nombre, "Nivel recomendado " .. z.nivel, z.color)
-		camino(Vector3.new(0, 0, -15), centro)
-		decorarZona(z.id, centro, rng)
-		zonas[disco] = z
+		zonas[guarida(z)] = z
 	end
+	raiz.Parent = workspace
 	return zonas
 end
 
