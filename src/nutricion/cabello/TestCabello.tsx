@@ -90,6 +90,15 @@ const Fondo: React.FC<{ t: number }> = ({ t }) => {
       ].map(([x, y, r, c], k) => (
         <div key={k} style={{ position: "absolute", left: (x as number) - (r as number) + Math.sin(t * 0.4 + k) * 40, top: (y as number) - (r as number) + Math.cos(t * 0.3 + k) * 40, width: (r as number) * 2, height: (r as number) * 2, borderRadius: "50%", background: c as string, opacity: 0.13, filter: "blur(60px)" }} />
       ))}
+      {Array.from({ length: 9 }, (_, i) => {
+        const x = random(`hx${i}`) * 1080 + Math.sin(t * 0.5 + i) * 30;
+        const y = ((random(`hy${i}`) * 2100 - t * (18 + random(`hv${i}`) * 20)) % 2100 + 2100) % 2100 - 100;
+        return (
+          <div key={`h${i}`} style={{ position: "absolute", left: x, top: y, opacity: 0.16, transform: `rotate(${t * 20 + i * 40}deg)` }}>
+            {i % 3 === 2 ? <Molecula tam={110} color={L.azul} /> : <Hoja tam={70 + (i % 3) * 20} color={i % 2 ? L.verde : L.azul} />}
+          </div>
+        );
+      })}
       {Array.from({ length: 46 }, (_, i) => {
         const fase = (random(`z${i}`) + t * (0.08 + empuje * 0.9) + random(`v${i}`) * t * 0.05) % 1;
         const ang = random(`a${i}`) * Math.PI * 2;
@@ -134,6 +143,48 @@ const Corazon: React.FC<{ t: number; tam?: number }> = ({ t, tam = 160 }) => {
   );
 };
 
+/** Hoja suave (decoración). */
+const Hoja: React.FC<{ tam: number; color: string }> = ({ tam, color }) => (
+  <svg width={tam} height={tam} viewBox="0 0 100 100">
+    <path d="M50 6 C80 22 88 60 50 94 C12 60 20 22 50 6 Z" fill={color} />
+    <path d="M50 14 V88 M50 40 L34 30 M50 56 L66 44 M50 70 L36 62" stroke="#ffffff88" strokeWidth={3} fill="none" strokeLinecap="round" />
+  </svg>
+);
+/** Molécula de hexágonos (decoración). */
+const Molecula: React.FC<{ tam: number; color: string }> = ({ tam, color }) => (
+  <svg width={tam} height={tam} viewBox="0 0 120 100">
+    {[[30, 30], [62, 48], [30, 66], [94, 30]].map(([x, y], k) => (
+      <polygon key={k} points={Array.from({ length: 6 }, (_, i) => `${x + Math.cos((i * Math.PI) / 3) * 16},${y + Math.sin((i * Math.PI) / 3) * 16}`).join(" ")} fill="none" stroke={color} strokeWidth={4} />
+    ))}
+  </svg>
+);
+/** Cápsula de dos colores. */
+const Capsula: React.FC<{ c1: string; c2: string; tam?: number }> = ({ c1, c2, tam = 70 }) => (
+  <svg width={tam} height={tam * 0.45} viewBox="0 0 100 44">
+    <rect x={2} y={2} width={96} height={40} rx={20} fill={c2} />
+    <path d="M22 2 H50 V42 H22 A20 20 0 0 1 22 2 Z" fill={c1} />
+    <rect x={12} y={8} width={30} height={7} rx={3.5} fill="#ffffff88" />
+  </svg>
+);
+/** Destellos alrededor de un punto. */
+const Destellos: React.FC<{ t: number; desde: number; x: number; y: number; color?: string }> = ({ t, desde, x, y, color = L.verde }) => {
+  if (t < desde || t > desde + 1.2) return null;
+  const p = (t - desde) / 1.2;
+  return (
+    <>
+      {Array.from({ length: 10 }, (_, k) => {
+        const a = (k / 10) * Math.PI * 2;
+        const d = 60 + p * 220;
+        return <div key={k} style={{ position: "absolute", left: x + Math.cos(a) * d - 8, top: y + Math.sin(a) * d - 8, width: 16, height: 16, borderRadius: 8, background: k % 2 ? color : "#ffd84a", opacity: 1 - p }} />;
+      })}
+    </>
+  );
+};
+/** Cajita de texto pequeña bajo un icono. */
+const Rotulo: React.FC<{ texto: string }> = ({ texto }) => (
+  <div style={{ fontFamily: LEX, fontWeight: 600, fontSize: 26, color: OSC, background: "#ffffffdd", padding: "4px 14px", borderRadius: 999, whiteSpace: "nowrap", boxShadow: "0 4px 12px #00000012" }}>{texto}</div>
+);
+
 /* =================== ESCENAS =================== */
 
 /** 1 · Cinco pelos y la cámara entra en uno hasta ver su ADN. */
@@ -167,6 +218,13 @@ const Gancho: React.FC<{ t: number }> = ({ t }) => {
             );
           })}
         </svg>
+        <div style={{ position: "absolute", left: 600 + Math.sin(t * 1.6) * 160, top: 560 + Math.cos(t * 1.3) * 60, opacity: interpolate(t, [0.6, 0.9], [0, 0.9], CL) }}>
+          <svg width={210} height={210} viewBox="0 0 100 100">
+            <circle cx={40} cy={40} r={28} fill="#ffffff55" stroke={OSC} strokeWidth={6} />
+            <path d="M60 60 L90 90" stroke={OSC} strokeWidth={10} strokeLinecap="round" />
+            <path d="M26 30 Q30 22 40 20" stroke="#fff" strokeWidth={4} fill="none" strokeLinecap="round" />
+          </svg>
+        </div>
         {pelos.map((_, k) => {
           const e = pop(t, T("5") + k * 0.07);
           return (
@@ -198,6 +256,9 @@ const Gancho: React.FC<{ t: number }> = ({ t }) => {
               );
             })}
           </svg>
+          {Array.from({ length: 8 }, (_, k) => (
+            <div key={k} style={{ position: "absolute", left: (k % 2 ? 820 : 120) + Math.sin(t + k) * 30, top: 300 + k * 140 + Math.cos(t * 1.2 + k) * 20, width: 70 + (k % 3) * 20, height: 70 + (k % 3) * 20, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, #ffffff, ${k % 2 ? L.verde : L.azul}66)`, opacity: 0.6 }} />
+          ))}
           <div style={{ position: "absolute", left: 540, top: 760, transform: `translate(-50%,-50%) scale(${pop(t, T("salud?") - 0.1)})` }}>
             <Corazon t={t} tam={220} />
           </div>
@@ -215,6 +276,14 @@ const Logo: React.FC<{ t: number }> = ({ t }) => {
       {[0, 1, 2].map((k) => {
         const p = ((t * 0.7 + k / 3) % 1) ** 0.8;
         return <div key={k} style={{ position: "absolute", left: 540 - 200 - p * 360, top: 760 - 200 - p * 360, width: 400 + p * 720, height: 400 + p * 720, borderRadius: "50%", border: `6px solid ${k % 2 ? L.verde : L.azul}`, opacity: (1 - p) * 0.35 }} />;
+      })}
+      {[Manzana, Palta, Brocoli, Limon, Fresa, Zanahoria].map((C, k) => {
+        const a = t * 0.5 + (k / 6) * Math.PI * 2;
+        return (
+          <div key={k} style={{ position: "absolute", left: 540 + Math.cos(a) * 420 - 45, top: 720 + Math.sin(a) * 300 - 45, opacity: 0.85 * pop(t, g + 0.2 + k * 0.08), transform: `scale(${0.7 + 0.3 * (Math.sin(a) + 1) / 2})` }}>
+            <C t={90} />
+          </div>
+        );
       })}
       <div style={{ position: "absolute", left: 540, top: 720, transform: `translate(-50%,-50%) scale(${0.85 * pop(t, g) + 0.02 * Math.sin(t * 2)})` }}>
         <LogoAyE escala={0.95} />
@@ -283,6 +352,25 @@ const Test: React.FC<{ t: number }> = ({ t }) => {
           <path d="M74 60 V500" stroke="#fff" strokeWidth={10} strokeLinecap="round" opacity={0.6} />
         </svg>
       </div>
+      <svg width={1080} height={1920} style={{ position: "absolute" }}>
+        {/* pipeta que gotea en el tubo */}
+        <g transform={`translate(${290 + Math.sin(t * 2) * 6} 180)`}>
+          <rect x={-14} y={0} width={28} height={120} rx={10} fill="#cfdfe6" />
+          <path d="M-10 120 L10 120 L2 170 L-2 170 Z" fill="#e6f1f5" stroke="#9fc4d2" strokeWidth={3} />
+          <circle cx={0} cy={180 + ((t * 300) % 200)} r={8} fill={L.azul} opacity={0.8} />
+        </g>
+        {/* gradilla con tres tubos pequeños */}
+        <g transform="translate(120 1080)">
+          <rect x={0} y={60} width={300} height={22} rx={8} fill="#c8a57a" />
+          {[0, 1, 2].map((k) => (
+            <g key={k} transform={`translate(${30 + k * 90} 0)`}>
+              <path d="M10 0 V110 A20 20 0 0 0 50 110 V0" fill="#ffffffcc" stroke="#9fc4d2" strokeWidth={5} />
+              <path d={`M14 ${60 - k * 10} V110 A16 16 0 0 0 46 110 V${60 - k * 10} Z`} fill={[L.verde, "#f2a33a", "#e8546a"][k]} opacity={0.8} />
+            </g>
+          ))}
+          <rect x={0} y={130} width={300} height={22} rx={8} fill="#b38e62" />
+        </g>
+      </svg>
       <div style={{ position: "absolute", left: 120, top: 290, transform: `scale(${pop(t, T("test") - s0)})` }}>
         <Etiqueta texto="TEST DE CABELLO" />
       </div>
@@ -300,6 +388,10 @@ const Test: React.FC<{ t: number }> = ({ t }) => {
             </div>
           );
         })}
+        <svg width={470} height={90} viewBox="0 0 470 90" style={{ marginTop: 6 }}>
+          <path d={`M0 70 ${Array.from({ length: 12 }, (_, i) => `L${i * 42} ${70 - (Math.sin(i * 1.3) + 1) * 22 * interpolate(t, [sens, sens + 1.2], [0, 1], CL)}`).join(" ")}`} fill="none" stroke={L.azul} strokeWidth={5} strokeLinejoin="round" />
+          <path d="M0 86 H470" stroke="#e1ebee" strokeWidth={3} />
+        </svg>
       </div>
     </AbsoluteFill>
   );
@@ -374,11 +466,19 @@ const Salud: React.FC<{ t: number }> = ({ t }) => {
       <div style={{ position: "absolute", left: 540, top: 700, transform: "translate(-50%,-50%)" }}>
         <Corazon t={t} tam={110} />
       </div>
+      {[0, 1].map((k) => {
+        const p = (t * 0.8 + k * 0.5) % 1;
+        return <div key={k} style={{ position: "absolute", left: 540 - 60 - p * 120, top: 700 - 60 - p * 120, width: 120 + p * 240, height: 120 + p * 240, borderRadius: "50%", border: "4px solid #e8546a", opacity: (1 - p) * 0.5 }} />;
+      })}
       {iconos.map((ic, k) => (
-        <div key={k} style={{ position: "absolute", left: ic.x - 70, top: ic.y - 70 + Math.sin(t * 2 + k) * 10, transform: `scale(${pop(t, amb + k * 0.15)})` }}>
+        <div key={k} style={{ position: "absolute", left: ic.x - 70, top: ic.y - 70 + Math.sin(t * 2 + k) * 10, transform: `scale(${pop(t, amb + k * 0.15)})`, display: "flex", flexDirection: "column", alignItems: "center", gap: 8, width: 140 }}>
           <IcoAmbiente tipo={ic.tipo} t={t} />
+          <Rotulo texto={{ sol: "Sol", aire: "Aire", humo: "Contaminación", sueno: "Sueño", estres: "Estrés" }[ic.tipo]} />
         </div>
       ))}
+      <svg width={1080} height={160} viewBox="0 0 1080 160" style={{ position: "absolute", left: 0, top: 1215, opacity: 0.35 }}>
+        <path d={`M0 80 ${Array.from({ length: 28 }, (_, i) => { const x = i * 40 - ((t * 160) % 40); const pico = i % 7 === 3; return `L${x} ${pico ? 20 : i % 7 === 4 ? 130 : 80}`; }).join(" ")}`} fill="none" stroke="#e8546a" strokeWidth={5} strokeLinejoin="round" />
+      </svg>
       <div style={{ position: "absolute", left: 0, right: 0, top: 240, display: "flex", justifyContent: "center", transform: `scale(${pop(t, T("estado", 1) - s0 - 0.2)})` }}>
         <Etiqueta texto="ESTADO DE SALUD" color={L.verdeOsc} tam={54} />
       </div>
@@ -389,6 +489,11 @@ const Salud: React.FC<{ t: number }> = ({ t }) => {
 /** 5 · Tres esferas: vitaminas, minerales y aminoácidos. */
 const Nutrientes: React.FC<{ t: number }> = ({ t }) => {
   const s0 = E.nutrientes.ini;
+  const capsulas = Array.from({ length: 7 }, (_, k) => (
+    <div key={`c${k}`} style={{ position: "absolute", left: [80, 860, 120, 900, 760, 180, 920][k] + Math.sin(t * 1.5 + k) * 20, top: [360, 300, 900, 640, 1180, 1260, 1000][k] + Math.cos(t + k) * 20, transform: `rotate(${t * 40 + k * 50}deg)`, opacity: 0.85 * pop(t, 0.1 + k * 0.08) }}>
+      <Capsula c1={[L.azul, L.verde, "#f2a33a"][k % 3]} c2="#ffffff" tam={90} />
+    </div>
+  ));
   const items = [
     { w: "vitaminas", txt: "VITAMINAS", c1: "#ffbf47", c2: "#e08a12", y: 430, letras: ["A", "B", "C", "D"] },
     { w: "minerales", txt: "MINERALES", c1: L.azul, c2: "#1f7f9b", y: 760, letras: ["Fe", "Zn", "Mg", "Ca"] },
@@ -396,6 +501,7 @@ const Nutrientes: React.FC<{ t: number }> = ({ t }) => {
   ];
   return (
     <AbsoluteFill>
+      {capsulas}
       {items.map((it, k) => {
         const e = pop(t, T(it.w) - s0 - 0.1, 10);
         const x = k === 1 ? 640 : 440;
@@ -457,6 +563,14 @@ const Alimentos: React.FC<{ t: number }> = ({ t }) => {
         <ellipse cx={540} cy={760} rx={340} ry={36} fill="#7fd0e3" />
         <path d="M250 800 Q300 940 420 980" stroke="#ffffff66" strokeWidth={14} fill="none" strokeLinecap="round" />
       </svg>
+      <svg width={170} height={230} viewBox="0 0 100 135" style={{ position: "absolute", left: 860, top: 820 }}>
+        <path d="M14 10 H86 L78 128 H22 Z" fill="#e9f8fc" stroke="#9fc4d2" strokeWidth={4} />
+        <path d={`M20 ${50 + Math.sin(t * 3) * 3} Q50 ${44 - Math.sin(t * 3) * 3} 82 ${50 + Math.sin(t * 3) * 3} L78 124 H22 Z`} fill={L.azul} opacity={0.55} />
+        <path d="M26 20 L30 110" stroke="#fff" strokeWidth={5} strokeLinecap="round" />
+      </svg>
+      <div style={{ position: "absolute", left: 50, top: 850, transform: `rotate(${-20 + Math.sin(t * 2) * 6}deg)` }}><Hoja tam={140} color={L.verde} /></div>
+      <div style={{ position: "absolute", left: 130, top: 940, transform: `rotate(${30 + Math.sin(t * 2 + 1) * 6}deg)` }}><Hoja tam={100} color={L.verdeOsc} /></div>
+      <Destellos t={t} desde={opt + 0.2} x={540} y={760} />
       {/* la barra del cuerpo */}
       <div style={{ position: "absolute", left: 140, right: 140, top: 1110, transform: `scale(${pop(t, T("ayudar") - s0 - 0.3)})` }}>
         <div style={{ display: "flex", justifyContent: "space-between", fontFamily: TIT, fontWeight: 800, fontSize: 46, color: OSC }}>
@@ -507,6 +621,9 @@ const Microbios: React.FC<{ t: number }> = ({ t }) => {
     <AbsoluteFill>
       {/* la lente */}
       <div style={{ position: "absolute", left: 90, top: 330, width: 900, height: 900, borderRadius: "50%", background: "radial-gradient(circle at 45% 40%, #f3fcff 0%, #cdeef6 55%, #8fd2e3 100%)", boxShadow: "0 0 0 26px #ffffff, 0 0 0 34px #cfe3ea, 0 40px 80px #16404a33", overflow: "hidden" }}>
+        {Array.from({ length: 14 }, (_, k) => (
+          <div key={`g${k}`} style={{ position: "absolute", left: random(`gx${k}`) * 820 + Math.sin(t * 0.5 + k) * 30, top: random(`gy${k}`) * 820 + Math.cos(t * 0.4 + k) * 30, width: 70, height: 70, borderRadius: "50%", background: "radial-gradient(circle, #f6c4c9 30%, #ef9aa4 70%)", opacity: 0.35 }} />
+        ))}
         {Array.from({ length: 12 }, (_, k) => {
           const x = 120 + random(`mx${k}`) * 660 + Math.sin(t * 0.8 + k) * 40,
             y = 120 + random(`my${k}`) * 660 + Math.cos(t * 0.7 + k) * 40;
@@ -567,6 +684,24 @@ const Contacto: React.FC<{ t: number }> = ({ t }) => {
           </div>
         </div>
       </div>
+      {Array.from({ length: 6 }, (_, k) => {
+        const p = ((t * 0.5 + k / 6) % 1);
+        const x = k % 2 ? 870 : 140;
+        return (
+          <div key={k} style={{ position: "absolute", left: x + Math.sin(t * 2 + k) * 20, top: 1000 - p * 700, opacity: Math.sin(p * Math.PI) * 0.8 }}>
+            {k % 3 === 0 ? (
+              <svg width={60} height={60} viewBox="0 0 100 100"><path d="M50 88 C20 66 8 50 10 32 C12 16 32 8 50 26 C68 8 88 16 90 32 C92 50 80 66 50 88 Z" fill="#e8546a" /></svg>
+            ) : (
+              <div style={{ width: 80, height: 56, borderRadius: 20, background: k % 2 ? L.verde : L.azul, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>
+                {[0, 1, 2].map((j) => <span key={j} style={{ width: 9, height: 9, borderRadius: 5, background: "#fff" }} />)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+      <div style={{ position: "absolute", left: 640, top: 250, transform: `scale(${pop(t, 0.4)}) rotate(4deg)` }}>
+        <Etiqueta texto="RESPUESTA RÁPIDA" color={L.verdeOsc} tam={36} />
+      </div>
       {/* el número grande */}
       <div style={{ position: "absolute", left: 0, right: 0, top: 1060, display: "flex", justifyContent: "center", transform: `scale(${pop(t, num - 0.1, 9)}) rotate(-2deg)` }}>
         <div style={{ display: "flex", alignItems: "center", gap: 20, background: `linear-gradient(90deg, ${L.azul}, ${L.verde})`, borderRadius: 999, padding: "16px 44px 10px", boxShadow: `0 20px 40px ${L.azul}55` }}>
@@ -590,6 +725,14 @@ const Contacto: React.FC<{ t: number }> = ({ t }) => {
 /** 9 · Cierre: el logo con la web y el WhatsApp. */
 const Cierre: React.FC<{ t: number }> = ({ t }) => (
   <AbsoluteFill>
+    {[Manzana, Palta, Brocoli, Limon, Fresa, Zanahoria, Manzana, Limon].map((C, k) => {
+      const a = -t * 0.35 + (k / 8) * Math.PI * 2;
+      return (
+        <div key={k} style={{ position: "absolute", left: 540 + Math.cos(a) * 440 - 40, top: 760 + Math.sin(a) * 440 - 40, opacity: 0.8 * pop(t, 0.3 + k * 0.06) }}>
+          <C t={80} />
+        </div>
+      );
+    })}
     <div style={{ position: "absolute", left: 540, top: 760, transform: `translate(-50%,-50%) scale(${0.95 * pop(t, 0.1) + 0.015 * Math.sin(t * 2)})` }}>
       <LogoAyE escala={1} />
     </div>
