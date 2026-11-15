@@ -1,0 +1,16 @@
+{
+  "carpeta": "nutricion-epigenetico",
+  "ritmoVox": 1.0,
+  "controlVox": "Mujer joven, voz cálida, clara y profesional de nutricionista, acento latinoamericano neutro de Perú, tono cercano y seguro, ritmo pausado",
+  "mostrar": { "noventa": "990", "ciento": "103", "tres,": "", "cuatrocientos": "447", "cuarenta": "", "siete,": "" },
+  "escenas": [
+    { "id": "conexion", "texto": "Descubre la conexión entre tu genética y tu nutrición." },
+    { "id": "ciencia", "texto": "Con un enfoque basado en ciencia, gracias al Test Epigenético." },
+    { "id": "hebras", "texto": "Solo necesitamos cinco hebras de tu cabello." },
+    { "id": "informe", "texto": "Con ellas, recibirás un informe detallado con toda tu información epigenética." },
+    { "id": "conoceras", "texto": "Conocerás tus vitaminas y minerales, tu microbioma intestinal y tu sensibilidad alimentaria." },
+    { "id": "presentacion", "texto": "Después, preparamos una presentación y conversamos sobre todos tus resultados." },
+    { "id": "dudas", "texto": "Resolvemos tus dudas, detalle a detalle, para optimizar tu alimentación." },
+    { "id": "agenda", "texto": "No lo dudes más: escríbenos y agenda tu Test Epigenético." }
+  ]
+}
