@@ -9,6 +9,7 @@ import { FotoCuarto } from "./personajes/FotoCuarto";
 import { PaletasNyxar } from "./personajes/PaletasNyxar";
 import { HojaIconos } from "./marca/HojaIconos";
 import { FlyerAyE } from "./nutricion/Flyer";
+import { DURACION_CABELLO, TestCabello } from "./nutricion/cabello/TestCabello";
 import { PruebaPapel } from "./vini/PruebaPapel";
 import { DURACION_VINI, Vini } from "./vini/Vini";
 import { DisenoMarco } from "./serie/Marco";
@@ -60,6 +61,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="PaletasNyxar" component={PaletasNyxar} durationInFrames={1} fps={30} width={1400} height={560} />
       <Composition id="HojaIconos" component={HojaIconos} durationInFrames={1} fps={30} width={1080} height={1120} />
       <Composition id="FlyerAyE" component={FlyerAyE} durationInFrames={1} fps={30} width={1080} height={1350} />
+      <Composition id="TestCabello" component={TestCabello} durationInFrames={DURACION_CABELLO} fps={60} width={1080} height={1920} />
       <Composition id="PruebaPapel" component={PruebaPapel} durationInFrames={1} fps={60} width={1080} height={1920} />
       <Composition id="Vini" component={Vini} durationInFrames={DURACION_VINI} fps={60} width={1080} height={1920} />
       <Composition id="DisenoMarco" component={DisenoMarco} durationInFrames={1} fps={30} width={1500} height={1000} />

@@ -22,7 +22,7 @@ if (typeof document !== "undefined") {
 }
 
 /** Colores del logo (tonos sacados de la foto, aclarados porque la foto los oscurece). */
-const L = {
+export const L = {
   azul: "#2fb0cf",
   azulTexto: "#2a9db8",
   verde: "#8cc63e",
@@ -66,7 +66,7 @@ export const LogoAyE: React.FC<{ escala?: number }> = ({ escala = 1 }) => (
 
 /* ---------- Comida dibujada ---------- */
 
-const Manzana: React.FC<{ t: number }> = ({ t }) => (
+export const Manzana: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <path d="M50 28 C30 14 8 26 10 52 C12 78 30 96 50 88 C70 96 88 78 90 52 C92 26 70 14 50 28 Z" fill="#e94b4b" />
     <path d="M50 28 C48 18 50 10 56 4" stroke="#6b4a2b" strokeWidth={5} fill="none" strokeLinecap="round" />
@@ -75,7 +75,7 @@ const Manzana: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 
-const Palta: React.FC<{ t: number }> = ({ t }) => (
+export const Palta: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <path d="M50 4 C66 4 72 26 80 46 C90 72 74 96 50 96 C26 96 10 72 20 46 C28 26 34 4 50 4 Z" fill="#3f7d2e" />
     <path d="M50 12 C62 12 66 30 72 48 C80 70 68 88 50 88 C32 88 20 70 28 48 C34 30 38 12 50 12 Z" fill="#d6ea8a" />
@@ -84,7 +84,7 @@ const Palta: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 
-const Zanahoria: React.FC<{ t: number }> = ({ t }) => (
+export const Zanahoria: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <path d="M30 30 C44 22 62 26 70 38 L34 94 C30 98 26 96 26 90 Z" fill="#ff8c2b" transform="rotate(-20 50 50)" />
     <path d="M40 40 L48 44 M36 56 L44 60 M33 72 L40 75" stroke="#d9661a" strokeWidth={4} strokeLinecap="round" transform="rotate(-20 50 50)" />
@@ -92,7 +92,7 @@ const Zanahoria: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 
-const Brocoli: React.FC<{ t: number }> = ({ t }) => (
+export const Brocoli: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <path d="M42 56 L38 94 H62 L58 56 Z" fill="#9fd36b" />
     {[
@@ -108,7 +108,7 @@ const Brocoli: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 
-const Limon: React.FC<{ t: number }> = ({ t }) => (
+export const Limon: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <circle cx={50} cy={50} r={42} fill="#f6d84a" />
     <circle cx={50} cy={50} r={34} fill="#fff6c2" />
@@ -119,7 +119,7 @@ const Limon: React.FC<{ t: number }> = ({ t }) => (
   </svg>
 );
 
-const Fresa: React.FC<{ t: number }> = ({ t }) => (
+export const Fresa: React.FC<{ t: number }> = ({ t }) => (
   <svg width={t} height={t} viewBox="0 0 100 100">
     <path d="M50 92 C24 72 14 46 24 32 C34 20 66 20 76 32 C86 46 76 72 50 92 Z" fill="#e8344a" />
     {[
