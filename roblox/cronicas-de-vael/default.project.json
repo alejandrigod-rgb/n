@@ -1,0 +1,17 @@
+{
+  "name": "CronicasDeVael",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "Vael": { "$path": "src/shared" }
+    },
+    "ServerScriptService": {
+      "VaelServidor": { "$path": "src/server" }
+    },
+    "StarterPlayer": {
+      "StarterPlayerScripts": {
+        "VaelCliente": { "$path": "src/client" }
+      }
+    }
+  }
+}
