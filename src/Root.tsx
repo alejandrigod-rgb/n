@@ -22,6 +22,7 @@ import { DisenoMama } from "./serie/Mama";
 import { FotoPerfilMarco, PerfilesMarco } from "./serie/FotoPerfilMarco";
 import { DURACION_EP1, Episodio1 } from "./serie/ep1/Episodio1";
 import { DURACION_EP2, Episodio2 } from "./serie/ep2/Episodio2";
+import { DURACION_EP3, Episodio3 } from "./serie/ep3/Episodio3";
 import { SPRITES, SpritesNyxar } from "./personajes/SpritesNyxar";
 import { DURACION_GTA, GtaVI } from "./gta/GtaVI";
 import { DURACION_ESPERA, EsperaGTA } from "./espera/EsperaGTA";
@@ -76,6 +77,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition id="PerfilesMarco" component={PerfilesMarco} durationInFrames={1} fps={30} width={1900} height={800} />
       <Composition id="MarcoEp1" component={Episodio1} durationInFrames={DURACION_EP1} fps={60} width={1080} height={1920} />
       <Composition id="MarcoEp2" component={Episodio2} durationInFrames={DURACION_EP2} fps={60} width={1080} height={1920} />
+      <Composition id="MarcoEp3" component={Episodio3} durationInFrames={DURACION_EP3} fps={60} width={1080} height={1920} />
       <Composition
         id="Pirateria"
         component={Pirateria}

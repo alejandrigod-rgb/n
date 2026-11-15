@@ -321,3 +321,63 @@ export const Calle: React.FC<{ avance?: number; f?: number; tarde?: boolean }> =
     </svg>
   </AbsoluteFill>
 );
+
+/** Gimnasio: pared con espejo, póster, ventanales, reloj, estantería de mancuernas, suelo de caucho y focos. `poster` cambia el texto. */
+export const Gimnasio: React.FC<{ f?: number; poster?: string }> = ({ f = 0, poster = "NO PAIN NO GAIN" }) => (
+  <AbsoluteFill>
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`}>
+      <rect width={W} height={H} fill="#dfe6ef" />
+      <rect y={0} width={W} height={160} fill="#2b3346" />
+      {/* focos del techo */}
+      {[180, 540, 900].map((x) => (
+        <g key={x}>
+          <rect x={x - 70} y={140} width={140} height={22} rx={8} fill="#f6f1d8" stroke={L} strokeWidth={5} />
+          <path d={`M${x - 70} 162 L${x - 160} 520 L${x + 160} 520 L${x + 70} 162 Z`} fill="#fffbe0" opacity={0.18} />
+        </g>
+      ))}
+      {/* ventanales con la calle */}
+      {[60, 380, 700].map((x) => (
+        <g key={x}>
+          <rect x={x} y={220} width={300} height={260} fill="#9fd0ee" stroke={L} strokeWidth={8} />
+          <rect x={x + 20} y={380} width={80} height={100} fill="#7fb36a" />
+          <rect x={x + 150} y={330} width={120} height={150} fill="#c9a77f" />
+          <path d={`M${x + 150} 220 V480`} stroke={L} strokeWidth={6} />
+        </g>
+      ))}
+      {/* franja de color y espejo grande */}
+      <rect y={520} width={W} height={40} fill="#e0453b" />
+      <rect x={40} y={600} width={1000} height={560} fill="#cfe3ee" stroke="#8fa3b8" strokeWidth={10} />
+      <path d="M120 640 L260 1100 M300 640 L420 1000" stroke="#ffffff" strokeWidth={14} opacity={0.5} />
+      {/* póster */}
+      <g transform="rotate(-3 840 760)">
+        <rect x={700} y={650} width={290} height={220} fill="#ffd400" stroke={L} strokeWidth={8} />
+        <text x={845} y={735} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={44} fill={L}>
+          {poster.split(" ").slice(0, 2).join(" ")}
+        </text>
+        <text x={845} y={800} textAnchor="middle" fontFamily="'Baloo 2', sans-serif" fontWeight={800} fontSize={44} fill="#e0453b">
+          {poster.split(" ").slice(2).join(" ")}
+        </text>
+      </g>
+      {/* reloj */}
+      <circle cx={540} cy={60} r={0} />
+      <circle cx={160} cy={740} r={70} fill="#fff" stroke={L} strokeWidth={8} />
+      <path d={`M160 740 L${160 + Math.cos(f / 40) * 46} ${740 + Math.sin(f / 40) * 46} M160 740 L160 700`} stroke={L} strokeWidth={7} strokeLinecap="round" />
+      {/* estantería de mancuernas */}
+      <rect x={60} y={1180} width={960} height={26} fill="#5c6470" stroke={L} strokeWidth={6} />
+      <rect x={60} y={1290} width={960} height={26} fill="#5c6470" stroke={L} strokeWidth={6} />
+      {Array.from({ length: 8 }, (_, i) => (
+        <g key={i} transform={`translate(${110 + i * 115} ${1150 - (i % 3) * 4})`}>
+          <rect x={-34} y={0} width={20} height={34} rx={5} fill={i % 2 ? "#2b3346" : "#e0453b"} stroke={L} strokeWidth={4} />
+          <rect x={14} y={0} width={20} height={34} rx={5} fill={i % 2 ? "#2b3346" : "#e0453b"} stroke={L} strokeWidth={4} />
+          <rect x={-14} y={12} width={28} height={10} fill="#9aa6b8" />
+        </g>
+      ))}
+      {/* suelo de caucho */}
+      <rect y={1320} width={W} height={H - 1320} fill="#3a3f4b" />
+      {Array.from({ length: 30 }, (_, i) => (
+        <circle key={i} cx={random(`gx${i}`) * W} cy={1340 + random(`gy${i}`) * 560} r={3} fill="#5a6070" />
+      ))}
+      <path d="M0 1500 H1080 M0 1700 H1080" stroke="#2f343f" strokeWidth={6} />
+    </svg>
+  </AbsoluteFill>
+);

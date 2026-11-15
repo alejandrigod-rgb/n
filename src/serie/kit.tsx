@@ -19,7 +19,7 @@ export const marca = (m: M, p: string, def: number) => {
 /* ---------- ayudas de dibujo ---------- */
 
 /** Marco (2026) colocado por la posición de su cara (cx, cy) en pantalla. */
-export const MarcoEn: React.FC<{ cx: number; cy: number; ancho: number; expresion: ExpresionGordo; f: number; movil?: boolean; brazoD?: number; olor?: boolean }> = ({ cx, cy, ancho, f, ...p }) => (
+export const MarcoEn: React.FC<{ cx: number; cy: number; ancho: number; expresion: ExpresionGordo; f: number; movil?: boolean; brazoD?: number; olor?: boolean; deporte?: boolean; zancada?: number; tirita?: boolean; dolor?: number }> = ({ cx, cy, ancho, f, ...p }) => (
   <div style={{ position: "absolute", left: cx - ancho / 2, top: cy - ancho * 0.45 }}>
     <MarcoGordo ancho={ancho} frame={f / 2} {...p} />
   </div>

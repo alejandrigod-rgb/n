@@ -45,7 +45,15 @@ export const MarcoGordo: React.FC<{
   /** Olor (líneas verdes que suben). */
   olor?: boolean;
   frame?: number;
-}> = ({ ancho = 400, boca = 0, expresion = "confuso", brazoD = 0, brazoI = 0, movil = false, olor = true, frame = 0 }) => {
+  /** Ropa de deporte (de hace 10 años): cinta en la cabeza y pantalones cortos que le aprietan. */
+  deporte?: boolean;
+  /** Ángulo de las piernas al correr (grados, se alternan). */
+  zancada?: number;
+  /** Tirita en el pelo (le duele hasta el pelo). */
+  tirita?: boolean;
+  /** 0-1: marcas de dolor por el cuerpo. */
+  dolor?: number;
+}> = ({ ancho = 400, boca = 0, expresion = "confuso", brazoD = 0, brazoI = 0, movil = false, olor = true, frame = 0, deporte = false, zancada = 0, tirita = false, dolor = 0 }) => {
   const resp = Math.sin(frame / 16) * 3;
   const ojo = expresion === "susto" ? 1.35 : expresion === "ilusion" ? 1.15 : 1;
   const bocaA = Math.max(boca, expresion === "susto" ? 0.75 : expresion === "asco" ? 0.25 : 0);
@@ -54,9 +62,14 @@ export const MarcoGordo: React.FC<{
       <g strokeLinejoin="round" strokeLinecap="round">
         <ellipse cx={200} cy={688} rx={190} ry={16} fill="#000" opacity={0.2} />
         {/* Piernas cortas y gruesas */}
-        <path d="M130 520 L126 652 L194 652 L198 540 Z" fill={VAQ} stroke={L} strokeWidth={7} />
-        <path d="M270 520 L274 652 L206 652 L202 540 Z" fill={VAQ} stroke={L} strokeWidth={7} />
-        <path d="M150 600 l14 14 M240 580 l12 -10" stroke="#2b4066" strokeWidth={5} />
+        <g transform={`rotate(${zancada} 162 530)`}>
+          <path d="M130 520 L126 652 L194 652 L198 540 Z" fill={deporte ? PIEL : VAQ} stroke={L} strokeWidth={7} />
+          {deporte ? <path d="M128 520 L126 572 L196 576 L198 540 Z" fill="#2f62b5" stroke={L} strokeWidth={6} /> : <path d="M150 600 l14 14" stroke="#2b4066" strokeWidth={5} />}
+        </g>
+        <g transform={`rotate(${-zancada} 238 530)`}>
+          <path d="M270 520 L274 652 L206 652 L202 540 Z" fill={deporte ? PIEL : VAQ} stroke={L} strokeWidth={7} />
+          {deporte ? <path d="M272 520 L274 572 L204 576 L202 540 Z" fill="#2f62b5" stroke={L} strokeWidth={6} /> : <path d="M240 580 l12 -10" stroke="#2b4066" strokeWidth={5} />}
+        </g>
         {/* Chanclas con calcetín */}
         <path d="M118 646 L198 646 L200 678 L106 678 Q100 660 118 646 Z" fill="#f2f0ea" stroke={L} strokeWidth={7} />
         <path d="M282 646 L202 646 L200 678 L294 678 Q300 660 282 646 Z" fill="#f2f0ea" stroke={L} strokeWidth={7} />
@@ -181,6 +194,20 @@ export const MarcoGordo: React.FC<{
           <path d="M150 74 Q140 100 142 130 M252 74 Q262 100 258 130 M176 64 Q170 84 172 98" fill="none" stroke={GRASA} strokeWidth={4} opacity={0.8} />
           {/* Remolino de pelo de punta */}
           <path d="M214 56 Q220 26 236 22 Q226 36 228 54" fill={PELO} stroke={L} strokeWidth={5} />
+          {/* Cinta de deporte en la frente */}
+          {deporte ? (
+            <g>
+              <path d="M104 132 Q200 112 296 132 L294 156 Q200 136 106 156 Z" fill="#e0453b" stroke={L} strokeWidth={6} />
+              <path d="M110 144 Q200 126 290 144" fill="none" stroke="#fff" strokeWidth={5} />
+            </g>
+          ) : null}
+          {/* Tirita en el pelo */}
+          {tirita ? (
+            <g transform="rotate(-25 236 70)">
+              <rect x={206} y={60} width={64} height={22} rx={10} fill="#f2c9a0" stroke={L} strokeWidth={4} />
+              <rect x={228} y={60} width={20} height={22} fill="#e8b48a" />
+            </g>
+          ) : null}
           {/* Gota de sudor */}
           <path d="M290 122 q8 14 0 22 q-8 -8 0 -22 Z" fill="#8fd0ff" stroke={L} strokeWidth={3} />
         </g>
@@ -189,6 +216,13 @@ export const MarcoGordo: React.FC<{
           ? [0, 1, 2].map((k) => {
               const y = 340 - ((frame * 1.2 + k * 40) % 120);
               return <path key={k} d={`M${60 + k * 140} ${y} q-10 -14 0 -28 q10 -14 0 -28`} fill="none" stroke="#8fae4a" strokeWidth={5} opacity={0.75 * (1 - ((frame * 1.2 + k * 40) % 120) / 120)} />;
+            })
+          : null}
+        {/* Marcas de dolor (estrellitas rojas que laten) */}
+        {dolor > 0
+          ? ([[236, 60], [96, 330], [316, 420], [160, 600], [252, 610], [200, 470]] as [number, number][]).map(([x, y], k) => {
+              const e = dolor * (0.8 + 0.25 * Math.sin(frame / 3 + k));
+              return <path key={k} d={`M${x} ${y - 26 * e} L${x + 8 * e} ${y - 8 * e} L${x + 26 * e} ${y} L${x + 8 * e} ${y + 8 * e} L${x} ${y + 26 * e} L${x - 8 * e} ${y + 8 * e} L${x - 26 * e} ${y} L${x - 8 * e} ${y - 8 * e} Z`} fill="#ff3b3b" stroke={L} strokeWidth={3} opacity={0.9} />;
             })
           : null}
         {/* Una mosca */}

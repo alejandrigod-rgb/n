@@ -1,0 +1,15 @@
+{
+  "carpeta": "serie-ep3",
+  "ritmoVox": 0.9,
+  "mostrar": { "cuatro": "4", "diez": "10", "treinta": "30", "doscientos": "200", "dos": "2" },
+  "escenas": [
+    { "id": "gancho", "texto": "Primer día de gimnasio. Marco duró cuatro minutos." },
+    { "id": "ropa", "texto": "Votasteis gimnasio. Así que se puso su ropa de deporte... de hace diez años." },
+    { "id": "cinta", "texto": "Primero, la cinta de correr. A los treinta segundos, salió volando." },
+    { "id": "pesas", "texto": "Luego, las pesas. Marco levantó la barra vacía. El de al lado, doscientos kilos." },
+    { "id": "entrenador", "texto": "Hasta que el entrenador le dijo: tú, primero, aprende a respirar." },
+    { "id": "casa", "texto": "Volvió a casa arrastrándose. Y su padre solo preguntó: ¿y el trabajo?" },
+    { "id": "dolor", "texto": "Día dos de treinta. Le duele hasta el pelo." },
+    { "id": "voto", "texto": "¿Qué toca mañana? ¿Dieta o trabajo? Comenta." }
+  ]
+}
