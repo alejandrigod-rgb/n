@@ -332,3 +332,5 @@ if not ok then
 	end
 	botonMenu.Visible = true
 end
+
+jugador:SetAttribute("CargadoMenu", true)

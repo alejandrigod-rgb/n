@@ -89,10 +89,11 @@ local yo, estrella, candados = tira(carril, 26, false, 11)
 local textoObjetivo = Ui.texto({ Position = UDim2.fromOffset(46, 54), Size = UDim2.new(1, -60, 0, 28), Text = "", TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 11, Parent = mini })
 local flecha = Ui.crear("Frame", { Position = UDim2.fromOffset(14, 56), Size = UDim2.fromOffset(26, 24), BackgroundTransparency = 1, ZIndex = 11, Parent = mini })
 local iconoFlecha: Frame = Ui.icono("huir", flecha, UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), 12)
-Ui.texto({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 2), Size = UDim2.fromOffset(160, 18), Text = "Tab: mapa", TextColor3 = C.suave, ZIndex = 11, Parent = mini })
+Ui.texto({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 2), Size = UDim2.fromOffset(160, 18), Text = "Tab o botón: mapa", TextColor3 = C.suave, ZIndex = 11, Parent = mini })
 
 local estado: any = nil
 local objetivoX: number? = nil
+local enCombate = false
 
 local SETAS = { 272, 302.5, 352 }
 local PALANCAS = { 372, 395, 452 }
@@ -147,6 +148,14 @@ task.spawn(function()
 	local remotos = Vael:WaitForChild("Remotos")
 	local r = remotos:WaitForChild("EstadoJugador") :: RemoteEvent
 	r.OnClientEvent:Connect(actualizar)
+	;(remotos:WaitForChild("BatallaInicio") :: RemoteEvent).OnClientEvent:Connect(function()
+		enCombate = true
+	end)
+	;(remotos:WaitForChild("BatallaFin") :: RemoteEvent).OnClientEvent:Connect(function()
+		task.delay(2, function()
+			enCombate = false
+		end)
+	end)
 end)
 
 -- ===================== MAPA GRANDE =====================
@@ -212,7 +221,7 @@ end)
 -- ===================== CADA FOTOGRAMA: dónde estás y hacia dónde ir =====================
 RunService.RenderStepped:Connect(function()
 	-- el mapa no estorba en el menú de inicio ni en los combates
-	local oculto = jugador:GetAttribute("EnMenu") == true or (estado ~= nil and estado.enBatalla == true)
+	local oculto = jugador:GetAttribute("EnMenu") == true or enCombate
 	mini.Visible = not oculto
 	local ch = jugador.Character
 	local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -232,3 +241,5 @@ RunService.RenderStepped:Connect(function()
 		flecha.Visible = false
 	end
 end)
+
+jugador:SetAttribute("CargadoMapa", true)

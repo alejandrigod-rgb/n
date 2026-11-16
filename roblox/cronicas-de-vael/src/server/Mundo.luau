@@ -931,9 +931,9 @@ local function sala(cx: number, Y: number, pared: Color3, suelo: Color3)
 end
 
 --- Interior de la posada: camas, mostrador con la posadera, alfombra y ventana con luna.
-Mundo.Posada = { entrada = Vector3.new(-35, 263.5, 2), salida = Vector3.new(-23, 3.5, -8) }
+Mundo.Posada = { entrada = Vector3.new(-35, 343.5, 2), salida = Vector3.new(-23, 3.5, -8) }
 local function posada()
-	local Y = 260
+	local Y = 340
 	local cx = -20
 	sala(cx, Y, Color3.fromRGB(150, 165, 190), Color3.fromRGB(140, 100, 70))
 	-- papel pintado de rayas

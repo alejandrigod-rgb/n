@@ -119,7 +119,7 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 4. Ve hacia la derecha. En cada zona, la guarida del fondo (mancha de color y cartel "¡Monstruos!") empieza un combate. El camino de delante está libre.
 5. En combate: pulsa una **casilla verde** para moverte y luego elige una acción. Para atacar, pulsa al enemigo en rojo (o su botón).
 6. Para pasar a la zona siguiente necesitas su objeto clave (mira la tabla de arriba). Los rumores de la taberna dan pistas.
-7. Si pierdes, vuelves a la ciudad con la vida llena y pierdes el 10 % del oro.
+7. Si pierdes, vuelves a la Aldea de Brezo con la vida llena y pierdes el 10 % del oro.
 
 ## Cambiar el juego
 Todos los números están en `src/shared/Datos.luau`: clases, habilidades, enemigos, objetos, zonas, daño y experiencia.

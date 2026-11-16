@@ -76,6 +76,22 @@ ScriptContext.Error:Connect(function(mensaje, traza, _script)
 	mostrar("cliente", mensaje .. "\n" .. string.sub(traza or "", 1, 200))
 end)
 
+-- también los avisos (por ejemplo, un WaitForChild que se queda esperando para siempre)
+game:GetService("LogService").MessageOut:Connect(function(mensaje, tipo)
+	if tipo == Enum.MessageType.MessageWarning and (string.find(mensaje, "Infinite yield", 1, true) or string.find(mensaje, "Vael", 1, true) or string.find(mensaje, "Menú", 1, true)) then
+		mostrar("aviso", mensaje)
+	end
+end)
+
+-- ¿han arrancado los scripts del juego? (cada uno pone su marca al terminar de cargar)
+task.delay(10, function()
+	local function marca(nombre: string): string
+		return nombre .. (jugador:GetAttribute("Cargado" .. nombre) and " ✓" or " ✗")
+	end
+	version.Size = UDim2.fromOffset(520, 18)
+	version.Text ..= "  ·  " .. marca("Principal") .. " · " .. marca("Menu") .. " · " .. marca("Mapa")
+end)
+
 -- en Studio, el servidor reenvía sus errores (ver Principal.server)
 task.spawn(function()
 	local remotos = ReplicatedStorage:WaitForChild("Vael"):WaitForChild("Remotos", 30)

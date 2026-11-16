@@ -809,6 +809,7 @@ UserInputService.InputBegan:Connect(function(entrada, procesado)
 	end
 	if entrada.UserInputType == Enum.UserInputType.MouseButton2 then
 		girando = true
+		UserInputService.MouseBehavior = Enum.MouseBehavior.LockCurrentPosition
 	elseif not procesado and entrada.KeyCode == Enum.KeyCode.C then
 		vista = vista % #VISTAS + 1
 		giro = 0
@@ -818,6 +819,7 @@ end)
 UserInputService.InputEnded:Connect(function(entrada)
 	if entrada.UserInputType == Enum.UserInputType.MouseButton2 then
 		girando = false
+		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
 	end
 end)
 UserInputService.InputChanged:Connect(function(entrada, procesado)
@@ -1212,3 +1214,5 @@ jugador:GetAttributeChangedSignal("EnMenu"):Connect(function()
 		actualizarHud(estadoActual)
 	end
 end)
+
+jugador:SetAttribute("CargadoPrincipal", true)
