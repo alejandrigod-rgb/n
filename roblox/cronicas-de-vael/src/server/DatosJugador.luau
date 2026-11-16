@@ -40,9 +40,15 @@ function DatosJugador.cargar(jugador: Player): Perfil
 			end
 			perfil.nombreHeroe = type(datos.nombreHeroe) == "string" and datos.nombreHeroe or ""
 			perfil.creado = datos.creado == true
+			if type(datos.ajustes) == "table" then
+				(perfil :: any).ajustes = datos.ajustes
+			end
 			if type(datos.progreso) == "table" then
-				perfil.progreso.setas = datos.progreso.setas or {}
-				perfil.progreso.palancas = datos.progreso.palancas or {}
+				for k, v in datos.progreso do
+					perfil.progreso[k] = v
+				end
+				perfil.progreso.setas = perfil.progreso.setas or {}
+				perfil.progreso.palancas = perfil.progreso.palancas or {}
 			end
 		end
 	end

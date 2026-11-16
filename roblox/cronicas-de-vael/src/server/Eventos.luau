@@ -354,6 +354,7 @@ local function aparecer()
 	local m, p = crearModelo(tipo, x)
 	local par: Paradero = { tipo = tipo, modelo = m, usados = {}, x = x, stock = tipo == "vendedor" and Datos.ofertaMejoras(rng) or nil, comprados = {}, zonaId = zona.id }
 	local prompt = Instance.new("ProximityPrompt")
+	prompt.Style = Enum.ProximityPromptStyle.Custom -- lo dibuja el cliente (Interaccion.luau)
 	prompt.ActionText = tipo == "vendedor" and "Hablar" or (tipo == "cofre" and "Mirar" or "Acercarse")
 	prompt.ObjectText = ({ hoguera = "Hoguera", cofre = "Cofre", pozo = "Pozo de los deseos", viajero = "Viajero", vendedor = "Vendedor sospechoso", asalto = "Comerciante" })[tipo]
 	prompt.MaxActivationDistance = 10

@@ -28,7 +28,7 @@ Ui.FuenteTexto = Enum.Font.PermanentMarker
 local CARTON = Color3.fromRGB(150, 138, 122)
 --- Apaga un color (estilo cartulina, nada chillón).
 function Ui.apagar(c: Color3): Color3
-	return c:Lerp(CARTON, 0.22)
+	return c:Lerp(CARTON, 0.12)
 end
 
 -- claves propias que no son propiedades de Roblox
@@ -42,12 +42,29 @@ function Ui.tween(obj: Instance, props: { [string]: any }, tiempo: number?, esti
 end
 
 --- Crea una instancia con propiedades e hijos.
+local Idioma: any = nil
+--- Traduce un texto escrito en español al idioma elegido (ver Idioma.luau).
+function Ui.t(texto: string): string
+	if not Idioma then
+		local ok, m = pcall(function()
+			return require(script.Parent:WaitForChild("Idioma")) :: any
+		end)
+		Idioma = ok and m or { t = function(x) return x end }
+	end
+	return Idioma.t(texto)
+end
+
 function Ui.crear(clase: string, props: { [string]: any }, hijos: { Instance }?): any
 	local o = Instance.new(clase)
 	for k, v in props do
 		if k ~= "Parent" and not PROPIAS[k] then
 			(o :: any)[k] = v
 		end
+	end
+	-- los textos fijos se traducen solos al crearlos (y se guardan para volver a traducir si cambia el idioma)
+	if (clase == "TextLabel" or clase == "TextButton") and type(props.Text) == "string" and props.Text ~= "" then
+		o:SetAttribute("TextoOriginal", props.Text)
+		o.Text = Ui.t(props.Text)
 	end
 	if hijos then
 		for _, h in hijos do

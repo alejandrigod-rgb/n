@@ -279,8 +279,8 @@ local function luces()
 	end
 	local cc = Instance.new("ColorCorrectionEffect")
 	cc.Name = "Cartulina"
-	cc.Saturation = -0.18
-	cc.Contrast = -0.12
+	cc.Saturation = 0.08
+	cc.Contrast = -0.04
 	cc.Brightness = 0.02
 	cc.TintColor = Color3.fromRGB(255, 246, 230)
 	cc.Parent = Lighting
@@ -966,6 +966,177 @@ local function posada()
 	punto("posadera", Vector3.new(cx - 14, Y + 2.8, -9.2))
 end
 
+-- ===================== CALLES LATERALES (cruces de la ciudad) =====================
+-- Cada calle es un tramo propio, más arriba (como los interiores), con su cielo, suelo, casas y gente.
+-- Se llega por los arcos de la ciudad y se vuelve por el cartel del principio.
+local function calle(Y: number, x0: number, x1: number, cieloColor: Color3, sueloColor: Color3)
+	local medio = (x0 + x1) / 2
+	local largo = x1 - x0
+	local cielo = plano(medio, Y + 40, -70, largo + 260, 150, cieloColor, false)
+	cielo.Size = Vector3.new(largo + 260, 150, 1)
+	for k = 0, math.floor((largo + 160) / 45) do
+		disco(x0 - 80 + k * 45, Y - 18, -55, 60 + (k % 3) * 12, sueloColor:Lerp(Color3.new(0.3, 0.5, 0.3), 0.4))
+	end
+	local suelo = Instance.new("Part")
+	base(suelo)
+	suelo.CanCollide = true
+	suelo.CanQuery = true
+	suelo.Size = Vector3.new(largo + 120, 4, 70)
+	suelo.Position = Vector3.new(medio, Y - 1.95, -21)
+	suelo.Color = sueloColor
+	suelo.Parent = raiz
+	plano(medio, Y - 6, 14.6, largo + 120, 12, Color3.fromRGB(125, 85, 55))
+	plano(medio, Y - 0.3, 14.9, largo + 120, 1, sueloColor:Lerp(NEGRO, 0.15), false)
+	plano(medio, Y - 30, 15.2, largo + 260, 40, Color3.fromRGB(90, 62, 42), false)
+	local camino = plano(medio, Y + 0.06, 1, largo + 120, 0.1, Color3.fromRGB(190, 180, 170), false)
+	camino.Size = Vector3.new(largo + 120, 0.1, 9)
+	for _, z in { -12.8, 10.8 } do
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(largo + 40, 60, 1)
+		m.Position = Vector3.new(medio, Y + 20, z)
+		m.Parent = raiz
+	end
+	for _, x in { x0 - 6, x1 + 6 } do
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(1, 60, 30)
+		m.Position = Vector3.new(x, Y + 20, 0)
+		m.Parent = raiz
+	end
+end
+
+--- Construye lo que haga f a ras de suelo y luego lo sube a la altura Y (para las calles de arriba).
+local function aAltura(Y: number, f: () -> ())
+	local principal, pastoReal = raiz, pasto
+	local temporal = Instance.new("Folder")
+	temporal.Name = "Trozo"
+	temporal.Parent = principal
+	local tempPasto = Instance.new("Folder")
+	raiz, pasto = temporal, tempPasto
+	f()
+	raiz, pasto = principal, pastoReal
+	for _, carpeta in { temporal, tempPasto } do
+		for _, d in carpeta:GetDescendants() do
+			if d:IsA("BasePart") then
+				d.CFrame = d.CFrame + Vector3.new(0, Y, 0)
+			elseif d:IsA("Model") then
+				d.WorldPivot = d.WorldPivot + Vector3.new(0, Y, 0)
+			end
+		end
+	end
+	for _, m in tempPasto:GetChildren() do
+		m.Parent = pastoReal
+	end
+	tempPasto:Destroy()
+end
+
+--- Casa a una altura Y (las calles van más arriba): misma casa de siempre, desplazada.
+local function casaEn(Y: number, x: number, w: number, h: number, pared: Color3, techo: Color3, cartel: string?, rng: Random)
+	-- se construye en una carpeta aparte y luego se sube entera a la altura de la calle
+	local principal = raiz
+	local temporal = Instance.new("Folder")
+	temporal.Name = "Casa"
+	temporal.Parent = principal
+	raiz = temporal
+	casa(x, -19, w, h, pared, techo, cartel, rng)
+	raiz = principal
+	for _, h2 in temporal:GetDescendants() do
+		if h2:IsA("BasePart") then
+			h2.CFrame = h2.CFrame + Vector3.new(0, Y, 0)
+		end
+	end
+end
+
+Mundo.Calles = {
+	mercado = { entrada = Vector3.new(-142, 503.5, 2), salida = Vector3.new(-130, 3.5, -6) },
+	callejon = { entrada = Vector3.new(-142, 703.5, 2), salida = Vector3.new(22, 3.5, -6) },
+}
+local function calles(rng: Random)
+	-- ---- Calle del Mercado (Y = 500): puestos, tenderos y un cofre escondido ----
+	local Y = 500
+	calle(Y, -150, 40, Color3.fromRGB(150, 200, 235), Color3.fromRGB(150, 175, 120))
+	local fachadas = { Color3.fromRGB(205, 70, 60), Color3.fromRGB(95, 140, 95), Color3.fromRGB(175, 215, 80), Color3.fromRGB(235, 200, 110), Color3.fromRGB(110, 130, 190) }
+	local nombres = { [-128] = "Frutería", [-98] = "Sastrería", [-62] = "Juguetes", [-26] = "Panadería", [8] = "Correos" }
+	for _, x in { -128, -98, -62, -26, 8 } do
+		casaEn(Y, x, 15, rng:NextNumber(9, 13), fachadas[rng:NextInteger(1, #fachadas)], Color3.fromRGB(90, 70, 60), nombres[x], rng)
+	end
+	aAltura(Y, function()
+		for x = -140, 30, 24 do
+			farola(x, -11.5)
+		end
+		for _, x in { -148, -88, -30, 30 } do
+			arbol(x, -15, 0.9)
+		end
+		for _ = 1, 40 do
+			mata(rng:NextNumber(-150, 40), rng:NextNumber(5, 10), rng:NextNumber(1, 1.4), rng)
+		end
+	end)
+	-- puestos con toldos de colores
+	for i, x in { -112, -80, -44, -8 } do
+		plano(x, Y + 1.5, -9.5, 7, 3, Color3.fromRGB(160, 105, 60))
+		for k = 0, 3 do
+			plano(x - 2.6 + k * 1.75, Y + 6.2, -9.2, 1.75, 1.4, k % 2 == 0 and ({ Color3.fromRGB(220, 70, 60), Color3.fromRGB(70, 120, 200), Color3.fromRGB(90, 160, 80), Color3.fromRGB(240, 190, 60) })[i] or Color3.new(1, 1, 1), false)
+		end
+		plano(x - 3.3, Y + 3.5, -9.8, 0.4, 6, Color3.fromRGB(110, 70, 45))
+		plano(x + 3.3, Y + 3.5, -9.8, 0.4, 6, Color3.fromRGB(110, 70, 45))
+		for k = -1, 1 do
+			disco(x + k * 1.8, Y + 3.4, -9.2, 1.4, ({ Color3.fromRGB(230, 80, 70), Color3.fromRGB(250, 200, 60), Color3.fromRGB(120, 190, 80) })[k + 2])
+		end
+	end
+	letrero(-142, Y + 5.5, -11, 9, 1.8, "← Plaza de Vael", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	punto("volverPlaza", Vector3.new(-146, Y + 2.8, -6), { Calle = "mercado" })
+	punto("tendero", Vector3.new(-112, Y + 2.8, -10.2), { Npc = "vecino:7070", Frases = "¡Manzanas que curan!|¡Fruta fresca, recién recortada!" })
+	punto("sastre", Vector3.new(-98, Y + 2.8, -11.5), { Npc = "vecino:6262", Frases = "Esa capa te queda… regular.|¿Unos botones nuevos?" })
+	punto("nino", Vector3.new(-62, Y + 2.8, -9), { Npc = "vecino:5", Frases = "¡Mi pelota se fue al Callejón!|¡Juega conmigo!" })
+	cofre(36, Y, -10.5)
+	punto("cofreMercado", Vector3.new(36, Y + 1.5, -10))
+
+	-- ---- Callejón del Gato (Y = 700): oscuro, con gatos, cubos y una adivina ----
+	Y = 700
+	calle(Y, -150, 40, Color3.fromRGB(70, 75, 110), Color3.fromRGB(110, 105, 100))
+	for _, x in { -125, -85, -45, -5, 30 } do
+		casaEn(Y, x, 16, rng:NextNumber(12, 16), Color3.fromRGB(120, 110, 130), Color3.fromRGB(60, 55, 70), nil, rng)
+	end
+	aAltura(Y, function()
+		for x = -140, 30, 28 do
+			farola(x, -11.5)
+		end
+	end)
+	for _, x in { -118, -70, -20, 15 } do
+		plano(x, Y + 1.2, -10, 2.2, 2.4, Color3.fromRGB(110, 120, 120))
+		plano(x, Y + 2.5, -9.8, 2.6, 0.3, Color3.fromRGB(90, 100, 100), false)
+		-- gato encima del cubo
+		disco(x + 0.2, Y + 3.3, -9.6, 1.3, ({ Color3.fromRGB(240, 150, 60), Color3.fromRGB(60, 55, 60), Color3.fromRGB(230, 230, 225) })[(math.floor(x) % 3) + 1])
+		tri(x - 0.2, Y + 3.8, -9.5, 0.5, 0.6, Color3.fromRGB(60, 55, 60))
+		tri(x + 0.6, Y + 3.8, -9.5, 0.5, 0.6, Color3.fromRGB(60, 55, 60))
+	end
+	-- tienda de la adivina
+	plano(-40, Y + 4, -11.5, 9, 8, Color3.fromRGB(120, 60, 130))
+	tri(-40, Y + 7.8, -11.3, 11, 4, Color3.fromRGB(150, 80, 160))
+	disco(-40, Y + 9.8, -11.1, 1.2, Color3.fromRGB(240, 210, 90))
+	letrero(-40, Y + 6, -11, 7, 1.4, "Madame Zoé", Color3.fromRGB(90, 40, 100))
+	punto("adivina", Vector3.new(-40, Y + 2.8, -9.5), { Npc = "vecino:1313", Frases = "Veo… veo… un monstruo en tu futuro.|Cruza mi mano con oro, cariño." })
+	letrero(-142, Y + 5.5, -11, 9, 1.8, "← Plaza de Vael", Color3.fromRGB(80, 60, 90), Color3.fromRGB(255, 235, 170))
+	punto("volverPlaza", Vector3.new(-146, Y + 2.8, -6), { Calle = "callejon" })
+	cofre(36, Y, -10.5)
+	punto("cofreCallejon", Vector3.new(36, Y + 1.5, -10))
+
+	-- ---- los arcos de la ciudad que llevan a las calles ----
+	for _, d in { { -130, "Calle del Mercado", "irMercado" }, { 22, "Callejón del Gato", "irCallejon" } } do
+		local x = d[1]
+		plano(x - 3.2, 5, -12.4, 1.2, 10, Color3.fromRGB(170, 150, 130))
+		plano(x + 3.2, 5, -12.4, 1.2, 10, Color3.fromRGB(170, 150, 130))
+		plano(x, 10.4, -12.3, 8, 1.6, Color3.fromRGB(150, 100, 70))
+		letrero(x, 12, -12.1, 9, 1.6, d[2] .. " ↑", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+		punto(d[3], Vector3.new(x, 2.8, -10.5))
+	end
+end
+
 --- Interior de la taberna (lejos, en lo alto: se entra y se sale con la puerta).
 Mundo.Taberna = { entrada = Vector3.new(-112, 203.5, 2), salida = Vector3.new(-102, 3.5, -8) }
 local function taberna()
@@ -1116,6 +1287,7 @@ function Mundo.construir(): { [BasePart]: any }
 	aldea(rng)
 	taberna()
 	posada()
+	calles(rng)
 
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true

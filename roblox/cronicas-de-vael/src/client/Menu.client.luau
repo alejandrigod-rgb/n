@@ -1,8 +1,11 @@
 --!strict
--- Crónicas de Vael · menús: la pantalla de inicio (Jugar, Personaje, Cómo se juega, Ajustes, Créditos) y el
--- menú de pausa durante la partida (botón «Menú» arriba a la derecha o tecla M).
--- Va en su propio script para que salga siempre, aunque otra parte de la interfaz falle.
--- Avisa al resto con el atributo local del jugador "EnMenu" (true mientras está en la pantalla de inicio).
+-- Crónicas de Vael · menús y ventanas (un único script para todo lo que se abre encima del juego):
+--  · Pantalla de inicio: Continuar / Nueva partida, Mi personaje, Configuración, Cómo se juega y Créditos.
+--  · Teclas: M = mapa · B = mochila · P = pausa (y botones pequeños arriba a la derecha).
+--  · Menú de pausa: Continuar, Mochila, Mapa, Mi personaje, Configuración, Cómo se juega, Volver al inicio.
+--  · Configuración: volumen de música y efectos, e idioma (español, inglés, portugués, francés y alemán).
+--  · Solo hay una ventana abierta a la vez, y nada de esto sale durante un diálogo o un combate.
+-- Avisa al resto con atributos locales del jugador: "EnMenu" (pantalla de inicio) y "VentanaAbierta".
 
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
@@ -10,7 +13,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local jugador = Players.LocalPlayer
-
 local Vael = ReplicatedStorage:WaitForChild("Vael")
 local Datos = require(Vael:WaitForChild("Datos")) :: any
 local Ui = require(script.Parent:WaitForChild("Ui"))
@@ -18,7 +20,7 @@ local C = Ui.Colores
 
 local gui = Ui.crear("ScreenGui", { Name = "VaelMenu", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 20, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, Parent = jugador:WaitForChild("PlayerGui") })
 
--- módulos que podrían fallar: si alguno falla, el menú sigue funcionando sin él
+-- módulos (si alguno fallara, el menú sigue funcionando sin él)
 local function cargar(nombre: string): any
 	local ok, m = pcall(function()
 		return require(script.Parent:WaitForChild(nombre))
@@ -33,6 +35,17 @@ local Munecos = cargar("Munecos")
 local Escena = cargar("Escena")
 local Audio = cargar("Audio")
 local Editor = cargar("Editor")
+local Mapa = cargar("Mapa")
+local Mochila = cargar("Mochila")
+local Idioma = cargar("Idioma")
+local Interaccion = cargar("Interaccion")
+if Interaccion then
+	Interaccion.iniciar()
+end
+
+local function remoto(nombre: string): RemoteEvent
+	return Vael:WaitForChild("Remotos"):WaitForChild(nombre) :: RemoteEvent
+end
 
 local controles: any = nil
 pcall(function()
@@ -45,6 +58,10 @@ local function sonido(nombre: string)
 		Audio.sfx(nombre, 0.7)
 	end
 end
+
+local estado: any = nil
+local enCombate = false
+local ajustesAplicados = false
 
 local function apariencia(): any
 	local texto = jugador:GetAttribute("Apariencia") :: string?
@@ -68,54 +85,72 @@ local function cerrarPanel(p: GuiObject)
 end
 
 local function panelInfo(padre: Instance, titulo: string, cuerpo: string)
-	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(680, 440), Parent = padre, ZIndex = 120 })
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(680, 460), Parent = padre, ZIndex = 140 })
 	Ui.aparecer(p)
-	Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = titulo, TextColor3 = C.oro, ZIndex = 121, Parent = p })
-	Ui.texto({ Position = UDim2.fromOffset(30, 66), Size = UDim2.new(1, -60, 1, -140), Text = cuerpo, TextScaled = false, TextSize = 21, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 121, Parent = p })
-	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 46), Text = "Vale", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 121, Parent = p }, function()
+	Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = titulo, TextColor3 = C.oro, ZIndex = 141, Parent = p })
+	Ui.texto({ Position = UDim2.fromOffset(30, 66), Size = UDim2.new(1, -60, 1, -140), Text = cuerpo, TextScaled = false, TextSize = 20, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 141, Parent = p })
+	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 46), Text = "Vale", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 141, Parent = p }, function()
 		cerrarPanel(p)
 	end)
 end
 
-local COMO_SE_JUEGA = "• Muévete con A y D (W y S: al fondo y hacia delante). Salta con Espacio. Habla y usa cosas con E.\n"
-	.. "• Explora: hay caminos cerrados. Busca la cuerda, el hacha, la llave y el farol.\n"
-	.. "• Entra en las guaridas del fondo para luchar. En tu turno, muévete por las casillas verdes y luego ataca. Empuja a los monstruos contra rocas: ¡CATAPLÁN!\n"
-	.. "• Gana cofres con mejoras: se suman y algunas se combinan.\n"
-	.. "• Atento a los paraderos: hogueras, pozos, cofres… y un vendedor muy raro.\n"
-	.. "• Menú de pausa: botón «Menú» o tecla M."
+local COMO_SE_JUEGA = "• Muévete con A y D (W y S: al fondo y hacia delante). Mantén Mayús para correr. Salta con Espacio.\n• E: hablar, abrir, entrar. M: mapa. B: mochila. P: pausa.\n• Explora: hay calles a los lados de la ciudad y caminos cerrados. Busca la cuerda, el hacha, la llave y el farol.\n• Combate: muévete por las casillas verdes y luego ataca. Empuja a los monstruos contra rocas. C cambia la cámara y Q/E la giran.\n• Gana cofres con mejoras: se suman y algunas se combinan."
+
+-- ===================== CONFIGURACIÓN =====================
+local function guardarAjustes()
+	remoto("GuardarAjustes"):FireServer({
+		idioma = Idioma and Idioma.actual() or "es",
+		musica = Audio and Audio.volMusica or 0.5,
+		efectos = Audio and Audio.volEfectos or 0.8,
+	})
+end
 
 local function panelAjustes(padre: Instance)
-	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(480, 300), Parent = padre, ZIndex = 120 })
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(560, 400), Parent = padre, ZIndex = 140 })
 	Ui.aparecer(p)
-	Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = "Ajustes", TextColor3 = C.oro, ZIndex = 121, Parent = p })
+	Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = "Configuración", TextColor3 = C.oro, ZIndex = 141, Parent = p })
 	local function fila(y: number, nombre: string, leer: () -> number, poner: (number) -> ())
-		local etiqueta = Ui.texto({ Position = UDim2.fromOffset(30, y), Size = UDim2.fromOffset(190, 40), Text = "", TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 121, Parent = p })
+		local etiqueta = Ui.texto({ Position = UDim2.fromOffset(30, y), Size = UDim2.fromOffset(240, 40), Text = "", TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 141, Parent = p })
 		local function refrescar()
-			etiqueta.Text = nombre .. ": " .. math.floor(leer() * 100 + 0.5) .. " %"
+			etiqueta.Text = Ui.t(nombre) .. ": " .. math.floor(leer() * 100 + 0.5) .. " %"
 		end
 		refrescar()
-		Ui.boton({ Position = UDim2.fromOffset(240, y), Size = UDim2.fromOffset(80, 40), Text = "-", BackgroundColor3 = C.fondo, ZIndex = 121, Parent = p }, function()
+		Ui.boton({ Position = UDim2.fromOffset(300, y), Size = UDim2.fromOffset(90, 40), Text = "-", BackgroundColor3 = C.fondo, ZIndex = 141, Parent = p }, function()
 			poner(math.max(0, leer() - 0.1))
 			refrescar()
 		end)
-		Ui.boton({ Position = UDim2.fromOffset(340, y), Size = UDim2.fromOffset(80, 40), Text = "+", BackgroundColor3 = C.fondo, ZIndex = 121, Parent = p }, function()
+		Ui.boton({ Position = UDim2.fromOffset(410, y), Size = UDim2.fromOffset(90, 40), Text = "+", BackgroundColor3 = C.fondo, ZIndex = 141, Parent = p }, function()
 			poner(math.min(1, leer() + 0.1))
 			refrescar()
 		end)
 	end
 	if Audio then
-		fila(80, "Música", function()
+		fila(76, "Música", function()
 			return Audio.volMusica
 		end, function(v)
 			Audio.volumen(v, nil)
 		end)
-		fila(140, "Efectos", function()
+		fila(126, "Efectos", function()
 			return Audio.volEfectos
 		end, function(v)
 			Audio.volumen(nil, v)
 		end)
 	end
-	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 46), Text = "Listo", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 121, Parent = p }, function()
+	if Idioma then
+		Ui.texto({ Position = UDim2.fromOffset(30, 184), Size = UDim2.fromOffset(240, 34), Text = "Idioma", TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 141, Parent = p })
+		local fila2 = Ui.crear("Frame", { Position = UDim2.fromOffset(30, 222), Size = UDim2.new(1, -60, 0, 90), BackgroundTransparency = 1, ZIndex = 141, Parent = p })
+		Ui.crear("UIGridLayout", { CellSize = UDim2.fromOffset(150, 40), CellPadding = UDim2.fromOffset(10, 8), Parent = fila2 })
+		for _, d in Idioma.DISPONIBLES do
+			local elegido = Idioma.actual() == d.codigo
+			Ui.boton({ Text = d.nombre, BackgroundColor3 = elegido and Color3.fromRGB(100, 160, 90) or C.fondo, ZIndex = 142, Parent = fila2 }, function()
+				Idioma.poner(d.codigo)
+				guardarAjustes()
+				cerrarPanel(p)
+			end)
+		end
+	end
+	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 46), Text = "Listo", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 141, Parent = p }, function()
+		guardarAjustes()
 		cerrarPanel(p)
 	end)
 end
@@ -126,16 +161,138 @@ local function abrirEditor()
 		return
 	end
 	Editor.abrir(gui, clase, apariencia(), function(ap)
-		Vael:WaitForChild("Remotos"):WaitForChild("GuardarApariencia"):FireServer(ap)
+		remoto("GuardarApariencia"):FireServer(ap)
 	end, false)
 end
 
+-- ===================== VENTANAS (solo una a la vez) =====================
+local pausa: Frame? = nil
+local inicio: Frame? = nil
+
+local function cerrarPausa()
+	if pausa then
+		local p = pausa
+		pausa = nil
+		cerrarPanel(p)
+	end
+end
+
+local function cerrarTodo()
+	cerrarPausa()
+	if Mapa then
+		Mapa.cerrar()
+	end
+	if Mochila then
+		Mochila.cerrar()
+	end
+end
+
+local function sePuedeAbrir(): boolean
+	return not inicio and not enCombate and jugador:GetAttribute("EnDialogo") ~= true
+end
+
+local function alternarMapa()
+	if not Mapa then
+		return
+	end
+	local abierto = Mapa.estaAbierto()
+	cerrarTodo()
+	if not abierto and sePuedeAbrir() then
+		sonido("pop")
+		Mapa.alternar(gui, estado)
+	end
+end
+
+local function alternarMochila()
+	if not Mochila then
+		return
+	end
+	local abierta = Mochila.estaAbierta()
+	cerrarTodo()
+	if not abierta and sePuedeAbrir() then
+		sonido("pop")
+		Mochila.alternar(gui, estado, apariencia(), function(id)
+			remoto("UsarObjeto"):FireServer(id)
+		end)
+	end
+end
+
+local abrirInicio: () -> ()
+
+local function abrirPausa()
+	if pausa then
+		cerrarPausa()
+		return
+	end
+	cerrarTodo()
+	if not sePuedeAbrir() then
+		return
+	end
+	sonido("pop")
+	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 32, 28), BackgroundTransparency = 0.45, ZIndex = 100, Parent = gui })
+	pausa = capa
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(380, 520), Parent = capa, ZIndex = 101 })
+	Ui.aparecer(p)
+	Ui.texto({ Position = UDim2.fromOffset(0, 18), Size = UDim2.new(1, 0, 0, 44), Text = "Pausa", TextColor3 = C.oro, ZIndex = 102, Parent = p })
+	local caja = Ui.crear("Frame", { Position = UDim2.fromOffset(30, 78), Size = UDim2.new(1, -60, 1, -96), BackgroundTransparency = 1, ZIndex = 102, Parent = p })
+	Ui.crear("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = caja })
+	local opciones = {
+		{ "Continuar", Color3.fromRGB(100, 160, 90), "estrella", cerrarPausa },
+		{ "Mochila (B)", Color3.fromRGB(160, 110, 70), "pocion", alternarMochila },
+		{ "Mapa (M)", Color3.fromRGB(110, 140, 90), "estrella", alternarMapa },
+		{ "Mi personaje", Color3.fromRGB(190, 120, 80), "corazon", function()
+			cerrarPausa()
+			abrirEditor()
+		end },
+		{ "Configuración", Color3.fromRGB(80, 120, 170), "escudo", function()
+			panelAjustes(capa)
+		end },
+		{ "Cómo se juega", Color3.fromRGB(120, 95, 160), "magia", function()
+			panelInfo(capa, "Cómo se juega", COMO_SE_JUEGA)
+		end },
+		{ "Volver al inicio", Color3.fromRGB(120, 110, 100), "volver", function()
+			cerrarPausa()
+			abrirInicio()
+		end },
+	}
+	for i, o in opciones do
+		Ui.boton({ Size = UDim2.new(1, 0, 0, 48), Text = o[1], BackgroundColor3 = o[2], Icono = o[3], ZIndex = 103, LayoutOrder = i, Parent = caja }, o[4])
+	end
+end
+
+-- botones pequeños arriba a la derecha (no tapan nada)
+local barra = Ui.crear("Frame", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(170, 50), BackgroundTransparency = 1, Visible = false, ZIndex = 40, Parent = gui })
+Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, Padding = UDim.new(0, 6), Parent = barra })
+local function botonPequeno(icono: string, tecla: string, alPulsar: () -> ())
+	local b = Ui.crear("TextButton", { Size = UDim2.fromOffset(50, 50), Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(150, 118, 88), BorderSizePixel = 0, ZIndex = 41, Parent = barra })
+	Ui.esquinas(b, 10)
+	Ui.borde(b, C.tinta, 2.5)
+	Ui.icono(icono, b, UDim2.fromOffset(9, 6), UDim2.fromOffset(32, 32), 42)
+	Ui.crear("TextLabel", { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, 2), Size = UDim2.fromOffset(40, 16), BackgroundTransparency = 1, Text = tecla, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = C.texto, TextStrokeTransparency = 0.3, ZIndex = 43, Parent = b })
+	b.Activated:Connect(alPulsar)
+end
+botonPequeno("estrella", "M", alternarMapa)
+botonPequeno("pocion", "B", alternarMochila)
+botonPequeno("escudo", "P", abrirPausa)
+
+local function refrescarBarra()
+	barra.Visible = not inicio and not enCombate and jugador:GetAttribute("EnDialogo") ~= true
+end
+jugador:GetAttributeChangedSignal("EnDialogo"):Connect(function()
+	if jugador:GetAttribute("EnDialogo") == true then
+		cerrarTodo()
+	end
+	if Interaccion then
+		Interaccion.visibles(jugador:GetAttribute("EnDialogo") ~= true)
+	end
+	refrescarBarra()
+end)
+
 -- ===================== PANTALLA DE INICIO =====================
 local fundido = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(30, 24, 20), BackgroundTransparency = 1, ZIndex = 300, Parent = gui })
-local inicio: Frame? = nil
-local botonMenu: TextButton
 
-local function abrirInicio()
+abrirInicio = function()
+	cerrarTodo()
 	jugador:SetAttribute("EnMenu", true)
 	if Escena then
 		Escena.modoMenu = true
@@ -143,13 +300,10 @@ local function abrirInicio()
 	if controles then
 		controles:Disable()
 	end
-	if botonMenu then
-		botonMenu.Visible = false
-	end
 	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 100, Parent = gui })
 	inicio = capa
+	refrescarBarra()
 	Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(60, 48, 40), BackgroundTransparency = 0.35, BorderSizePixel = 0, ZIndex = 100, Parent = capa })
-	-- cartel del título, como una cartulina clavada
 	local cartel = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 30), Size = UDim2.fromOffset(760, 150), BackgroundColor3 = Color3.fromRGB(205, 175, 130), Parent = capa, ZIndex = 101 })
 	cartel.Rotation = -2
 	Ui.texto({ Position = UDim2.fromOffset(20, 14), Size = UDim2.new(1, -40, 0, 90), Text = "Crónicas de Vael", TextColor3 = Color3.fromRGB(250, 236, 200), ZIndex = 102, Parent = cartel })
@@ -163,7 +317,6 @@ local function abrirInicio()
 			task.wait(1.8)
 		end
 	end)
-	-- desfile de muñecos por abajo
 	if Munecos then
 		local desfile = Ui.crear("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -10), Size = UDim2.new(1, 0, 0, 150), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 101, Parent = capa })
 		local actores = {}
@@ -171,6 +324,7 @@ local function abrirInicio()
 			local f = Ui.crear("Frame", { Size = UDim2.fromOffset(100, 130), BackgroundTransparency = 1, ZIndex = 102, Parent = desfile })
 			local m = Munecos.crear(f, "clase", cid, 3, i == 1 and apariencia() or { piel = math.random(1, 5), pelo = math.random(1, 7), colorPelo = math.random(1, 8), accesorio = math.random(1, 8) })
 			m.andar = 1
+			m.mirar = 1
 			table.insert(actores, { f = f, dx = -i * 110 })
 		end
 		local monstruos = { "lobo", "babosa", "abeja", "reyHongo", "fantasma", "golem", "mimico" }
@@ -204,24 +358,25 @@ local function abrirInicio()
 		if controles then
 			controles:Enable()
 		end
-		botonMenu.Visible = true
 		jugador:SetAttribute("EnMenu", false)
+		refrescarBarra()
 		Ui.tween(fundido, { BackgroundTransparency = 1 }, 0.6)
 	end
+	local tienePartida = jugador:GetAttribute("Clase") ~= nil
 	local botones = {
-		{ "¡Jugar!", Color3.fromRGB(100, 160, 90), "estrella", jugar },
+		{ tienePartida and "Continuar" or "Nueva partida", Color3.fromRGB(100, 160, 90), "estrella", jugar },
 		{ "Mi personaje", Color3.fromRGB(190, 120, 80), "corazon", function()
 			if jugador:GetAttribute("Clase") then
 				abrirEditor()
 			else
-				panelInfo(capa, "Mi personaje", "Primero pulsa ¡Jugar! y elige tu clase. Después podrás crear a tu héroe (y cambiarlo cuando quieras desde el menú).")
+				panelInfo(capa, "Mi personaje", "Primero empieza la partida y elige tu clase. Después podrás crear a tu héroe (y cambiarlo cuando quieras desde la pausa).")
 			end
+		end },
+		{ "Configuración", Color3.fromRGB(80, 120, 170), "escudo", function()
+			panelAjustes(capa)
 		end },
 		{ "Cómo se juega", Color3.fromRGB(120, 95, 160), "magia", function()
 			panelInfo(capa, "Cómo se juega", COMO_SE_JUEGA)
-		end },
-		{ "Ajustes", Color3.fromRGB(80, 120, 170), "escudo", function()
-			panelAjustes(capa)
 		end },
 		{ "Créditos", Color3.fromRGB(120, 110, 100), "moneda", function()
 			panelInfo(capa, "Créditos", "Crónicas de Vael\n\nIdea y dirección: tú.\nCódigo, dibujos, música y efectos: hechos a medida para este juego.\n\nGracias por jugar. Y por no comerte las setas del suelo… o sí.")
@@ -234,70 +389,54 @@ local function abrirInicio()
 	end
 end
 
--- ===================== MENÚ DE PAUSA =====================
-botonMenu = Ui.boton({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 60), Size = UDim2.fromOffset(130, 46), Text = "Menú", Icono = "escudo", BackgroundColor3 = C.fondo, ZIndex = 50, Visible = false, Parent = gui }, function() end)
-local pausa: Frame? = nil
-
-local function cerrarPausa()
-	if pausa then
-		local p = pausa
-		pausa = nil
-		cerrarPanel(p)
-	end
-end
-
-local function abrirPausa()
-	if inicio or pausa then
+-- ===================== TECLAS =====================
+UserInputService.InputBegan:Connect(function(entrada, procesado)
+	if procesado or UserInputService:GetFocusedTextBox() then
 		return
 	end
-	sonido("pop")
-	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 32, 28), BackgroundTransparency = 0.45, ZIndex = 100, Parent = gui })
-	pausa = capa
-	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(380, 440), Parent = capa, ZIndex = 101 })
-	Ui.aparecer(p)
-	Ui.texto({ Position = UDim2.fromOffset(0, 18), Size = UDim2.new(1, 0, 0, 44), Text = "Pausa", TextColor3 = C.oro, ZIndex = 102, Parent = p })
-	local caja = Ui.crear("Frame", { Position = UDim2.fromOffset(30, 80), Size = UDim2.new(1, -60, 1, -100), BackgroundTransparency = 1, ZIndex = 102, Parent = p })
-	Ui.crear("UIListLayout", { Padding = UDim.new(0, 10), SortOrder = Enum.SortOrder.LayoutOrder, Parent = caja })
-	local opciones = {
-		{ "Continuar", Color3.fromRGB(100, 160, 90), "estrella", cerrarPausa },
-		{ "Mi personaje", Color3.fromRGB(190, 120, 80), "corazon", function()
-			cerrarPausa()
-			abrirEditor()
-		end },
-		{ "Ajustes", Color3.fromRGB(80, 120, 170), "escudo", function()
-			panelAjustes(capa)
-		end },
-		{ "Cómo se juega", Color3.fromRGB(120, 95, 160), "magia", function()
-			panelInfo(capa, "Cómo se juega", COMO_SE_JUEGA)
-		end },
-		{ "Volver al inicio", Color3.fromRGB(120, 110, 100), "volver", function()
-			cerrarPausa()
-			abrirInicio()
-		end },
-	}
-	for i, o in opciones do
-		Ui.boton({ Size = UDim2.new(1, 0, 0, 52), Text = o[1], BackgroundColor3 = o[2], Icono = o[3], ZIndex = 103, LayoutOrder = i, Parent = caja }, o[4])
-	end
-end
-
-botonMenu.Activated:Connect(function()
-	if pausa then
-		cerrarPausa()
-	else
+	local k = entrada.KeyCode
+	if k == Enum.KeyCode.M then
+		alternarMapa()
+	elseif k == Enum.KeyCode.B then
+		alternarMochila()
+	elseif k == Enum.KeyCode.P then
 		abrirPausa()
 	end
 end)
-UserInputService.InputBegan:Connect(function(entrada, procesado)
-	if procesado then
-		return
-	end
-	if entrada.KeyCode == Enum.KeyCode.M then
-		if pausa then
-			cerrarPausa()
-		else
-			abrirPausa()
+
+-- ===================== ESTADO, COMBATE Y EDITOR =====================
+task.spawn(function()
+	remoto("EstadoJugador").OnClientEvent:Connect(function(e: any)
+		estado = e
+		if not ajustesAplicados and e.ajustes then
+			ajustesAplicados = true
+			if Idioma and e.ajustes.idioma then
+				Idioma.poner(e.ajustes.idioma)
+			end
+			if Audio then
+				Audio.volumen(e.ajustes.musica, e.ajustes.efectos)
+			end
 		end
-	end
+		-- si la mochila está abierta, se actualiza (por ejemplo, después de usar una poción)
+		if Mochila and Mochila.estaAbierta() then
+			Mochila.cerrar()
+			Mochila.alternar(gui, estado, apariencia(), function(id)
+				remoto("UsarObjeto"):FireServer(id)
+			end)
+		end
+	end)
+	remoto("BatallaInicio").OnClientEvent:Connect(function()
+		enCombate = true
+		cerrarTodo()
+		refrescarBarra()
+	end)
+	remoto("BatallaFin").OnClientEvent:Connect(function()
+		task.delay(2.2, function()
+			enCombate = false
+			refrescarBarra()
+		end)
+	end)
+	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
 end)
 
 -- crear al héroe: en cuanto tenga clase y no lo haya creado aún (también si ya tenía clase de antes)
@@ -310,7 +449,7 @@ local function quizaCrear()
 	if clase and jugador:GetAttribute("Creado") ~= true then
 		yaPedido = true
 		Editor.abrir(gui, clase, apariencia(), function(ap)
-			Vael:WaitForChild("Remotos"):WaitForChild("GuardarApariencia"):FireServer(ap)
+			remoto("GuardarApariencia"):FireServer(ap)
 		end, true)
 	end
 end
@@ -330,7 +469,8 @@ if not ok then
 	if controles then
 		controles:Enable()
 	end
-	botonMenu.Visible = true
+	inicio = nil
+	refrescarBarra()
 end
 
 jugador:SetAttribute("CargadoMenu", true)

@@ -93,19 +93,23 @@ local function enMenu(): boolean
 end
 
 -- ===================== HUD =====================
-local hud = Ui.panel({ Position = UDim2.fromOffset(18, 64), Size = UDim2.fromOffset(410, 176), Parent = gui, Visible = false })
+-- HUD compacto: retrato, nombre, nivel, vida, maná, experiencia y oro en un panel pequeño arriba a la izquierda
+local hud = Ui.panel({ Position = UDim2.fromOffset(12, 58), Size = UDim2.fromOffset(300, 100), Parent = gui, Visible = false })
 local hudRetrato: CanvasGroup? = nil
 local hudClase: string? = nil
-local hudNivel = Ui.texto({ Position = UDim2.fromOffset(18, 124), Size = UDim2.fromOffset(96, 30), Text = "", TextColor3 = C.oro, Parent = hud, ZIndex = 3 })
-local hudNombre = Ui.texto({ Position = UDim2.fromOffset(128, 12), Size = UDim2.new(1, -144, 0, 30), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
-Ui.icono("corazon", hud, UDim2.fromOffset(126, 48), UDim2.fromOffset(24, 24))
-local hudVida = Ui.barra(hud, UDim2.fromOffset(156, 49), UDim2.new(1, -172, 0, 22), C.vida, true)
-Ui.icono("gota", hud, UDim2.fromOffset(126, 78), UDim2.fromOffset(24, 24))
-local hudMana = Ui.barra(hud, UDim2.fromOffset(156, 79), UDim2.new(1, -172, 0, 22), C.mana, true)
-Ui.icono("estrella", hud, UDim2.fromOffset(126, 107), UDim2.fromOffset(22, 22))
-local hudXp = Ui.barra(hud, UDim2.fromOffset(156, 110), UDim2.new(1, -172, 0, 14), C.xp, false)
-Ui.icono("moneda", hud, UDim2.fromOffset(126, 136), UDim2.fromOffset(24, 24))
-local hudInfo = Ui.texto({ Position = UDim2.fromOffset(156, 136), Size = UDim2.new(1, -172, 0, 24), Text = "", TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
+local hudNombre = Ui.texto({ Position = UDim2.fromOffset(92, 9), Size = UDim2.new(1, -160, 0, 20), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
+local hudNivel = Ui.texto({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 9), Size = UDim2.fromOffset(60, 20), Text = "", TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Right, Parent = hud, ZIndex = 3 })
+Ui.icono("corazon", hud, UDim2.fromOffset(90, 33), UDim2.fromOffset(16, 16))
+local hudVida = Ui.barra(hud, UDim2.fromOffset(110, 34), UDim2.new(1, -122, 0, 14), C.vida, true)
+Ui.icono("gota", hud, UDim2.fromOffset(90, 52), UDim2.fromOffset(16, 16))
+local hudMana = Ui.barra(hud, UDim2.fromOffset(110, 53), UDim2.new(1, -122, 0, 12), C.mana, true)
+local hudXp = Ui.barra(hud, UDim2.fromOffset(92, 71), UDim2.new(1, -104, 0, 5), C.xp, false)
+local hudInfo = Ui.texto({ Position = UDim2.fromOffset(92, 79), Size = UDim2.new(1, -104, 0, 15), Text = "", TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
+-- misión actual: discreta, debajo del HUD
+local Mapa = require(script.Parent:WaitForChild("Mapa"))
+local mision = Ui.panel({ Position = UDim2.fromOffset(12, 164), Size = UDim2.fromOffset(300, 40), BackgroundColor3 = Color3.fromRGB(120, 95, 70), Parent = gui, Visible = false })
+Ui.icono("estrella", mision, UDim2.fromOffset(10, 9), UDim2.fromOffset(22, 22), 2)
+local misionTexto = Ui.texto({ Position = UDim2.fromOffset(38, 6), Size = UDim2.new(1, -48, 1, -12), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = mision, ZIndex = 2 })
 
 -- mochila: mejoras (como en los roguelikes, se ven todas) y objetos clave
 local mochila = Ui.crear("Frame", { Position = UDim2.fromOffset(18, 248), Size = UDim2.fromOffset(410, 40), BackgroundTransparency = 1, Parent = gui, Visible = false })
@@ -164,7 +168,10 @@ local function actualizarMochila(e: any)
 			casillaMochila(m.icono, m.color, Datos.ColorRareza[m.rareza], m.nombre, m.descripcion, false, cuenta[id])
 		end
 	end
-	mochila.Visible = hud.Visible
+	mochila.Visible = false
+	local textoMision = Mapa.objetivo(e)
+	misionTexto.Text = Ui.t(textoMision)
+	mision.Visible = hud.Visible
 end
 
 local estadoActual: any = nil
@@ -243,6 +250,7 @@ local function actualizarHud(e: any)
 	if enMenu() then
 		hud.Visible = false
 		mochila.Visible = false
+		mision.Visible = false
 		return
 	end
 	if not e.clase then
@@ -266,15 +274,15 @@ local function actualizarHud(e: any)
 		if hudRetrato then
 			hudRetrato:Destroy()
 		end
-		hudRetrato = retrato(hud, "clase", e.clase, UDim2.fromOffset(18, 16), UDim2.fromOffset(96, 96), Color3.fromRGB(236, 222, 190), 2, e.apariencia)
+		hudRetrato = retrato(hud, "clase", e.clase, UDim2.fromOffset(12, 12), UDim2.fromOffset(72, 72), Color3.fromRGB(236, 222, 190), 2, e.apariencia)
 	end
-	hudNivel.Text = "Nv. " .. e.nivel
+	hudNivel.Text = Ui.t("Nv.") .. " " .. e.nivel
 	hudNombre.Text = ((e.nombreHeroe and e.nombreHeroe ~= "") and e.nombreHeroe or jugador.DisplayName) .. " · " .. cl.nombre
 	hudNombre.TextColor3 = cl.color:Lerp(Color3.new(1, 1, 1), 0.35)
 	hudVida.set(e.hp, e.maxHp)
 	hudMana.set(e.mp, e.maxMp)
 	hudXp.set(e.xp, e.xpSiguiente)
-	hudInfo.Text = string.format("%d oro   ·   %d pociones   ·   %d éteres", e.oro, e.objetos.pocion or 0, e.objetos.eter or 0)
+	hudInfo.Text = string.format("%d %s  ·  %d %s", e.oro, Ui.t("oro"), e.objetos.pocion or 0, Ui.t("pociones"))
 	actualizarMochila(e)
 end
 remoto("EstadoJugador").OnClientEvent:Connect(actualizarHud)
@@ -448,7 +456,7 @@ end
 local function elegirObjetivo(lado: string, caidos: boolean, alcance: number?, alElegir: (id: string) -> ())
 	limpiarOpciones()
 	limpiarCasillas()
-	menuTitulo.Text = "¿A quién?"
+	menuTitulo.Text = Ui.t("¿A quién?")
 	local lista = estadoBatalla and (lado == "enemigo" and estadoBatalla.enemigos or estadoBatalla.aliados) or {}
 	local n = 0
 	local validos: { [string]: string } = {}
@@ -465,7 +473,7 @@ local function elegirObjetivo(lado: string, caidos: boolean, alcance: number?, a
 	end
 	seleccion = { validos = validos, alElegir = alElegir }
 	if n == 0 then
-		menuTitulo.Text = "¡Nadie a tu alcance! Muévete"
+		menuTitulo.Text = Ui.t("¡Nadie a tu alcance! Muévete")
 	end
 	opcion("Volver", nil, true, function()
 		seleccion = nil
@@ -475,7 +483,7 @@ end
 
 local function mostrarHabilidades()
 	limpiarOpciones()
-	menuTitulo.Text = "Habilidades"
+	menuTitulo.Text = Ui.t("Habilidades")
 	for i, h in peticion.habilidades do
 		local zona = (h.area == "todos" and "todos") or (h.area == "alrededor" and "pegados") or (h.area == "alrededor2" and "cerca") or ("alc. " .. h.alcance)
 		local texto = h.bloqueada and string.format("%s (nivel %d)", h.nombre, h.nivelMinimo) or string.format("%s · %d PM · %s", h.nombre, h.coste, zona)
@@ -502,7 +510,7 @@ end
 
 local function mostrarObjetos()
 	limpiarOpciones()
-	menuTitulo.Text = "Objetos"
+	menuTitulo.Text = Ui.t("Objetos")
 	for i, o in peticion.objetos do
 		opcion(string.format("%s ×%d", o.nombre, o.cantidad), Color3.fromRGB(40, 70, 60), o.cantidad > 0, function()
 			elegirObjetivo("aliado", false, nil, function(id)
@@ -519,7 +527,7 @@ mostrarPrincipal = function()
 	limpiarOpciones()
 	seleccion = nil
 	pintarMovimiento()
-	menuTitulo.Text = next(puedoMover) and "Muévete (verde) o elige" or "¿Qué haces?"
+	menuTitulo.Text = Ui.t(next(puedoMover) and "Muévete (verde) o elige" or "¿Qué haces?")
 	opcion("Atacar", Color3.fromRGB(190, 60, 60), true, function()
 		elegirObjetivo("enemigo", false, peticion and peticion.alcance or 1, function(id)
 			enviar({ tipo = "atacar", objetivo = id })
@@ -866,7 +874,7 @@ local function franjasCine(abrir: boolean)
 end
 
 local function mostrarTitulo(texto: string, color: Color3)
-	tituloBatalla.Text = texto
+	tituloBatalla.Text = Ui.t(texto)
 	tituloBatalla.TextColor3 = color
 	tituloBatalla.Visible = true
 	tituloBatalla.TextTransparency = 0
@@ -889,7 +897,8 @@ remoto("BatallaInicio").OnClientEvent:Connect(function(d: any)
 	mochila.Visible = false
 	camara.CameraType = Enum.CameraType.Scriptable
 	capaBatalla.Visible = true
-	Ui.tween(hud, { Position = UDim2.fromOffset(18, -200) }, 0.5)
+	Ui.tween(hud, { Position = UDim2.fromOffset(12, -200) }, 0.5)
+	mision.Visible = false
 	franjasCine(true)
 	mostrarTitulo(d.emboscada and "¡EMBOSCADA!" or ("¡COMBATE!  ·  " .. d.zona), d.emboscada and C.peligro or C.borde)
 	sacudida = 1
@@ -940,13 +949,14 @@ remoto("BatallaFin").OnClientEvent:Connect(function(r: any)
 		Audio.forzada = nil
 		carpetaBatalla = nil
 		casillas = {}
-		mochila.Visible = hud.Visible
+		mochila.Visible = false
 		local mio = Escena.muneco("j" .. jugador.UserId)
 		if mio then
 			Munecos.caer(mio, false)
 		end
 		franjasCine(false)
-		Ui.tween(hud, { Position = UDim2.fromOffset(18, 64) }, 0.5, Enum.EasingStyle.Back)
+		Ui.tween(hud, { Position = UDim2.fromOffset(12, 58) }, 0.5, Enum.EasingStyle.Back)
+		mision.Visible = hud.Visible
 		for id, f in fichasTira do
 			f:Destroy()
 			fichasTira[id] = nil
@@ -1077,42 +1087,93 @@ end)
 
 -- ===================== DIÁLOGOS (con elección) =====================
 local panelDialogo: Frame? = nil
+-- Diálogo de cine: franja oscura abajo, retrato grande que asoma por arriba, nombre en una pestaña de cartulina,
+-- texto grande que se escribe letra a letra (clic para terminarlo), indicador para continuar y las respuestas.
+-- Mientras dura, el HUD, la misión, los botones y los avisos se esconden (atributo local "EnDialogo").
+local function terminarDialogo(p: Frame)
+	if panelDialogo == p then
+		panelDialogo = nil
+		jugador:SetAttribute("EnDialogo", false)
+	end
+	cerrarPanel(p)
+end
+
 remoto("Dialogo").OnClientEvent:Connect(function(d: any)
 	if panelDialogo then
 		panelDialogo:Destroy()
 	end
-	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -20), Size = UDim2.fromOffset(760, 210 + math.ceil(#d.opciones / 2) * 50), Parent = gui, ZIndex = 70 })
-	panelDialogo = p
-	Ui.aparecer(p)
+	jugador:SetAttribute("EnDialogo", true)
+	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 150, Parent = gui })
+	panelDialogo = capa
+	-- franja de cine (oscurece la parte de abajo)
+	Ui.crear("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Size = UDim2.new(1, 0, 0, 300), BackgroundColor3 = Color3.fromRGB(20, 15, 12), BackgroundTransparency = 0.25, BorderSizePixel = 0, ZIndex = 150, Parent = capa }, {
+		Ui.crear("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.4, 0.4), NumberSequenceKeypoint.new(1, 0.2) }) }),
+	})
+	local caja = Ui.panel({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -22), Size = UDim2.new(1, -60, 0, 210), BackgroundColor3 = Color3.fromRGB(150, 118, 88), Parent = capa, ZIndex = 151 })
+	Ui.crear("UISizeConstraint", { MaxSize = Vector2.new(1120, 210), Parent = caja })
+	local escala = Ui.crear("UIScale", { Scale = 1, Parent = caja })
+	caja.Position = UDim2.new(0.5, 0, 1, 240)
+	Ui.tween(caja, { Position = UDim2.new(0.5, 0, 1, -22) }, 0.35, Enum.EasingStyle.Back)
+	local _ = escala
+	-- papel donde va el texto
+	local papel = Ui.crear("TextButton", { Position = UDim2.fromOffset(180, 14), Size = UDim2.new(1, -196, 0, 120), BackgroundColor3 = Color3.fromRGB(240, 228, 200), BorderSizePixel = 0, AutoButtonColor = false, Text = "", ZIndex = 152, Parent = caja })
+	Ui.esquinas(papel, 6)
+	Ui.borde(papel, C.tinta, 2)
+	-- retrato grande que asoma por arriba
 	local quien = d.quien or { "vecino", "1" }
-	retrato(p, quien[1], quien[2], UDim2.fromOffset(20, 18), UDim2.fromOffset(110, 110), Color3.fromRGB(255, 235, 200), 72)
-	Ui.texto({ Position = UDim2.fromOffset(148, 16), Size = UDim2.new(1, -170, 0, 34), Text = d.titulo, TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 72, Parent = p })
-	local texto = Ui.texto({ Position = UDim2.fromOffset(148, 54), Size = UDim2.new(1, -170, 0, 84), Text = "", TextScaled = false, TextSize = 22, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 72, Parent = p })
+	retrato(caja, quien[1], quien[2], UDim2.fromOffset(16, -60), UDim2.fromOffset(150, 150), Color3.fromRGB(236, 222, 190), 153)
+	-- nombre en una pestaña
+	local pestana = Ui.crear("Frame", { Position = UDim2.fromOffset(190, -34), Size = UDim2.new(0, 0, 0, 40), AutomaticSize = Enum.AutomaticSize.X, BackgroundColor3 = Color3.fromRGB(200, 75, 65), BorderSizePixel = 0, Rotation = -2, ZIndex = 153, Parent = caja })
+	Ui.esquinas(pestana, 6)
+	Ui.borde(pestana, C.tinta, 2.5)
+	Ui.crear("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 14), Parent = pestana })
+	Ui.crear("TextLabel", { Size = UDim2.new(0, 0, 1, 0), AutomaticSize = Enum.AutomaticSize.X, BackgroundTransparency = 1, Text = d.titulo or "", Font = Ui.Fuente, TextSize = 24, TextColor3 = Color3.fromRGB(250, 240, 220), ZIndex = 154, Parent = pestana })
+	local completo = Ui.t(d.texto or "")
+	local texto = Ui.crear("TextLabel", { Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -32, 1, -20), BackgroundTransparency = 1, Text = "", Font = Enum.Font.GothamMedium, TextSize = 24, TextWrapped = true, TextColor3 = C.tinta, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 153, Parent = papel })
+	-- indicador de «continuar»
+	local indicador = Ui.crear("TextLabel", { AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -10, 1, -4), Size = UDim2.fromOffset(30, 26), BackgroundTransparency = 1, Text = "▼", Font = Enum.Font.GothamBold, TextSize = 22, TextColor3 = Color3.fromRGB(200, 75, 65), Visible = false, ZIndex = 154, Parent = papel })
+	local opcionesD = Ui.crear("Frame", { Position = UDim2.fromOffset(180, 144), Size = UDim2.new(1, -196, 0, 52), BackgroundTransparency = 1, Visible = false, ZIndex = 152, Parent = caja })
+	Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 10), Parent = opcionesD })
+	local ancho = 1 / math.max(1, #d.opciones)
+	for i, t in d.opciones do
+		Ui.boton({ Size = UDim2.new(ancho, -10, 1, 0), Text = t, BackgroundColor3 = i == #d.opciones and C.fondo or Color3.fromRGB(110, 90, 150), ZIndex = 153, LayoutOrder = i, Parent = opcionesD }, function()
+			remoto("ElegirOpcion"):FireServer(d.id, i)
+			terminarDialogo(capa)
+		end)
+	end
+	local escrito = false
+	local function mostrarTodo()
+		if escrito then
+			return
+		end
+		escrito = true
+		texto.Text = completo
+		indicador.Visible = true
+		opcionesD.Visible = true
+		task.spawn(function()
+			while indicador.Parent do
+				Ui.tween(indicador, { Position = UDim2.new(1, -10, 1, -1) }, 0.4, Enum.EasingStyle.Sine)
+				task.wait(0.4)
+				Ui.tween(indicador, { Position = UDim2.new(1, -10, 1, -6) }, 0.4, Enum.EasingStyle.Sine)
+				task.wait(0.4)
+			end
+		end)
+	end
+	papel.Activated:Connect(mostrarTodo)
 	-- se escribe letra a letra, con pitiditos de voz
 	task.spawn(function()
-		Audio.hablar(tonumber(quien[2]) or 7, #d.texto)
-		for i = 1, utf8.len(d.texto) or #d.texto do
-			if not texto.Parent then
+		Audio.hablar(tonumber(quien[2]) or 7, #completo)
+		local n = utf8.len(completo) or #completo
+		for i = 1, n do
+			if escrito or not texto.Parent then
 				return
 			end
-			local corte = utf8.offset(d.texto, i + 1)
-			texto.Text = corte and string.sub(d.texto, 1, corte - 1) or d.texto
-			task.wait(0.018)
+			local corte = utf8.offset(completo, i + 1)
+			texto.Text = corte and string.sub(completo, 1, corte - 1) or completo
+			task.wait(0.022)
 		end
-		texto.Text = d.texto
+		mostrarTodo()
 	end)
-	local opcionesD = Ui.crear("Frame", { Position = UDim2.fromOffset(20, 150), Size = UDim2.new(1, -40, 1, -165), BackgroundTransparency = 1, ZIndex = 71, Parent = p })
-	Ui.crear("UIGridLayout", { CellSize = UDim2.new(0.5, -6, 0, 44), CellPadding = UDim2.fromOffset(10, 8), Parent = opcionesD })
-	for i, t in d.opciones do
-		local b = Ui.boton({ Text = t, BackgroundColor3 = i == #d.opciones and C.fondo or Color3.fromRGB(80, 60, 150), ZIndex = 72, LayoutOrder = i, Parent = opcionesD }, function()
-			remoto("ElegirOpcion"):FireServer(d.id, i)
-			if panelDialogo == p then
-				panelDialogo = nil
-			end
-			cerrarPanel(p)
-		end)
-		Ui.aparecer(b, 0.1 + i * 0.05)
-	end
 end)
 
 -- ===================== JUEGO DE LOS VASOS (taberna) =====================
@@ -1145,7 +1206,7 @@ remoto("Vasos").OnClientEvent:Connect(function(d: any)
 		end
 		task.wait(0.4)
 		bola.Visible = false
-		titulo.Text = "Mira bien…"
+		titulo.Text = Ui.t("Mira bien…")
 		for _, c in d.cambios do
 			local a, b = c[1], c[2]
 			local va, vb = vasos[enSitio[a]], vasos[enSitio[b]]
@@ -1155,7 +1216,7 @@ remoto("Vasos").OnClientEvent:Connect(function(d: any)
 			enSitio[a], enSitio[b] = enSitio[b], enSitio[a]
 			task.wait(d.velocidad + 0.03)
 		end
-		titulo.Text = "¿Dónde está la bola?"
+		titulo.Text = Ui.t("¿Dónde está la bola?")
 		-- dónde ha acabado (para enseñarla después)
 		local pos = d.ganador
 		for _, c in d.cambios do
@@ -1183,7 +1244,7 @@ remoto("Vasos").OnClientEvent:Connect(function(d: any)
 						Ui.tween(bueno, { Position = UDim2.fromOffset(X[pos], Y - 70) }, 0.3, Enum.EasingStyle.Back)
 					end)
 				end
-				titulo.Text = sitio == pos and "¡Bien visto!" or "¡Ups!"
+				titulo.Text = Ui.t(sitio == pos and "¡Bien visto!" or "¡Ups!")
 				Audio.sfx(sitio == pos and "moneda" or "boing", 0.8)
 				task.delay(2, function()
 					capa:Destroy()
@@ -1216,3 +1277,14 @@ jugador:GetAttributeChangedSignal("EnMenu"):Connect(function()
 end)
 
 jugador:SetAttribute("CargadoPrincipal", true)
+
+-- durante un diálogo no se ve nada del HUD (que no tape la conversación)
+jugador:GetAttributeChangedSignal("EnDialogo"):Connect(function()
+	local hablando = jugador:GetAttribute("EnDialogo") == true
+	if hablando then
+		hud.Visible = false
+		mision.Visible = false
+	elseif estadoActual and not enBatalla then
+		actualizarHud(estadoActual)
+	end
+end)

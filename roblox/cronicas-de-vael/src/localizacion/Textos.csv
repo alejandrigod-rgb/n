@@ -1,0 +1,244 @@
+Key,Source,Context,Example,es,en,pt,fr,de
+t000,Crónicas de Vael,,,Crónicas de Vael,Chronicles of Vael,Crônicas de Vael,Chroniques de Vael,Chroniken von Vael
+t001,"Un RPG de cartulina, por turnos y con amigos",,,"Un RPG de cartulina, por turnos y con amigos","A cardboard RPG, turn-based and with friends","Um RPG de papelão, por turnos e com amigos","Un RPG en carton, au tour par tour et entre amis","Ein Pappkarton-RPG, rundenbasiert und mit Freunden"
+t002,Continuar,,,Continuar,Continue,Continuar,Continuer,Weiter
+t003,Nueva partida,,,Nueva partida,New game,Novo jogo,Nouvelle partie,Neues Spiel
+t004,Mi personaje,,,Mi personaje,My character,Meu personagem,Mon personnage,Mein Charakter
+t005,Configuración,,,Configuración,Settings,Configurações,Paramètres,Einstellungen
+t006,Cómo se juega,,,Cómo se juega,How to play,Como jogar,Comment jouer,Spielanleitung
+t007,Créditos,,,Créditos,Credits,Créditos,Crédits,Mitwirkende
+t008,Pausa,,,Pausa,Pause,Pausa,Pause,Pause
+t009,Mochila (B),,,Mochila (B),Backpack (B),Mochila (B),Sac à dos (B),Rucksack (B)
+t010,Mapa (M),,,Mapa (M),Map (M),Mapa (M),Carte (M),Karte (M)
+t011,Volver al inicio,,,Volver al inicio,Back to title,Voltar ao início,Retour à l'accueil,Zurück zum Titel
+t012,Vale,,,Vale,OK,OK,D'accord,Okay
+t013,Listo,,,Listo,Done,Pronto,Terminé,Fertig
+t014,Música,,,Música,Music,Música,Musique,Musik
+t015,Efectos,,,Efectos,Sound effects,Efeitos,Effets,Effekte
+t016,Idioma,,,Idioma,Language,Idioma,Langue,Sprache
+t017,Cerrar,,,Cerrar,Close,Fechar,Fermer,Schließen
+t018,Mochila,,,Mochila,Backpack,Mochila,Sac à dos,Rucksack
+t019,B: cerrar,,,B: cerrar,B: close,B: fechar,B : fermer,B: schließen
+t020,M: cerrar,,,M: cerrar,M: close,M: fechar,M : fermer,M: schließen
+t021,Objetos,,,Objetos,Items,Itens,Objets,Gegenstände
+t022,Objetos clave,,,Objetos clave,Key items,Itens-chave,Objets clés,Schlüsselgegenstände
+t023,Mejoras,,,Mejoras,Upgrades,Melhorias,Améliorations,Verbesserungen
+t024,Combinaciones,,,Combinaciones,Combos,Combinações,Combinaisons,Kombinationen
+t025,Elige una casilla,,,Elige una casilla,Pick a slot,Escolha um espaço,Choisis une case,Wähle ein Feld
+t026,Usar,,,Usar,Use,Usar,Utiliser,Benutzen
+t027,Nivel,,,Nivel,Level,Nível,Niveau,Stufe
+t028,Nv.,,,Nv.,Lv.,Nv.,Niv.,St.
+t029,Vida,,,Vida,Health,Vida,Vie,Leben
+t030,Maná,,,Maná,Mana,Mana,Mana,Mana
+t031,oro,,,oro,gold,ouro,or,Gold
+t032,pociones,,,pociones,potions,poções,potions,Tränke
+t033,Misión,,,Misión,Quest,Missão,Quête,Auftrag
+t034,¿?,,,¿?,??,??,??,??
+t035,Aún no lo tienes. Explora y habla con la gente.,,,Aún no lo tienes. Explora y habla con la gente.,You don't have it yet. Explore and talk to people.,Você ainda não tem. Explore e fale com as pessoas.,Tu ne l'as pas encore. Explore et parle aux gens.,Du hast es noch nicht. Erkunde und sprich mit den Leuten.
+t036,"Aún no tienes mejoras: ábrelas en cofres, del jefe o cómpralas.",,,"Aún no tienes mejoras: ábrelas en cofres, del jefe o cómpralas.","No upgrades yet: find them in chests, from the boss or buy them.","Ainda sem melhorias: abra baús, derrote o chefe ou compre.","Pas encore d'améliorations : ouvre des coffres, bats le boss ou achète-les.","Noch keine Verbesserungen: öffne Truhen, besiege den Boss oder kaufe sie."
+t037,Mapa de Vael,,,Mapa de Vael,Map of Vael,Mapa de Vael,Carte de Vael,Karte von Vael
+t038,Candado: camino cerrado · Estrella: misión · !: algo ha aparecido,,,Candado: camino cerrado · Estrella: misión · !: algo ha aparecido,Padlock: closed path · Star: quest · !: something appeared,Cadeado: caminho fechado · Estrela: missão · !: algo apareceu,Cadenas : chemin fermé · Étoile : quête · ! : quelque chose est apparu,Schloss: gesperrter Weg · Stern: Auftrag · !: etwas ist aufgetaucht
+t039,¡Crea a tu héroe!,,,¡Crea a tu héroe!,Create your hero!,Crie seu herói!,Crée ton héros !,Erstelle deinen Helden!
+t040,Tu personaje,,,Tu personaje,Your character,Seu personagem,Ton personnage,Dein Charakter
+t041,Nombre del héroe,,,Nombre del héroe,Hero name,Nome do herói,Nom du héros,Name des Helden
+t042,Al azar,,,Al azar,Random,Aleatório,Au hasard,Zufällig
+t043,¡Listo!,,,¡Listo!,Done!,Pronto!,C'est prêt !,Fertig!
+t044,Cancelar,,,Cancelar,Cancel,Cancelar,Annuler,Abbrechen
+t045,Piel,,,Piel,Skin,Pele,Peau,Haut
+t046,Pelo,,,Pelo,Hair,Cabelo,Cheveux,Haare
+t047,Color del pelo,,,Color del pelo,Hair color,Cor do cabelo,Couleur des cheveux,Haarfarbe
+t048,Ojos,,,Ojos,Eyes,Olhos,Yeux,Augen
+t049,Color de ojos,,,Color de ojos,Eye color,Cor dos olhos,Couleur des yeux,Augenfarbe
+t050,Ropa,,,Ropa,Clothes,Roupa,Vêtements,Kleidung
+t051,En la cabeza,,,En la cabeza,On your head,Na cabeça,Sur la tête,Auf dem Kopf
+t052,Color del gorro,,,Color del gorro,Hat color,Cor do chapéu,Couleur du chapeau,Hutfarbe
+t053,Accesorio,,,Accesorio,Accessory,Acessório,Accessoire,Accessoire
+t054,Elige tu clase. Juega solo o con amigos.,,,Elige tu clase. Juega solo o con amigos.,Choose your class. Play alone or with friends.,Escolha sua classe. Jogue sozinho ou com amigos.,Choisis ta classe. Joue seul ou avec des amis.,Wähle deine Klasse. Spiele allein oder mit Freunden.
+t055,¡Elegir!,,,¡Elegir!,Choose!,Escolher!,Choisir !,Wählen!
+t056,Hablar,,,Hablar,Talk,Falar,Parler,Sprechen
+t057,Entrar,,,Entrar,Enter,Entrar,Entrer,Betreten
+t058,Salir,,,Salir,Leave,Sair,Sortir,Verlassen
+t059,Abrir,,,Abrir,Open,Abrir,Ouvrir,Öffnen
+t060,Comprar,,,Comprar,Buy,Comprar,Acheter,Kaufen
+t061,Coger,,,Coger,Take,Pegar,Prendre,Nehmen
+t062,Tirar,,,Tirar,Pull,Puxar,Tirer,Ziehen
+t063,Volver,,,Volver,Go back,Voltar,Retour,Zurück
+t064,Mirar,,,Mirar,Look,Olhar,Regarder,Ansehen
+t065,Acercarse,,,Acercarse,Approach,Aproximar-se,S'approcher,Nähern
+t066,Dormir (10 oro),,,Dormir (10 oro),Sleep (10 gold),Dormir (10 ouro),Dormir (10 or),Schlafen (10 Gold)
+t067,Unirse al combate,,,Unirse al combate,Join the battle,Entrar na batalha,Rejoindre le combat,Dem Kampf beitreten
+t068,Puerta,,,Puerta,Door,Porta,Porte,Tür
+t069,Cofre,,,Cofre,Chest,Baú,Coffre,Truhe
+t070,Seta brillante,,,Seta brillante,Glowing mushroom,Cogumelo brilhante,Champignon lumineux,Leuchtpilz
+t071,Palanca,,,Palanca,Lever,Alavanca,Levier,Hebel
+t072,Hoguera,,,Hoguera,Campfire,Fogueira,Feu de camp,Lagerfeuer
+t073,Pozo de los deseos,,,Pozo de los deseos,Wishing well,Poço dos desejos,Puits à souhaits,Wunschbrunnen
+t074,Viajero,,,Viajero,Traveler,Viajante,Voyageur,Reisender
+t075,Vendedor sospechoso,,,Vendedor sospechoso,Shady merchant,Vendedor suspeito,Marchand louche,Zwielichtiger Händler
+t076,Comerciante,,,Comerciante,Trader,Comerciante,Commerçant,Händler
+t077,Mercader,,,Mercader,Merchant,Mercador,Marchand,Kaufmann
+t078,¿Qué haces?,,,¿Qué haces?,What will you do?,O que você faz?,Que fais-tu ?,Was tust du?
+t079,Muévete (verde) o elige,,,Muévete (verde) o elige,Move (green) or choose,Mova-se (verde) ou escolha,Déplace-toi (vert) ou choisis,Bewege dich (grün) oder wähle
+t080,Atacar,,,Atacar,Attack,Atacar,Attaquer,Angreifen
+t081,Habilidades,,,Habilidades,Skills,Habilidades,Compétences,Fähigkeiten
+t082,Defender,,,Defender,Defend,Defender,Défendre,Verteidigen
+t083,Huir,,,Huir,Flee,Fugir,Fuir,Fliehen
+t084,¿A quién?,,,¿A quién?,Who?,Quem?,Qui ?,Wen?
+t085,¡Nadie a tu alcance! Muévete,,,¡Nadie a tu alcance! Muévete,Nobody in range! Move,Ninguém ao alcance! Mova-se,Personne à portée ! Bouge,Niemand in Reichweite! Bewege dich
+t086,Cámara,,,Cámara,Camera,Câmera,Caméra,Kamera
+t087,Q/E girar · rueda acercar · C vista,,,Q/E girar · rueda acercar · C vista,Q/E rotate · wheel zoom · C view,Q/E girar · roda zoom · C vista,Q/E tourner · molette zoom · C vue,Q/E drehen · Mausrad Zoom · C Ansicht
+t088,¡VICTORIA!,,,¡VICTORIA!,VICTORY!,VITÓRIA!,VICTOIRE !,SIEG!
+t089,Derrota…,,,Derrota…,Defeat…,Derrota…,Défaite…,Niederlage…
+t090,Habéis escapado,,,Habéis escapado,You escaped,Vocês escaparam,Vous vous êtes échappés,Ihr seid entkommen
+t091,¡EMBOSCADA!,,,¡EMBOSCADA!,AMBUSH!,EMBOSCADA!,EMBUSCADE !,HINTERHALT!
+t092,¡Un cofre! Elige una mejora,,,¡Un cofre! Elige una mejora,A chest! Pick an upgrade,Um baú! Escolha uma melhoria,Un coffre ! Choisis une amélioration,Eine Truhe! Wähle eine Verbesserung
+t093,¡El tesoro del Rey Hongo!,,,¡El tesoro del Rey Hongo!,The Mushroom King's treasure!,O tesouro do Rei Cogumelo!,Le trésor du Roi Champignon !,Der Schatz des Pilzkönigs!
+t094,Se suman y algunas se combinan entre sí,,,Se suman y algunas se combinan entre sí,"They stack, and some combine with each other",Elas se somam e algumas se combinam,Elles s'additionnent et certaines se combinent,Sie stapeln sich und manche kombinieren sich
+t095,¡Esta!,,,¡Esta!,This one!,Esta!,Celle-ci !,Diese!
+t096,Sigue la bola!,,,Sigue la bola!,Follow the ball!,Siga a bola!,Suis la balle !,Folge der Kugel!
+t097,¡Sigue la bola!,,,¡Sigue la bola!,Follow the ball!,Siga a bola!,Suis la balle !,Folge der Kugel!
+t098,Mira bien…,,,Mira bien…,Look closely…,Olhe bem…,Regarde bien…,Schau genau hin…
+t099,¿Dónde está la bola?,,,¿Dónde está la bola?,Where's the ball?,Onde está a bola?,Où est la balle ?,Wo ist die Kugel?
+t100,¡Bien visto!,,,¡Bien visto!,Well spotted!,Bem visto!,Bien vu !,Gut erkannt!
+t101,¡Ups!,,,¡Ups!,Oops!,Ops!,Oups !,Hoppla!
+t102,Elige tu clase y crea a tu héroe,,,Elige tu clase y crea a tu héroe,Choose your class and create your hero,Escolha sua classe e crie seu herói,Choisis ta classe et crée ton héros,Wähle deine Klasse und erstelle deinen Helden
+t103,Gana 2 veces seguidas a los vasos en la taberna (ciudad),,,Gana 2 veces seguidas a los vasos en la taberna (ciudad),Win the cup game twice in a row at the tavern (city),Vença 2 vezes seguidas o jogo dos copos na taverna (cidade),Gagne 2 fois de suite au jeu des gobelets à la taverne (ville),Gewinne zweimal hintereinander das Becherspiel in der Taverne (Stadt)
+t104,Sube por las tablas del Pantano hasta el cofre del hacha,,,Sube por las tablas del Pantano hasta el cofre del hacha,Climb the planks in the Swamp to the axe chest,Suba pelas tábuas do Pântano até o baú do machado,Grimpe sur les planches du Marais jusqu'au coffre de la hache,Klettere über die Bretter im Sumpf zur Axt-Truhe
+t105,Lleva las 3 setas al ermitaño del Bosque,,,Lleva las 3 setas al ermitaño del Bosque,Bring the 3 mushrooms to the Forest hermit,Leve os 3 cogumelos ao eremita da Floresta,Apporte les 3 champignons à l'ermite de la Forêt,Bring die 3 Pilze zum Einsiedler im Wald
+t106,Busca setas brillantes en el Bosque,,,Busca setas brillantes en el Bosque,Find glowing mushrooms in the Forest,Procure cogumelos brilhantes na Floresta,Trouve des champignons lumineux dans la Forêt,Finde Leuchtpilze im Wald
+t107,Abre el cofre de la cripta de las Ruinas,,,Abre el cofre de la cripta de las Ruinas,Open the crypt chest in the Ruins,Abra o baú da cripta das Ruínas,Ouvre le coffre de la crypte des Ruines,Öffne die Gruft-Truhe in den Ruinen
+t108,Tira de las palancas de las Ruinas,,,Tira de las palancas de las Ruinas,Pull the levers in the Ruins,Puxe as alavancas das Ruínas,Tire les leviers des Ruines,Ziehe die Hebel in den Ruinen
+t109,Derrota al Rey Hongo en la Cueva,,,Derrota al Rey Hongo en la Cueva,Defeat the Mushroom King in the Cave,Derrote o Rei Cogumelo na Caverna,Bats le Roi Champignon dans la Grotte,Besiege den Pilzkönig in der Höhle
+t110,Poción,,,Poción,Potion,Poção,Potion,Trank
+t111,Cura 50 de vida.,,,Cura 50 de vida.,Heals 50 health.,Cura 50 de vida.,Soigne 50 points de vie.,Heilt 50 Leben.
+t112,Éter,,,Éter,Ether,Éter,Éther,Äther
+t113,Recupera 25 de maná.,,,Recupera 25 de maná.,Restores 25 mana.,Recupera 25 de mana.,Rend 25 de mana.,Stellt 25 Mana wieder her.
+t114,Cuerda,,,Cuerda,Rope,Corda,Corde,Seil
+t115,Para arreglar el puente roto del río.,,,Para arreglar el puente roto del río.,To fix the broken bridge over the river.,Para consertar a ponte quebrada do rio.,Pour réparer le pont cassé de la rivière.,Um die kaputte Brücke über den Fluss zu reparieren.
+t116,Hacha,,,Hacha,Axe,Machado,Hache,Axt
+t117,Corta las zarzas del Bosque.,,,Corta las zarzas del Bosque.,Cuts the Forest brambles.,Corta os espinheiros da Floresta.,Coupe les ronces de la Forêt.,Schneidet die Dornen im Wald.
+t118,Llave de piedra,,,Llave de piedra,Stone key,Chave de pedra,Clé de pierre,Steinschlüssel
+t119,Abre la puerta de las Ruinas.,,,Abre la puerta de las Ruinas.,Opens the gate of the Ruins.,Abre o portão das Ruínas.,Ouvre la porte des Ruines.,Öffnet das Tor der Ruinen.
+t120,Farol,,,Farol,Lantern,Lanterna,Lanterne,Laterne
+t121,Ilumina la Cueva del Rey Hongo.,,,Ilumina la Cueva del Rey Hongo.,Lights up the Mushroom King's Cave.,Ilumina a Caverna do Rei Cogumelo.,Éclaire la Grotte du Roi Champignon.,Erhellt die Höhle des Pilzkönigs.
+t122,Guerrero,,,Guerrero,Warrior,Guerreiro,Guerrier,Krieger
+t123,Maga,,,Maga,Mage,Maga,Mage,Magierin
+t124,Arquero,,,Arquero,Archer,Arqueiro,Archer,Bogenschütze
+t125,Sanador,,,Sanador,Healer,Curandeiro,Soigneur,Heiler
+t126,Mucha vida y defensa. Aguanta los golpes del equipo.,,,Mucha vida y defensa. Aguanta los golpes del equipo.,Lots of health and defense. Takes hits for the team.,Muita vida e defesa. Aguenta os golpes pela equipe.,Beaucoup de vie et de défense. Encaisse pour l'équipe.,Viel Leben und Verteidigung. Steckt Treffer fürs Team ein.
+t127,"Hechizos devastadores, pero poca vida.",,,"Hechizos devastadores, pero poca vida.","Devastating spells, but little health.","Feitiços devastadores, mas pouca vida.","Sorts dévastateurs, mais peu de vie.","Verheerende Zauber, aber wenig Leben."
+t128,El más rápido. Críticos y veneno.,,,El más rápido. Críticos y veneno.,The fastest. Crits and poison.,O mais rápido. Críticos e veneno.,Le plus rapide. Critiques et poison.,Der Schnellste. Kritische Treffer und Gift.
+t129,Cura y revive al equipo. Imprescindible en grupo.,,,Cura y revive al equipo. Imprescindible en grupo.,Heals and revives the team. A must in a group.,Cura e revive a equipe. Essencial em grupo.,Soigne et ranime l'équipe. Indispensable en groupe.,Heilt und belebt das Team. Unverzichtbar in der Gruppe.
+t130,Aldea de Brezo,,,Aldea de Brezo,Heather Village,Aldeia de Urze,Village de Bruyère,Heidedorf
+t131,Ciudad de Vael,,,Ciudad de Vael,City of Vael,Cidade de Vael,Ville de Vael,Stadt Vael
+t132,Pradera,,,Pradera,Meadow,Pradaria,Prairie,Wiese
+t133,Pantano Brumoso,,,Pantano Brumoso,Misty Swamp,Pântano Nebuloso,Marais Brumeux,Nebelsumpf
+t134,Bosque Susurrante,,,Bosque Susurrante,Whispering Forest,Floresta Sussurrante,Forêt Murmurante,Flüsterwald
+t135,Ruinas de Ceniza,,,Ruinas de Ceniza,Ash Ruins,Ruínas de Cinzas,Ruines de Cendre,Aschenruinen
+t136,Cueva del Rey Hongo,,,Cueva del Rey Hongo,Mushroom King's Cave,Caverna do Rei Cogumelo,Grotte du Roi Champignon,Höhle des Pilzkönigs
+t137,Calle del Mercado,,,Calle del Mercado,Market Street,Rua do Mercado,Rue du Marché,Marktstraße
+t138,Callejón del Gato,,,Callejón del Gato,Cat Alley,Beco do Gato,Ruelle du Chat,Katzengasse
+t139,Plaza de Vael,,,Plaza de Vael,Vael Square,Praça de Vael,Place de Vael,Vael-Platz
+t140,Tu casa,,,Tu casa,Your house,Sua casa,Ta maison,Dein Haus
+t141,Huerto,,,Huerto,Vegetable garden,Horta,Potager,Gemüsegarten
+t142,Taberna,,,Taberna,Tavern,Taverna,Taverne,Taverne
+t143,Posada,,,Posada,Inn,Pousada,Auberge,Gasthaus
+t144,Herrería,,,Herrería,Smithy,Ferraria,Forge,Schmiede
+t145,Ermitaño,,,Ermitaño,Hermit,Eremita,Ermite,Einsiedler
+t146,"¡Gracias, abuela!",,,"¡Gracias, abuela!","Thanks, Grandma!","Obrigado, vovó!","Merci, mamie !","Danke, Oma!"
+t147,Cuéntame lo del Rey Hongo,,,Cuéntame lo del Rey Hongo,Tell me about the Mushroom King,Me conte sobre o Rei Cogumelo,Parle-moi du Roi Champignon,Erzähl mir vom Pilzkönig
+t148,¡Allá voy!,,,¡Allá voy!,Here I go!,Lá vou eu!,J'y vais !,Los geht's!
+t149,¿Puedo dormir cinco minutos más?,,,¿Puedo dormir cinco minutos más?,Can I sleep five more minutes?,Posso dormir mais cinco minutos?,Je peux dormir cinq minutes de plus ?,Darf ich noch fünf Minuten schlafen?
+t150,«¡NO!»,,,«¡NO!»,"""NO!""",«NÃO!»,« NON ! »,„NEIN!“
+t151,"¡Por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",,,"¡Por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.","You're finally awake! The Mushroom King has filled Vael with monsters. Start by chasing the slugs out of Tomás's garden, then head to the city. And take your backpack, it's cold.","Finalmente você acordou! O Rei Cogumelo encheu Vael de monstros. Comece expulsando as lesmas da horta do Tomás e depois vá à cidade. E leve a mochila, está frio.","Enfin réveillé ! Le Roi Champignon a rempli Vael de monstres. Commence par chasser les limaces du potager de Tomás, puis va en ville. Et prends ton sac, il fait froid.","Endlich wach! Der Pilzkönig hat Vael mit Monstern gefüllt. Vertreibe zuerst die Schnecken aus Tomás' Garten und geh dann in die Stadt. Und nimm deinen Rucksack mit, es ist kalt."
+t152,¡Voy!,,,¡Voy!,On my way!,Estou indo!,J'arrive !,Bin unterwegs!
+t153,¿Y tu gallina?,,,¿Y tu gallina?,And your hen?,E a sua galinha?,Et ta poule ?,Und dein Huhn?
+t154,Entendido,,,Entendido,Got it,Entendido,Compris,Verstanden
+t155,Adiós,,,Adiós,Bye,Tchau,Au revoir,Tschüss
+t156,Jugar a los vasos (5 oro),,,Jugar a los vasos (5 oro),Play the cup game (5 gold),Jogar os copos (5 ouro),Jouer aux gobelets (5 or),Becherspiel spielen (5 Gold)
+t157,"Comer un guiso (8 oro, cura)",,,"Comer un guiso (8 oro, cura)","Eat a stew (8 gold, heals)","Comer um ensopado (8 ouro, cura)","Manger un ragoût (8 or, soigne)","Eintopf essen (8 Gold, heilt)"
+t158,Escuchar rumores,,,Escuchar rumores,Listen to rumors,Ouvir rumores,Écouter les rumeurs,Gerüchten lauschen
+t159,"Bienvenido a El Hongo Feliz. Si me ganas a los vasos dos veces seguidas, te doy mi cuerda de la suerte.",,,"Bienvenido a El Hongo Feliz. Si me ganas a los vasos dos veces seguidas, te doy mi cuerda de la suerte.",Welcome to The Happy Mushroom. Beat me at the cups twice in a row and I'll give you my lucky rope.,"Bem-vindo ao Cogumelo Feliz. Se me vencer nos copos duas vezes seguidas, te dou minha corda da sorte.",Bienvenue au Champignon Joyeux. Bats-moi deux fois de suite aux gobelets et je te donne ma corde porte-bonheur.,Willkommen im Glücklichen Pilz. Schlag mich zweimal hintereinander beim Becherspiel und du bekommst mein Glücksseil.
+t160,¡Mi campeón de los vasos! ¿Qué te pongo?,,,¡Mi campeón de los vasos! ¿Qué te pongo?,My cup champion! What can I get you?,Meu campeão dos copos! O que vai ser?,Mon champion des gobelets ! Je te sers quoi ?,Mein Becher-Champion! Was darf's sein?
+t161,Las buscaré,,,Las buscaré,I'll find them,Vou procurá-los,Je vais les chercher,Ich suche sie
+t162,¿Por qué brillan?,,,¿Por qué brillan?,Why do they glow?,Por que brilham?,Pourquoi elles brillent ?,Warum leuchten sie?
+t163,¡Gracias!,,,¡Gracias!,Thanks!,Obrigado!,Merci !,Danke!
+t164,Comprar una manzana (6 oro),,,Comprar una manzana (6 oro),Buy an apple (6 gold),Comprar uma maçã (6 ouro),Acheter une pomme (6 or),Einen Apfel kaufen (6 Gold)
+t165,¡Cámbiame el look!,,,¡Cámbiame el look!,Change my look!,Mude meu visual!,Change mon look !,Ändere mein Aussehen!
+t166,Así estoy perfecto,,,Así estoy perfecto,I'm perfect as I am,Estou perfeito assim,Je suis parfait comme ça,Ich bin perfekt so
+t167,¡Yo te la traigo!,,,¡Yo te la traigo!,I'll bring it to you!,Eu trago para você!,Je te la rapporte !,Ich bringe ihn dir!
+t168,"¡Gracias, Lucas!",,,"¡Gracias, Lucas!","Thanks, Lucas!","Obrigado, Lucas!","Merci, Lucas !","Danke, Lucas!"
+t169,De nada,,,De nada,You're welcome,De nada,De rien,Gern geschehen
+t170,Leer mi destino (5 oro),,,Leer mi destino (5 oro),Read my fate (5 gold),Ler meu destino (5 ouro),Lire mon destin (5 or),Mein Schicksal lesen (5 Gold)
+t171,No creo en estas cosas,,,No creo en estas cosas,I don't believe in this stuff,Não acredito nessas coisas,Je ne crois pas à ces trucs,Ich glaube nicht an so was
+t172,Descansar (cura la mitad),,,Descansar (cura la mitad),Rest (heals half),Descansar (cura metade),Se reposer (soigne la moitié),Ausruhen (heilt die Hälfte)
+t173,Contar un chiste,,,Contar un chiste,Tell a joke,Contar uma piada,Raconter une blague,Einen Witz erzählen
+t174,Seguir el camino,,,Seguir el camino,Keep going,Seguir caminho,Continuer la route,Weitergehen
+t175,Abrirlo,,,Abrirlo,Open it,Abrir,L'ouvrir,Öffnen
+t176,Darle una patada primero,,,Darle una patada primero,Kick it first,Chutar primeiro,Lui donner un coup de pied d'abord,Erst mal dagegen treten
+t177,Dejarlo en paz,,,Dejarlo en paz,Leave it alone,Deixar quieto,Le laisser tranquille,In Ruhe lassen
+t178,Echar 10 de oro,,,Echar 10 de oro,Throw in 10 gold,Jogar 10 de ouro,Jeter 10 pièces d'or,10 Gold hineinwerfen
+t179,Asomarse,,,Asomarse,Peek in,Espiar,Jeter un œil,Hineinschauen
+t180,Irse,,,Irse,Leave,Ir embora,Partir,Gehen
+t181,Darle una poción,,,Darle una poción,Give a potion,Dar uma poção,Donner une potion,Einen Trank geben
+t182,Indicarle el camino,,,Indicarle el camino,Show the way,Indicar o caminho,Montrer le chemin,Den Weg zeigen
+t183,Hacer como que no lo ves,,,Hacer como que no lo ves,Pretend not to see,Fingir que não vê,Faire semblant de ne pas voir,"So tun, als sähe man nichts"
+t184,¡Yo me encargo!,,,¡Yo me encargo!,I'll handle it!,Deixa comigo!,Je m'en occupe !,Ich kümmere mich drum!
+t185,Hacer como que no oyes,,,Hacer como que no oyes,Pretend not to hear,Fingir que não ouve,Faire semblant de ne pas entendre,"So tun, als hörte man nichts"
+t186,"Gracias, Fermín",,,"Gracias, Fermín","Thanks, Fermín","Obrigado, Fermín","Merci, Fermín","Danke, Fermín"
+t187,La fuente te cura del todo,,,La fuente te cura del todo,The fountain heals you fully,A fonte te cura completamente,La fontaine te soigne complètement,Der Brunnen heilt dich vollständig
+t188,¡Qué buena pinta!,,,¡Qué buena pinta!,Looking good!,Que visual!,Quelle allure !,Siehst gut aus!
+t189,No te llega el oro,,,No te llega el oro,Not enough gold,Ouro insuficiente,Pas assez d'or,Nicht genug Gold
+t190,Elige tu clase primero,,,Elige tu clase primero,Choose your class first,Escolha sua classe primeiro,Choisis d'abord ta classe,Wähle zuerst deine Klasse
+t191,Entrarás en la próxima ronda,,,Entrarás en la próxima ronda,You'll join next round,Você entra na próxima rodada,Tu entreras au prochain tour,Du steigst in der nächsten Runde ein
+t192,¡Algo se mueve entre los arbustos…!,,,¡Algo se mueve entre los arbustos…!,Something's moving in the bushes…!,Algo se mexe entre os arbustos…!,Quelque chose bouge dans les buissons… !,Etwas bewegt sich im Gebüsch…!
+t193,¡A por ellos!,,,¡A por ellos!,Get them!,Pra cima deles!,À l'attaque !,Auf sie!
+t194,Ya has pasado por aquí,,,Ya has pasado por aquí,You've already been here,Você já passou por aqui,Tu es déjà passé par ici,Hier warst du schon
+t195,Ya estás como una rosa. No hace falta.,,,Ya estás como una rosa. No hace falta.,You're already fresh as a daisy. No need.,Você já está ótimo. Não precisa.,Tu es déjà frais comme un gardon. Pas besoin.,Du bist schon putzmunter. Nicht nötig.
+t196,Primero empieza la partida y elige tu clase. Después podrás crear a tu héroe (y cambiarlo cuando quieras desde la pausa).,,,Primero empieza la partida y elige tu clase. Después podrás crear a tu héroe (y cambiarlo cuando quieras desde la pausa).,First start the game and choose your class. Then you can create your hero (and change it anytime from the pause menu).,Primeiro comece o jogo e escolha sua classe. Depois você poderá criar seu herói (e mudá-lo quando quiser no menu de pausa).,Commence d'abord la partie et choisis ta classe. Ensuite tu pourras créer ton héros (et le modifier quand tu veux depuis la pause).,Starte zuerst das Spiel und wähle deine Klasse. Dann kannst du deinen Helden erstellen (und ihn jederzeit im Pausenmenü ändern).
+t197,Calcetín sudado,,,Calcetín sudado,Sweaty sock,Meia suada,Chaussette moite,Verschwitzte Socke
+t198,+15 % de vida. Huele a victoria (y a pies).,,,+15 % de vida. Huele a victoria (y a pies).,+15% health. Smells like victory (and feet).,+15% de vida. Cheira a vitória (e a pé).,+15 % de vie. Ça sent la victoire (et les pieds).,+15 % Leben. Riecht nach Sieg (und Füßen).
+t199,Cuerno de cabra,,,Cuerno de cabra,Goat horn,Chifre de cabra,Corne de chèvre,Ziegenhorn
+t200,+3 de ataque.,,,+3 de ataque.,+3 attack.,+3 de ataque.,+3 d'attaque.,+3 Angriff.
+t201,Zapatillas con muelles,,,Zapatillas con muelles,Spring sneakers,Tênis de mola,Baskets à ressorts,Sprungfeder-Schuhe
+t202,+1 casilla de movimiento. ¡Boing!,,,+1 casilla de movimiento. ¡Boing!,+1 movement tile. Boing!,+1 casa de movimento. Boing!,+1 case de déplacement. Boing !,+1 Bewegungsfeld. Boing!
+t203,Lupa de la abuela,,,Lupa de la abuela,Grandma's magnifier,Lupa da vovó,Loupe de mamie,Omas Lupe
+t204,+12 % de crítico.,,,+12 % de crítico.,+12% critical chance.,+12% de crítico.,+12 % de critique.,+12 % kritische Treffer.
+t205,Pan duro,,,Pan duro,Stale bread,Pão duro,Pain rassis,Hartes Brot
+t206,+4 de defensa. Lleva ahí desde el martes.,,,+4 de defensa. Lleva ahí desde el martes.,+4 defense. It's been there since Tuesday.,+4 de defesa. Está aí desde terça.,+4 de défense. Il traîne là depuis mardi.,+4 Verteidigung. Liegt da seit Dienstag.
+t207,Tostadora mágica,,,Tostadora mágica,Magic toaster,Torradeira mágica,Grille-pain magique,Magischer Toaster
+t208,+4 de magia. Tuesta hechizos.,,,+4 de magia. Tuesta hechizos.,+4 magic. Toasts spells.,+4 de magia. Torra feitiços.,+4 de magie. Grille des sorts.,+4 Magie. Röstet Zauber.
+t209,Moneda de chocolate,,,Moneda de chocolate,Chocolate coin,Moeda de chocolate,Pièce en chocolat,Schokotaler
+t210,+3 de velocidad. El azúcar ayuda.,,,+3 de velocidad. El azúcar ayuda.,+3 speed. Sugar helps.,+3 de velocidade. O açúcar ajuda.,+3 de vitesse. Le sucre aide.,+3 Tempo. Zucker hilft.
+t211,Bolsillo agujereado,,,Bolsillo agujereado,Holey pocket,Bolso furado,Poche trouée,Löchrige Tasche
+t212,+50 % de oro. No preguntes cómo.,,,+50 % de oro. No preguntes cómo.,+50% gold. Don't ask how.,+50% de ouro. Não pergunte como.,+50 % d'or. Ne demande pas comment.,"+50 % Gold. Frag nicht, wie."
+t213,Pluma de gallina,,,Pluma de gallina,Hen feather,Pena de galinha,Plume de poule,Hühnerfeder
+t214,12 % de esquivar los golpes.,,,12 % de esquivar los golpes.,12% chance to dodge hits.,12% de esquivar golpes.,12 % d'esquiver les coups.,12 % Ausweichchance.
+t215,Botas de barro,,,Botas de barro,Mud boots,Botas de lama,Bottes de boue,Matschstiefel
+t216,Las trampas no te hacen nada.,,,Las trampas no te hacen nada.,Traps don't hurt you.,As armadilhas não te afetam.,Les pièges ne te font rien.,Fallen schaden dir nicht.
+t217,Diente de leche,,,Diente de leche,Baby tooth,Dente de leite,Dent de lait,Milchzahn
+t218,Te curas el 15 % del daño que haces.,,,Te curas el 15 % del daño que haces.,You heal 15% of the damage you deal.,Você cura 15% do dano que causa.,Tu récupères 15 % des dégâts infligés.,Du heilst 15 % des verursachten Schadens.
+t219,Espejo roto,,,Espejo roto,Broken mirror,Espelho quebrado,Miroir brisé,Zerbrochener Spiegel
+t220,25 % de devolver la mitad del daño. Siete años de mala suerte… para ellos.,,,25 % de devolver la mitad del daño. Siete años de mala suerte… para ellos.,25% chance to reflect half the damage. Seven years of bad luck… for them.,25% de devolver metade do dano. Sete anos de azar… para eles.,25 % de renvoyer la moitié des dégâts. Sept ans de malheur… pour eux.,"25 % Chance, den halben Schaden zurückzuwerfen. Sieben Jahre Pech… für sie."
+t221,Chicle pegajoso,,,Chicle pegajoso,Sticky gum,Chiclete grudento,Chewing-gum collant,Klebriger Kaugummi
+t222,Tus empujones llegan 1 casilla más lejos.,,,Tus empujones llegan 1 casilla más lejos.,Your pushes go 1 tile further.,Seus empurrões vão 1 casa mais longe.,Tes poussées vont 1 case plus loin.,Deine Stöße reichen 1 Feld weiter.
+t223,Muelle de colchón,,,Muelle de colchón,Mattress spring,Mola de colchão,Ressort de matelas,Matratzenfeder
+t224,+10 de daño cuando estampas a alguien.,,,+10 de daño cuando estampas a alguien.,+10 damage when you slam someone.,+10 de dano ao arremessar alguém.,+10 dégâts quand tu écrases quelqu'un.,"+10 Schaden, wenn du jemanden gegen etwas schleuderst."
+t225,Tirita gigante,,,Tirita gigante,Giant bandage,Curativo gigante,Pansement géant,Riesenpflaster
+t226,Recuperas un 6 % de vida en cada turno.,,,Recuperas un 6 % de vida en cada turno.,You recover 6% health each turn.,Recupera 6% de vida a cada turno.,Tu récupères 6 % de vie à chaque tour.,Du regenerierst 6 % Leben pro Runde.
+t227,Huevo podrido,,,Huevo podrido,Rotten egg,Ovo podre,Œuf pourri,Faules Ei
+t228,25 % de envenenar al golpear.,,,25 % de envenenar al golpear.,25% chance to poison on hit.,25% de envenenar ao golpear.,25 % d'empoisonner en frappant.,"25 % Chance, beim Treffen zu vergiften."
+t229,Gafas 3D,,,Gafas 3D,3D glasses,Óculos 3D,Lunettes 3D,3D-Brille
+t230,+1 de alcance y +20 % de daño a distancia.,,,+1 de alcance y +20 % de daño a distancia.,+1 range and +20% ranged damage.,+1 de alcance e +20% de dano à distância.,+1 de portée et +20 % de dégâts à distance.,+1 Reichweite und +20 % Fernkampfschaden.
+t231,Sartén de la abuela,,,Sartén de la abuela,Grandma's frying pan,Frigideira da vovó,Poêle de mamie,Omas Bratpfanne
+t232,Al defender no recibes nada de daño.,,,Al defender no recibes nada de daño.,When defending you take no damage.,Ao defender você não recebe dano.,"En défense, tu ne subis aucun dégât.",Beim Verteidigen erleidest du keinen Schaden.
+t233,Petardo,,,Petardo,Firecracker,Bombinha,Pétard,Knallfrosch
+t234,"Cuando matas a alguien, explota y hace 15 a los de al lado.",,,"Cuando matas a alguien, explota y hace 15 a los de al lado.","When you defeat someone, they explode and deal 15 to those next to them.","Quando você derrota alguém, ele explode e causa 15 aos vizinhos.","Quand tu vaincs quelqu'un, il explose et inflige 15 aux voisins.","Wenn du jemanden besiegst, explodiert er und macht 15 Schaden an Nachbarn."
+t235,Corona de cartón,,,Corona de cartón,Cardboard crown,Coroa de papelão,Couronne en carton,Pappkrone
+t236,+20 % a todo. Eres el rey (de cartón).,,,+20 % a todo. Eres el rey (de cartón).,+20% to everything. You're the king (of cardboard).,+20% em tudo. Você é o rei (de papelão).,+20 % à tout. Tu es le roi (en carton).,+20 % auf alles. Du bist der König (aus Pappe).
+t237,Calavera de goma,,,Calavera de goma,Rubber skull,Caveira de borracha,Crâne en caoutchouc,Gummischädel
+t238,"Una vez por combate, revives con un 30 % de vida.",,,"Una vez por combate, revives con un 30 % de vida.","Once per battle, you revive with 30% health.","Uma vez por batalha, você revive com 30% de vida.","Une fois par combat, tu ressuscites avec 30 % de vie.",Einmal pro Kampf belebst du dich mit 30 % Leben wieder.
+t239,Capa de toalla,,,Capa de toalla,Towel cape,Capa de toalha,Cape en serviette,Handtuch-Umhang
+t240,"+2 de movimiento, +1 de alcance y vuelas sobre los obstáculos.",,,"+2 de movimiento, +1 de alcance y vuelas sobre los obstáculos.","+2 movement, +1 range and you fly over obstacles.","+2 de movimento, +1 de alcance e você voa sobre obstáculos.","+2 de déplacement, +1 de portée et tu survoles les obstacles.","+2 Bewegung, +1 Reichweite und du fliegst über Hindernisse."
+t241,Dado trucado,,,Dado trucado,Loaded die,Dado viciado,Dé pipé,Gezinkter Würfel
+t242,"Tu daño se multiplica al azar entre ×0,5 y ×2,5.",,,"Tu daño se multiplica al azar entre ×0,5 y ×2,5.",Your damage is randomly multiplied between ×0.5 and ×2.5.,"Seu dano é multiplicado ao acaso entre ×0,5 e ×2,5.","Tes dégâts sont multipliés au hasard entre ×0,5 et ×2,5.","Dein Schaden wird zufällig mit ×0,5 bis ×2,5 multipliziert."

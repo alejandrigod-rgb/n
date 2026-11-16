@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -75,6 +75,7 @@ local function enviarEstado(j: Player)
 		setas = perfil.progreso.setas,
 		palancas = perfil.progreso.palancas,
 		apariencia = perfil.apariencia,
+		ajustes = (perfil :: any).ajustes,
 		creado = perfil.creado,
 		nombreHeroe = perfil.nombreHeroe,
 	})
@@ -196,7 +197,7 @@ remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
 			if j.Parent then
 				dialogo(j, {
 					titulo = "Abuela Rosa",
-					texto = "¡" .. (nombre ~= "" and nombre or j.DisplayName) .. ", por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",
+					texto = "¡Por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",
 					quien = { "vecino", "1955" },
 					opciones = { { texto = "¡Allá voy!" }, { texto = "¿Puedo dormir cinco minutos más?", accion = function()
 						return "«¡NO!»"
@@ -268,6 +269,7 @@ local ultimaFuente: { [Player]: number } = {}
 
 local function aviso(parte: BasePart, accion: string, objeto: string, alPulsar: (Player) -> (), distancia: number?)
 	local prompt = Instance.new("ProximityPrompt")
+	prompt.Style = Enum.ProximityPromptStyle.Custom -- lo dibuja el cliente (Interaccion.luau)
 	prompt.ActionText = accion
 	prompt.ObjectText = objeto
 	prompt.MaxActivationDistance = distancia or 11
@@ -502,6 +504,122 @@ for _, d in mundo:GetDescendants() do
 		p:SetAttribute("Npc", "vecino:5150")
 		p:SetAttribute("Frases", "¡CLANG! ¡CLANG!|Mejoras de hierro, a buen precio.")
 		aviso(p, "Comprar", "Herrería de Olga", herrero)
+	elseif nombre == "irMercado" or nombre == "irCallejon" then
+		local destino = nombre == "irMercado" and "mercado" or "callejon"
+		aviso(p, "Entrar", destino == "mercado" and "Calle del Mercado" or "Callejón del Gato", function(j)
+			teletransportar(j, Mundo.Calles[destino].entrada)
+		end)
+	elseif nombre == "volverPlaza" then
+		local calle = p:GetAttribute("Calle") :: string
+		aviso(p, "Volver", "Plaza de Vael", function(j)
+			teletransportar(j, Mundo.Calles[calle].salida)
+		end)
+	elseif nombre == "tendero" then
+		aviso(p, "Hablar", "Frutero Paco", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			dialogo(j, {
+				titulo = "Frutero Paco",
+				texto = "¡Manzanas de cartón piedra, las mejores de Vael! Curan un montón. Y no engordan, porque no se pueden comer… es broma, sí se pueden.",
+				quien = { "vecino", "7070" },
+				opciones = {
+					{ texto = "Comprar una manzana (6 oro)", accion = function()
+						if perfil.oro < 6 then
+							return "«Sin oro no hay manzana, colega.»"
+						end
+						perfil.oro -= 6
+						local hp, maxHp, mp = Combate.vidaDe(j)
+						Combate.ponerVida(j, math.min(maxHp, hp + math.floor(maxHp * 0.35)), mp)
+						return "Crunch. Recuperas vida."
+					end },
+					{ texto = "Adiós" },
+				},
+			})
+		end)
+	elseif nombre == "sastre" then
+		aviso(p, "Hablar", "Sastre Benito", function(j)
+			dialogo(j, {
+				titulo = "Sastre Benito",
+				texto = "¿Ese look? Mmm… valiente. ¿Quieres que te lo arregle? Hoy cambiar de pinta sale gratis.",
+				quien = { "vecino", "6262" },
+				opciones = {
+					{ texto = "¡Cámbiame el look!", accion = function()
+						remoto("AbrirEditor"):FireClient(j)
+						return nil
+					end },
+					{ texto = "Así estoy perfecto" },
+				},
+			})
+		end)
+	elseif nombre == "nino" then
+		aviso(p, "Hablar", "Niño Lucas", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			local pr = perfil.progreso
+			if pr.pelotaEntregada then
+				dialogo(j, { titulo = "Niño Lucas", texto = "¡Gracias por mi pelota! Ahora juego todos los días. Bueno, cuando no hay monstruos.", quien = { "vecino", "5" }, opciones = { { texto = "De nada" } } })
+			elseif pr.pelota then
+				dialogo(j, {
+					titulo = "Niño Lucas",
+					texto = "¡MI PELOTA! ¡La encontraste en el Callejón! Toma, mi moneda de chocolate de la suerte. Y 40 de oro de mi hucha.",
+					quien = { "vecino", "5" },
+					opciones = { { texto = "¡Gracias, Lucas!", accion = function()
+						pr.pelotaEntregada = true
+						perfil.oro += 40
+						Combate.darMejora(j, "chocolate")
+						return nil
+					end } },
+				})
+			else
+				dialogo(j, { titulo = "Niño Lucas", texto = "Se me fue la pelota al Callejón del Gato y me da miedo entrar. ¿Me la traes? Está en un cofre al fondo.", quien = { "vecino", "5" }, opciones = { { texto = "¡Yo te la traigo!" } } })
+			end
+		end)
+	elseif nombre == "adivina" then
+		aviso(p, "Hablar", "Madame Zoé", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			dialogo(j, {
+				titulo = "Madame Zoé",
+				texto = "Acércate, acércate… Por 5 monedas leo tu destino en una bola de cristal. (Es una pecera.)",
+				quien = { "vecino", "1313" },
+				opciones = {
+					{ texto = "Leer mi destino (5 oro)", accion = function()
+						if perfil.oro < 5 then
+							return "«El destino no fía, cariño.»"
+						end
+						perfil.oro -= 5
+						local destinos = {
+							"Veo… que pronto lucharás contra algo viscoso. Lleva pañuelos.",
+							"Las estrellas dicen que empujar monstruos contra rocas te traerá alegría.",
+							"Veo un cofre… con dientes. No lo abras con la mano buena.",
+							"Tu número de la suerte es el 3. Como las palancas de las Ruinas. Qué casualidad.",
+							"Veo… veo… " .. pista(perfil),
+						}
+						return "Madame Zoé: «" .. destinos[math.random(1, #destinos)] .. "»"
+					end },
+					{ texto = "No creo en estas cosas" },
+				},
+			})
+		end)
+	elseif nombre == "cofreMercado" or nombre == "cofreCallejon" then
+		aviso(p, "Abrir", "Cofre", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			local pr = perfil.progreso
+			pr.cofres = pr.cofres or {}
+			if pr.cofres[nombre] then
+				notificar(j, "Está vacío. Solo hay una pelusa.")
+				return
+			end
+			pr.cofres[nombre] = true
+			remoto("Sonido"):FireClient(j, "cofre")
+			if nombre == "cofreMercado" then
+				perfil.oro += 30
+				notificar(j, "¡30 de oro escondidos detrás de los puestos!")
+			else
+				pr.pelota = true
+				Combate.darMejora(j, "pluma")
+				notificar(j, "Dentro hay una pelota… y una pluma de gallina. Lucas estará contento.")
+			end
+			DatosJugador.guardar(j)
+			enviarEstado(j)
+		end, 6)
 	elseif nombre == "posada" then
 		aviso(p, "Entrar", "Posada El Ronquido", function(j)
 			teletransportar(j, Mundo.Posada.entrada)
@@ -701,6 +819,39 @@ end)
 Players.PlayerRemoving:Connect(function(j)
 	ultimaEmboscada[j] = nil
 	ultimaPos[j] = nil
+end)
+
+-- ajustes del jugador (idioma y volumen): se guardan con la partida
+remoto("GuardarAjustes").OnServerEvent:Connect(function(j, a)
+	local perfil = DatosJugador.obtener(j) :: any
+	if not perfil or type(a) ~= "table" then
+		return
+	end
+	local idiomas = { es = true, en = true, pt = true, fr = true, de = true }
+	perfil.ajustes = {
+		idioma = idiomas[a.idioma] and a.idioma or "es",
+		musica = math.clamp(tonumber(a.musica) or 0.5, 0, 1),
+		efectos = math.clamp(tonumber(a.efectos) or 0.8, 0, 1),
+	}
+end)
+
+-- usar pociones y éteres desde la mochila (fuera de combate)
+remoto("UsarObjeto").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j)
+	local o = type(id) == "string" and Datos.Objetos[id] or nil
+	if not perfil or not o or Combate.enBatalla(j) or (perfil.objetos[id] or 0) <= 0 then
+		return
+	end
+	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
+	if (o.cura > 0 and hp >= maxHp) and (o.mana <= 0 or mp >= maxMp) then
+		notificar(j, "Ya estás como una rosa. No hace falta.")
+		return
+	end
+	perfil.objetos[id] -= 1
+	Combate.ponerVida(j, math.min(maxHp, hp + o.cura), math.min(maxMp, mp + o.mana))
+	remoto("Sonido"):FireClient(j, "cura")
+	notificar(j, "Usas: " .. o.nombre)
+	enviarEstado(j)
 end)
 
 -- autoguardado cada 2 minutos

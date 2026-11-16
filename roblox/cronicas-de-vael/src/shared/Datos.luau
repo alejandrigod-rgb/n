@@ -142,7 +142,7 @@ Datos.OrdenLlaves = { "cuerda", "hacha", "llave", "farol" }
 -- Todos los colores pasan por aquí: se apagan un poco hacia un gris cálido de cartón (nada de colores chillones).
 local CARTON = Color3.fromRGB(150, 138, 122)
 function Datos.apagar(c: Color3, cuanto: number?): Color3
-	return c:Lerp(CARTON, cuanto or 0.22)
+	return c:Lerp(CARTON, cuanto or 0.1)
 end
 Datos.TINTA = Color3.fromRGB(48, 38, 34) -- contorno marrón muy oscuro (en vez de negro puro)
 local okMaterial, carton = pcall(function()
@@ -157,7 +157,7 @@ function Datos.encartonar(raiz: Instance, tinta: Color3?)
 	for _, d in raiz:GetDescendants() do
 		if d:IsA("BasePart") and d.Transparency < 1 then
 			if d.Color ~= t then
-				d.Color = Datos.apagar(d.Color, 0.2)
+				d.Color = Datos.apagar(d.Color, 0.08)
 			end
 			if d.Material ~= Enum.Material.Glass then
 				d.Material = Datos.MaterialCarton

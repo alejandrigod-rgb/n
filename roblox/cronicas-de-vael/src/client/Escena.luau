@@ -6,6 +6,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
 local Datos = require(ReplicatedStorage:WaitForChild("Vael"):WaitForChild("Datos")) :: any
@@ -807,7 +808,17 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 	if not Escena.enBatalla and raiz then
 		camara.CameraType = Enum.CameraType.Scriptable
 		camara.FieldOfView = 42
-		local objetivoX = raiz.Position.X
+		-- correr con Mayús (pasa de andar a correr poco a poco, sin tirones)
+		local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+		if hum and not raiz.Anchored and hum.WalkSpeed > 0 then
+			local corre = UserInputService:IsKeyDown(Enum.KeyCode.LeftShift) or UserInputService:IsKeyDown(Enum.KeyCode.RightShift)
+			local deseada = corre and 26 or 16
+			hum.WalkSpeed += (deseada - hum.WalkSpeed) * math.min(1, dt * 6)
+		end
+		-- la cámara mira un poco hacia donde vas
+		local miMuneco = heroes[jugador]
+		local adelanto = miMuneco and miMuneco.m.mirar * 5 or 0
+		local objetivoX = raiz.Position.X + adelanto
 		local k = 1 - math.exp(-dt * 5)
 		camX = camX and (camX + (objetivoX - camX) * k) or objetivoX
 		-- la cámara sube con el jugador (plataformas, interiores)
@@ -847,6 +858,12 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 			h.m.vy = h.raiz.Anchored and 0 or v.Y
 			local objetivo = (plano > 1.5 and not h.raiz.Anchored and enSuelo) and 1 or 0
 			h.m.andar += (objetivo - h.m.andar) * math.min(1, dt * 10)
+			h.m.ritmo = math.clamp(plano / 15, 0.8, 1.7)
+			-- al pararse de golpe tras correr, un pequeño frenazo (se aplasta un instante)
+			if objetivo == 0 and (h.m :: any).corria and enSuelo then
+				h.m.aterriza = 0.14
+			end
+			;(h.m :: any).corria = plano > 18
 			if p == jugador and h.m.andar > 0.6 then
 				local hum = ch and ch:FindFirstChildOfClass("Humanoid")
 				if hum and hum.FloorMaterial ~= Enum.Material.Air then

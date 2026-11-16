@@ -29,6 +29,9 @@ export type Muneco = {
 	alas: { { p: Pieza, amp: number, vel: number, fase: number } },
 	manos: { { f: Frame, x: number, y: number } },
 	vy: number, -- velocidad vertical (la pone quien lo usa): >0 sube, <0 cae
+	ritmo: number, -- 1 andando, ~1.5 corriendo (acelera los pasos)
+	giro: number, -- al cambiar de dirección, un instante de "media vuelta"
+	ultimoMirar: number,
 	enSuelo: boolean,
 	aterriza: number,
 	brillos: { Frame },
@@ -57,7 +60,7 @@ type Opciones = { sb: boolean?, t: number?, gr: number? }
 local function pieza(m: Muneco, x: number, y: number, w: number, h: number, color: Color3, radio: number?, z: number?, rot: number?, op: Opciones?): Pieza
 	-- colores apagados, como de cartulina (nada de colores chillones)
 	if color ~= NEGRO and color ~= BLANCO then
-		color = Datos.apagar(color, 0.18)
+		color = Datos.apagar(color, 0.06)
 	elseif color == BLANCO then
 		color = Color3.fromRGB(246, 240, 226)
 	end
@@ -699,6 +702,9 @@ local function nuevo(padre: Instance, aspecto: number, grosor: number?): Muneco
 		alas = {},
 		manos = {},
 		vy = 0,
+		ritmo = 1,
+		giro = 0,
+		ultimoMirar = 0,
 		enSuelo = true,
 		aterriza = 0,
 		brillos = {},
@@ -790,8 +796,11 @@ function Munecos.actualizar(m: Muneco, dt: number, ahora: number)
 		bote = math.sin(t * 3) * 0.05 + 0.04
 		aplasta = math.sin(t * 6) * 0.015
 	elseif m.andar > 0.05 then
+		-- el ritmo de los pasos va con la velocidad (al correr, pasos más rápidos y más bote)
+		m.t += dt * (m.ritmo - 1)
+		t = m.t
 		local fase = math.abs(math.sin(t * 9))
-		bote = fase * 0.07 * m.andar
+		bote = fase * 0.07 * m.andar * math.min(1.4, m.ritmo)
 		aplasta = (0.5 - fase) * 0.06 * m.andar
 	else
 		aplasta = math.sin(t * 2.4) * 0.02
@@ -826,10 +835,22 @@ function Munecos.actualizar(m: Muneco, dt: number, ahora: number)
 	if m.salto > 0 then
 		avance = math.sin((m.salto / 0.45) * math.pi) * 0.12 * m.dirSalto
 	end
+	-- media vuelta: al cambiar de dirección se estrecha un momento, como un recortable que gira
+	if m.mirar ~= 0 and m.ultimoMirar ~= 0 and m.mirar ~= m.ultimoMirar then
+		m.giro = 0.16
+	end
+	if m.mirar ~= 0 then
+		m.ultimoMirar = m.mirar
+	end
+	local estrecha = 0
+	if m.giro > 0 then
+		m.giro = math.max(0, m.giro - dt)
+		estrecha = math.sin((m.giro / 0.16) * math.pi) * 0.35
+	end
 	m.cuerpo.Position = UDim2.fromScale(0.5 + temblor + avance, 1 - bote)
-	m.cuerpo.Size = UDim2.fromScale(1 + aplasta, 1 - aplasta)
+	m.cuerpo.Size = UDim2.fromScale((1 + aplasta) * (1 - estrecha), 1 - aplasta)
 	-- al correr se inclina hacia delante (hacia donde mira) y se balancea
-	local carrera = m.andar > 0.05 and (math.sin(t * 9) * 3 * m.andar + 7 * m.andar * m.mirar) or 0
+	local carrera = m.andar > 0.05 and (math.sin(t * 9) * 3 * m.andar + 6 * m.andar * m.mirar * m.ritmo) or 0
 	m.cuerpo.Rotation = carrera + inclina
 	-- brazos: se balancean al correr y suben al saltar
 	for k, mano in m.manos do

@@ -1523,6 +1523,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 	anillo.Position = centro + Vector3.new(0, 3, 6)
 	anillo.Parent = carpeta
 	local prompt = Instance.new("ProximityPrompt")
+	prompt.Style = Enum.ProximityPromptStyle.Custom -- lo dibuja el cliente (Interaccion.luau)
 	prompt.ActionText = "Unirse al combate"
 	prompt.ObjectText = zona.nombre
 	prompt.MaxActivationDistance = 16

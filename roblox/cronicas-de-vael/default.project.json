@@ -3,14 +3,26 @@
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
-      "Vael": { "$path": "src/shared" }
+      "Vael": {
+        "$path": "src/shared"
+      }
     },
     "ServerScriptService": {
-      "VaelServidor": { "$path": "src/server" }
+      "VaelServidor": {
+        "$path": "src/server"
+      }
     },
     "StarterPlayer": {
       "StarterPlayerScripts": {
-        "VaelCliente": { "$path": "src/client" }
+        "VaelCliente": {
+          "$path": "src/client"
+        }
+      }
+    },
+    "LocalizationService": {
+      "$className": "LocalizationService",
+      "Textos": {
+        "$path": "src/localizacion/Textos.csv"
       }
     }
   }

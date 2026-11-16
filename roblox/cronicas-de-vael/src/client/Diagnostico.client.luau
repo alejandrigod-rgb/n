@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ScriptContext = game:GetService("ScriptContext")
 
-local VERSION = "v0.7 · 17-nov"
+local VERSION = "v0.8 · 17-nov"
 
 local jugador = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
@@ -89,7 +89,7 @@ task.delay(10, function()
 		return nombre .. (jugador:GetAttribute("Cargado" .. nombre) and " ✓" or " ✗")
 	end
 	version.Size = UDim2.fromOffset(520, 18)
-	version.Text ..= "  ·  " .. marca("Principal") .. " · " .. marca("Menu") .. " · " .. marca("Mapa")
+	version.Text ..= "  ·  " .. marca("Principal") .. " · " .. marca("Menu")
 end)
 
 -- en Studio, el servidor reenvía sus errores (ver Principal.server)

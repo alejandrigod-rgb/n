@@ -2,10 +2,32 @@
 
 Juego original: un mundo de fantasía con combates por turnos en equipo. Tu grupo (tú y hasta 3 amigos) contra grupos de enemigos.
 
+## Teclas
+| Tecla | Qué hace |
+|---|---|
+| A / D (W / S) | Andar (hacia el fondo o hacia delante) · **Mayús** para correr |
+| Espacio | Saltar |
+| **E** | Hablar, abrir, entrar… (sale un aviso de cartulina propio encima de la persona o el objeto) |
+| **M** | Abrir y cerrar el mapa |
+| **B** | Abrir y cerrar la mochila |
+| **P** | Pausa (también el botón pequeño de arriba a la derecha) |
+| C · Q/E · rueda | En combate: cambiar de vista, girar la cámara y acercarla |
+
+## Idiomas (localización oficial de Roblox)
+- La tabla de traducciones es `src/localizacion/Textos.csv`. Rojo la convierte en un **LocalizationTable** dentro de **LocalizationService**. Se genera con `python3 herramientas/textos.py`: para añadir un texto, se añade una fila en ese archivo y se vuelve a ejecutar.
+- Idiomas: español, inglés, portugués, francés y alemán. Al empezar se usa el idioma de la cuenta de Roblox (si es uno de los cinco); se cambia en **Configuración → Idioma** y se guarda con la partida.
+- Funciona con `Translator:Translate` (por el texto original en español) y `FormatByKey` (`src/client/Idioma.luau`). Los textos fijos de la interfaz se traducen solos al crearse (`Ui.crear`). Los nombres propios (Bruno, Rosa, Vael…) no se traducen.
+- Lo que aún no está en la tabla se ve en español. Para que Roblox complete el resto: Creator Hub → tu experiencia → **Localización** → activa la **traducción automática** y la captura de textos.
+
 ## Qué tiene
 - **Menú de inicio** (script propio, `src/client/Menu.client.luau`) con Jugar, Mi personaje, Cómo se juega, Ajustes (volumen) y Créditos. **Menú de pausa** durante la partida: botón «Menú» arriba a la derecha o tecla **M** (Continuar, Mi personaje, Ajustes, Cómo se juega, Volver al inicio).
 - **Cuadro de errores y versión** (`src/client/Diagnostico.client.luau`): abajo a la derecha sale la versión (por ejemplo "v0.7"); si algo falla, un cuadro rojo abajo a la izquierda enseña el error (en Studio, también los del servidor). Con una captura basta para arreglarlo.
-- **Mapa y objetivos** (`src/client/Mapa.client.luau`): tira de mapa arriba con las zonas, tu posición, candados en los caminos cerrados y una estrella en el objetivo; debajo, «qué hacer ahora» con una flecha. Mapa grande con **Tab** o el botón «Mapa».
+- **Mapa de papel dibujado** (`src/client/Mapa.luau`, tecla **M**): zonas, caminos, el río, las calles de la ciudad, sitios importantes, candados en los caminos cerrados, paraderos (!), la misión (estrella) y tú. No ocupa la pantalla: se abre y se cierra con M.
+- **Misión actual**: una franja pequeña debajo del HUD con lo que toca hacer.
+- **Mochila** (`src/client/Mochila.luau`, tecla **B**): mochila de cartón con tu héroe, casillas de objetos (se pueden usar), objetos clave y mejoras; al elegir una casilla salen su nombre y descripción.
+- **Diálogos de cine**: franja abajo, retrato grande, nombre en una pestaña, texto grande que se escribe solo (clic para terminarlo) y flecha para continuar. Mientras se habla, el HUD y los botones se esconden.
+- **Indicador de interacción propio** (`src/client/Interaccion.luau`): tarjeta de cartulina con la tecla E y la acción; sustituye al aviso gris de Roblox (los ProximityPrompt van con `Style = Custom`).
+- **Calles con cruces**: desde la ciudad, los arcos llevan a la **Calle del Mercado** (frutero, sastre que cambia tu look, el niño Lucas y su misión, un cofre escondido) y al **Callejón del Gato** (gatos, la adivina Madame Zoé y la pelota de Lucas).
 - **Aldea de Brezo** (nueva, a la izquierda de la ciudad): aquí se empieza. Tu casa, la abuela Rosa (cuenta la historia y da pistas), el granjero Tomás y el **Huerto invadido** (primera guarida, muy fácil).
 - **Interiores:** taberna (con clientes) y **posada** (camas y la posadera Lola, que te deja dormir).
 - **Emboscadas:** andando por las zonas salvajes, a veces saltan monstruos y atacan primero. **Carro asaltado:** un comerciante pide ayuda y paga si lo defiendes.
@@ -107,7 +129,11 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 | … → **Audio** | ModuleScript | `src/client/Audio.luau` |
 | … → **Editor** | ModuleScript | `src/client/Editor.luau` |
 | … → **Menu** | LocalScript | `src/client/Menu.client.luau` |
-| … → **Mapa** | LocalScript | `src/client/Mapa.client.luau` |
+| … → **Mapa** | ModuleScript | `src/client/Mapa.luau` |
+| … → **Mochila** | ModuleScript | `src/client/Mochila.luau` |
+| … → **Interaccion** | ModuleScript | `src/client/Interaccion.luau` |
+| … → **Idioma** | ModuleScript | `src/client/Idioma.luau` |
+| LocalizationService → **Textos** | LocalizationTable | `src/localizacion/Textos.csv` (en Studio: Importar CSV) |
 | … → **Diagnostico** | LocalScript | `src/client/Diagnostico.client.luau` |
 | ServerScriptService → VaelServidor → **Eventos** | ModuleScript | `src/server/Eventos.luau` |
 | ReplicatedStorage → Vael → **Sonidos** | ModuleScript | `src/shared/Sonidos.luau` |
@@ -130,3 +156,6 @@ Para tu propio mapa, crea una carpeta **MundoVael** en Workspace y pon partes co
 - `Mercader = true`.
 
 Si existe esa carpeta, el juego no construye el mapa automático.
+
+## Probar sin Studio (simulador)
+`herramientas/simulador/probar.sh` ejecuta el cliente y el servidor en un "Roblox de mentira" hecho en Luau. Comprueba cada propiedad, evento y enum contra la API oficial de Roblox y simula una partida: menú, clase, editor, HUD, teclas M/B/P, idioma, diálogos, vasos, cofres, tiendas, todos los avisos del mapa, combates, eventos y emboscadas. Cualquier error sale como `ERROR:`. No sustituye a probar en Studio (no hay física ni dibujo), pero detecta los fallos que rompen los scripts.
