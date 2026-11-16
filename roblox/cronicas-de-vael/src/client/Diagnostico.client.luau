@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ScriptContext = game:GetService("ScriptContext")
 
-local VERSION = "v0.8 · 17-nov"
+local VERSION = "v0.9 · 17-nov"
 
 local jugador = Players.LocalPlayer
 local gui = Instance.new("ScreenGui")
@@ -85,10 +85,14 @@ end)
 
 -- ¿han arrancado los scripts del juego? (cada uno pone su marca al terminar de cargar)
 task.delay(10, function()
+	-- si un script no ha terminado, se ve en qué paso se quedó
 	local function marca(nombre: string): string
-		return nombre .. (jugador:GetAttribute("Cargado" .. nombre) and " ✓" or " ✗")
+		if jugador:GetAttribute("Cargado" .. nombre) then
+			return nombre .. " ✓"
+		end
+		return nombre .. " ✗ (" .. tostring(jugador:GetAttribute("Paso" .. nombre) or "sin empezar") .. ")"
 	end
-	version.Size = UDim2.fromOffset(520, 18)
+	version.Size = UDim2.fromOffset(760, 18)
 	version.Text ..= "  ·  " .. marca("Principal") .. " · " .. marca("Menu")
 end)
 

@@ -13,17 +13,30 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local jugador = Players.LocalPlayer
+-- marca de por dónde va el script (la enseña Diagnostico abajo a la derecha si algo se queda parado)
+local function paso(nombre: string)
+	jugador:SetAttribute("PasoMenu", nombre)
+end
+paso("inicio")
 local Vael = ReplicatedStorage:WaitForChild("Vael")
 local Datos = require(Vael:WaitForChild("Datos")) :: any
+paso("datos")
 local Ui = require(script.Parent:WaitForChild("Ui"))
+paso("ui")
 local C = Ui.Colores
 
 local gui = Ui.crear("ScreenGui", { Name = "VaelMenu", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 20, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, Parent = jugador:WaitForChild("PlayerGui") })
+paso("gui")
 
--- módulos (si alguno fallara, el menú sigue funcionando sin él)
+-- módulos: se cargan DESPUÉS de enseñar la pantalla de inicio (si alguno fallara o tardara, el menú ya está)
 local function cargar(nombre: string): any
+	paso("cargando " .. nombre)
 	local ok, m = pcall(function()
-		return require(script.Parent:WaitForChild(nombre))
+		local modulo = script.Parent:WaitForChild(nombre, 10)
+		if not modulo then
+			error("no encuentro el módulo " .. nombre)
+		end
+		return require(modulo :: ModuleScript)
 	end)
 	if not ok then
 		warn("Menú: no se pudo cargar " .. nombre .. ": " .. tostring(m))
@@ -31,27 +44,20 @@ local function cargar(nombre: string): any
 	end
 	return m
 end
-local Munecos = cargar("Munecos")
-local Escena = cargar("Escena")
-local Audio = cargar("Audio")
-local Editor = cargar("Editor")
-local Mapa = cargar("Mapa")
-local Mochila = cargar("Mochila")
-local Idioma = cargar("Idioma")
-local Interaccion = cargar("Interaccion")
-if Interaccion then
-	Interaccion.iniciar()
-end
+local Munecos: any = nil
+local Escena: any = nil
+local Audio: any = nil
+local Editor: any = nil
+local Mapa: any = nil
+local Mochila: any = nil
+local Idioma: any = nil
+local Interaccion: any = nil
 
 local function remoto(nombre: string): RemoteEvent
 	return Vael:WaitForChild("Remotos"):WaitForChild(nombre) :: RemoteEvent
 end
 
 local controles: any = nil
-pcall(function()
-	local modulo = require(jugador:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule") :: ModuleScript) :: any
-	controles = modulo:GetControls()
-end)
 
 local function sonido(nombre: string)
 	if Audio then
@@ -271,9 +277,6 @@ local function botonPequeno(icono: string, tecla: string, alPulsar: () -> ())
 	Ui.crear("TextLabel", { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, 2), Size = UDim2.fromOffset(40, 16), BackgroundTransparency = 1, Text = tecla, Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = C.texto, TextStrokeTransparency = 0.3, ZIndex = 43, Parent = b })
 	b.Activated:Connect(alPulsar)
 end
-botonPequeno("estrella", "M", alternarMapa)
-botonPequeno("pocion", "B", alternarMochila)
-botonPequeno("escudo", "P", abrirPausa)
 
 local function refrescarBarra()
 	barra.Visible = not inicio and not enCombate and jugador:GetAttribute("EnDialogo") ~= true
@@ -317,7 +320,15 @@ abrirInicio = function()
 			task.wait(1.8)
 		end
 	end)
-	if Munecos then
+	task.spawn(function()
+		local espera = 0
+		while not Munecos and espera < 15 do
+			task.wait(0.2)
+			espera += 0.2
+		end
+		if not Munecos or not capa.Parent then
+			return
+		end
 		local desfile = Ui.crear("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -10), Size = UDim2.new(1, 0, 0, 150), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 101, Parent = capa })
 		local actores = {}
 		for i, cid in Datos.OrdenClases do
@@ -344,7 +355,7 @@ abrirInicio = function()
 				task.wait()
 			end
 		end)
-	end
+	end)
 	local caja = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 205), Size = UDim2.fromOffset(320, 330), BackgroundTransparency = 1, ZIndex = 101, Parent = capa })
 	Ui.crear("UIListLayout", { Padding = UDim.new(0, 10), HorizontalAlignment = Enum.HorizontalAlignment.Center, SortOrder = Enum.SortOrder.LayoutOrder, Parent = caja })
 	local function jugar()
@@ -459,18 +470,51 @@ for _, atributo in { "Clase", "Creado", "EnMenu" } do
 	end)
 end
 
+-- 1) la pantalla de inicio, lo primero de todo
+paso("abrir inicio")
 local ok, err = pcall(abrirInicio)
 if not ok then
 	warn("Menú de inicio: " .. tostring(err))
 	jugador:SetAttribute("EnMenu", false)
-	if Escena then
-		Escena.modoMenu = false
-	end
-	if controles then
-		controles:Enable()
-	end
 	inicio = nil
-	refrescarBarra()
 end
+paso("inicio visible")
 
-jugador:SetAttribute("CargadoMenu", true)
+-- 2) el resto de módulos, sin bloquear el menú
+task.spawn(function()
+	Munecos = cargar("Munecos")
+	Idioma = cargar("Idioma")
+	Audio = cargar("Audio")
+	Escena = cargar("Escena")
+	if Escena then
+		Escena.modoMenu = inicio ~= nil
+	end
+	Editor = cargar("Editor")
+	Mapa = cargar("Mapa")
+	Mochila = cargar("Mochila")
+	Interaccion = cargar("Interaccion")
+	if Interaccion then
+		pcall(Interaccion.iniciar)
+	end
+	paso("controles")
+	pcall(function()
+		local ps = jugador:WaitForChild("PlayerScripts", 10)
+		local pm = ps and ps:WaitForChild("PlayerModule", 10)
+		if pm then
+			controles = (require(pm :: ModuleScript) :: any):GetControls()
+			if inicio and controles then
+				controles:Disable()
+			end
+		end
+	end)
+	paso("botones")
+	pcall(function()
+		botonPequeno("estrella", "M", alternarMapa)
+		botonPequeno("pocion", "B", alternarMochila)
+		botonPequeno("escudo", "P", abrirPausa)
+	end)
+	refrescarBarra()
+	quizaCrear()
+	paso("listo")
+	jugador:SetAttribute("CargadoMenu", true)
+end)

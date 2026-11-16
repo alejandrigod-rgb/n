@@ -61,6 +61,10 @@ function Ui.crear(clase: string, props: { [string]: any }, hijos: { Instance }?)
 			(o :: any)[k] = v
 		end
 	end
+	-- las traducciones las elige el jugador (Idioma.luau): que Roblox no las cambie por su cuenta
+	if clase == "ScreenGui" or clase == "BillboardGui" or clase == "SurfaceGui" then
+		o.AutoLocalize = false
+	end
 	-- los textos fijos se traducen solos al crearlos (y se guardan para volver a traducir si cambia el idioma)
 	if (clase == "TextLabel" or clase == "TextButton") and type(props.Text) == "string" and props.Text ~= "" then
 		o:SetAttribute("TextoOriginal", props.Text)
@@ -96,6 +100,7 @@ function Ui.panel(props: { [string]: any }): Frame
 	f.BorderSizePixel = 0
 	Ui.esquinas(f, 6)
 	Ui.borde(f, Ui.Colores.tinta, 3)
+	f:SetAttribute("Panel", true)
 	local z = f.ZIndex
 	-- borde de papel recortado (un poco torcido, como pegado a mano)
 	local filete = Ui.crear("Frame", { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.fromOffset(6, 6), Rotation = (math.random() - 0.5) * 0.8, BackgroundTransparency = 1, ZIndex = z, Parent = f })
@@ -269,13 +274,21 @@ function Ui.barra(padre: Instance, pos: UDim2, tam: UDim2, color: Color3, conTex
 	return { marco = marco, set = set }
 end
 
---- Hace aparecer un elemento con un pequeño rebote (escala 0,6 → 1).
+--- Escala para pantallas pequeñas: las ventanas grandes se reducen si la ventana del juego es baja.
+function Ui.escala(): number
+	local cam = workspace.CurrentCamera
+	local alto = cam and cam.ViewportSize.Y or 800
+	return math.clamp(alto / 760, 0.6, 1)
+end
+
+--- Hace aparecer un elemento con un pequeño rebote (escala 0,6 → 1; los paneles, a la escala de la pantalla).
 function Ui.aparecer(o: GuiObject, retraso: number?)
 	local escala = o:FindFirstChildOfClass("UIScale") or Ui.crear("UIScale", { Parent = o })
-	escala.Scale = 0.6
+	local final = o:GetAttribute("Panel") and Ui.escala() or 1
+	escala.Scale = 0.6 * final
 	o.Visible = true
 	task.delay(retraso or 0, function()
-		Ui.tween(escala, { Scale = 1 }, 0.45, Enum.EasingStyle.Back)
+		Ui.tween(escala, { Scale = final }, 0.45, Enum.EasingStyle.Back)
 	end)
 end
 

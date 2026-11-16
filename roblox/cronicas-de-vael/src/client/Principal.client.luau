@@ -1,5 +1,5 @@
 --!strict
--- Crónicas de Vael · cliente: menú de inicio, HUD (con mejoras y objetos clave), elegir clase, tiendas, diálogos,
+-- Crónicas de Vael · cliente: HUD, misión, elegir clase, tiendas, diálogos,
 -- el juego de los vasos, cartas de mejoras, avisos y la interfaz del combate por turnos con casillas.
 -- Fluidez: la interfaz se anima con TweenService y la cámara de combate se mueve en RenderStepped
 -- (una vez por fotograma, a los 60 fps del cliente), con suavizado exponencial para que nunca dé tirones.
@@ -11,14 +11,26 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local jugador = Players.LocalPlayer
+-- marca de por dónde va el script (la enseña Diagnostico si algo se queda parado)
+local function paso(nombre: string)
+	jugador:SetAttribute("PasoPrincipal", nombre)
+end
+paso("inicio")
 local Vael = ReplicatedStorage:WaitForChild("Vael")
 local Datos = require(Vael:WaitForChild("Datos"))
+paso("datos")
 local Remotos = Vael:WaitForChild("Remotos")
+paso("remotos")
 local Ui = require(script.Parent:WaitForChild("Ui"))
+paso("ui")
 local Munecos = require(script.Parent:WaitForChild("Munecos"))
+paso("munecos")
 local Escena = require(script.Parent:WaitForChild("Escena"))
+paso("escena")
 local Efectos = require(script.Parent:WaitForChild("Efectos"))
+paso("efectos")
 local Audio = require(script.Parent:WaitForChild("Audio"))
+paso("audio")
 Escena.alPaso = Audio.paso
 Escena.alHablar = Audio.hablar
 local C = Ui.Colores
@@ -93,6 +105,7 @@ local function enMenu(): boolean
 end
 
 -- ===================== HUD =====================
+paso('HUD compacto')
 -- HUD compacto: retrato, nombre, nivel, vida, maná, experiencia y oro en un panel pequeño arriba a la izquierda
 local hud = Ui.panel({ Position = UDim2.fromOffset(12, 58), Size = UDim2.fromOffset(300, 100), Parent = gui, Visible = false })
 local hudRetrato: CanvasGroup? = nil
@@ -177,6 +190,7 @@ end
 local estadoActual: any = nil
 local selector: Frame? = nil
 
+paso('ELEGIR CLASE')
 -- ===================== ELEGIR CLASE =====================
 local function abrirSelector()
 	if selector then
@@ -303,6 +317,7 @@ remoto("AbrirTienda").OnClientEvent:Connect(function(lista: any)
 	end)
 end)
 
+paso('COMBATE')
 -- ===================== COMBATE =====================
 local camara = workspace.CurrentCamera
 local enBatalla = false
@@ -803,13 +818,14 @@ local giro = 0 -- grados alrededor del centro del campo
 local zoom = 1
 local girando = false
 
+pcall(function()
 local botonCamara = Ui.boton({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 112), Size = UDim2.fromOffset(170, 44), Text = "Cámara", Icono = "estrella", BackgroundColor3 = Color3.fromRGB(90, 110, 140), ZIndex = 20, Parent = capaBatalla }, function()
 	vista = vista % #VISTAS + 1
 	giro = 0
 	notificar("Cámara: " .. VISTAS[vista].nombre)
 end)
+end)
 Ui.texto({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 160), Size = UDim2.fromOffset(240, 20), Text = "Q/E girar · rueda acercar · C vista", TextColor3 = C.suave, ZIndex = 20, Parent = capaBatalla })
-local _ = botonCamara
 
 UserInputService.InputBegan:Connect(function(entrada, procesado)
 	if not enBatalla then
@@ -974,6 +990,7 @@ remoto("BatallaFin").OnClientEvent:Connect(function(r: any)
 	end)
 end)
 
+paso('VENTANAS COMUNES')
 -- ===================== VENTANAS COMUNES =====================
 local function cerrarPanel(p: GuiObject)
 	local e = p:FindFirstChildOfClass("UIScale")
@@ -1276,6 +1293,7 @@ jugador:GetAttributeChangedSignal("EnMenu"):Connect(function()
 	end
 end)
 
+paso("listo")
 jugador:SetAttribute("CargadoPrincipal", true)
 
 -- durante un diálogo no se ve nada del HUD (que no tape la conversación)
