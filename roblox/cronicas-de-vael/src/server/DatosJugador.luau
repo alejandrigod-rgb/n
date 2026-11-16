@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 
 local DatosJugador = {}
 
-export type Perfil = { clase: string?, nivel: number, xp: number, oro: number, objetos: { [string]: number }, mejoras: { string }, llaves: { [string]: boolean }, progreso: { [string]: any } }
+export type Perfil = { clase: string?, nivel: number, xp: number, oro: number, objetos: { [string]: number }, mejoras: { string }, llaves: { [string]: boolean }, progreso: { [string]: any }, apariencia: { [string]: any }, nombreHeroe: string, creado: boolean }
 
 local almacen: DataStore? = nil
 pcall(function()
@@ -18,7 +18,7 @@ end)
 local perfiles: { [Player]: Perfil } = {}
 
 local function nuevo(): Perfil
-	return { clase = nil, nivel = 1, xp = 0, oro = 20, objetos = { pocion = 3, eter = 1 }, mejoras = {}, llaves = {}, progreso = { setas = {}, palancas = {}, racha = 0 } }
+	return { clase = nil, nivel = 1, xp = 0, oro = 20, objetos = { pocion = 3, eter = 1 }, mejoras = {}, llaves = {}, progreso = { setas = {}, palancas = {}, racha = 0 }, apariencia = { piel = 1, pelo = 2, colorPelo = 1, ojos = 1, colorOjos = 1, ropa = 1, gorro = 1, colorGorro = 1, accesorio = 1, nombre = "" }, nombreHeroe = "", creado = false }
 end
 
 function DatosJugador.cargar(jugador: Player): Perfil
@@ -35,6 +35,11 @@ function DatosJugador.cargar(jugador: Player): Perfil
 			perfil.objetos = datos.objetos or perfil.objetos
 			perfil.mejoras = type(datos.mejoras) == "table" and datos.mejoras or {}
 			perfil.llaves = type(datos.llaves) == "table" and datos.llaves or {}
+			if type(datos.apariencia) == "table" then
+				perfil.apariencia = datos.apariencia
+			end
+			perfil.nombreHeroe = type(datos.nombreHeroe) == "string" and datos.nombreHeroe or ""
+			perfil.creado = datos.creado == true
 			if type(datos.progreso) == "table" then
 				perfil.progreso.setas = datos.progreso.setas or {}
 				perfil.progreso.palancas = datos.progreso.palancas or {}

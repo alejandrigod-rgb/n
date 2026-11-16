@@ -8,7 +8,7 @@ local TweenService = game:GetService("TweenService")
 
 local Efectos = {}
 
-local NEGRO = Color3.fromRGB(25, 20, 30)
+local NEGRO = Color3.fromRGB(48, 38, 34)
 local camara = workspace.CurrentCamera
 
 local gui = Instance.new("ScreenGui")
@@ -35,7 +35,7 @@ local function forma(p: Vector2, w: number, h: number, color: Color3, radio: num
 	f.AnchorPoint = Vector2.new(0.5, 0.5)
 	f.Position = UDim2.fromOffset(p.X, p.Y)
 	f.Size = UDim2.fromOffset(w, h)
-	f.BackgroundColor3 = color
+	f.BackgroundColor3 = color:Lerp(Color3.fromRGB(150, 138, 122), 0.18) -- colores de cartulina
 	f.BorderSizePixel = 0
 	f.Rotation = rot or 0
 	f.ZIndex = z or 2
@@ -81,9 +81,9 @@ function Efectos.onomatopeya(p: Vector2, texto: string, color: Color3, grande: b
 	t.Size = UDim2.fromOffset(grande and 300 or 220, grande and 110 or 80)
 	t.BackgroundTransparency = 1
 	t.Text = texto
-	t.Font = Enum.Font.FredokaOne
+	t.Font = Enum.Font.PermanentMarker
 	t.TextScaled = true
-	t.TextColor3 = color
+	t.TextColor3 = color:Lerp(Color3.fromRGB(150, 138, 122), 0.15)
 	t.Rotation = math.random(-14, 14)
 	t.ZIndex = 6
 	local s = Instance.new("UIStroke")

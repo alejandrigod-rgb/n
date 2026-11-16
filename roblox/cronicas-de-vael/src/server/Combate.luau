@@ -1157,7 +1157,7 @@ local function entidadJugador(b: Batalla, j: Player): Entidad?
 	local c, f = casillaLibreEn(b, { 1, 2 })
 	local e: Entidad = {
 		id = "j" .. j.UserId,
-		nombre = j.DisplayName,
+		nombre = (j:GetAttribute("NombreHeroe") :: string?) or j.DisplayName,
 		lado = "aliado",
 		jugador = j,
 		claseId = perfil.clase,
@@ -1486,6 +1486,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 		table.insert(b.enemigos, e)
 	end
 	construirCampo(b)
+	Datos.encartonar(carpeta, Color3.fromRGB(25, 20, 30))
 	carpeta.Parent = workspace
 	-- punto invisible para que otros se unan (el aviso solo lo ven los que NO están luchando)
 	local anillo = Instance.new("Part")

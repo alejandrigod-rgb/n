@@ -321,6 +321,7 @@ local function aparecer()
 	prompt.Triggered:Connect(function(j)
 		usar(par, j)
 	end)
+	Datos.encartonar(m, NEGRO)
 	m.Parent = carpeta
 	table.insert(activos, par)
 	local aviso = ({

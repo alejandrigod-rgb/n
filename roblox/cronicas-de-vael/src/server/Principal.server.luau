@@ -3,8 +3,10 @@
 -- el mercader, los personajes con los que se habla (taberna, posada, herrería, ermitaño), los secretos que
 -- abren el camino (cuerda, hacha, llave y farol) y los paraderos aleatorios.
 
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TextService = game:GetService("TextService")
 
 local Vael = ReplicatedStorage:WaitForChild("Vael")
 local Datos = require(Vael.Datos)
@@ -19,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -41,7 +43,10 @@ local function enviarEstado(j: Player)
 	end
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
 	-- los clientes dibujan el muñeco 2D de cada jugador según su clase
+	j:SetAttribute("Creado", perfil.creado)
 	j:SetAttribute("Clase", perfil.clase)
+	j:SetAttribute("Apariencia", HttpService:JSONEncode(perfil.apariencia))
+	j:SetAttribute("NombreHeroe", perfil.nombreHeroe ~= "" and perfil.nombreHeroe or j.DisplayName)
 	local _, sinergias = Datos.efectosDe(perfil.mejoras)
 	remoto("EstadoJugador"):FireClient(j, {
 		clase = perfil.clase,
@@ -60,6 +65,9 @@ local function enviarEstado(j: Player)
 		llaves = perfil.llaves,
 		setas = perfil.progreso.setas,
 		palancas = perfil.progreso.palancas,
+		apariencia = perfil.apariencia,
+		creado = perfil.creado,
+		nombreHeroe = perfil.nombreHeroe,
 	})
 end
 Combate.alCambiarJugador = enviarEstado
@@ -137,6 +145,29 @@ remoto("ElegirClase").OnServerEvent:Connect(function(j, claseId)
 		enviarEstado(j)
 		notificar(j, "¡Bienvenido a Vael, " .. Datos.Clases[claseId].nombre .. "!")
 	end
+end)
+
+-- personalizar el personaje (el nombre pasa por el filtro de texto de Roblox, obligatorio para que lo vean otros)
+remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
+	local perfil = DatosJugador.obtener(j)
+	if not perfil then
+		return
+	end
+	local ap = Datos.validarApariencia(datos)
+	local nombre = ""
+	if ap.nombre ~= "" then
+		local ok, filtrado = pcall(function()
+			return TextService:FilterStringAsync(ap.nombre, j.UserId):GetNonChatStringForBroadcastAsync()
+		end)
+		nombre = ok and filtrado or ""
+	end
+	ap.nombre = nombre
+	perfil.apariencia = ap
+	perfil.nombreHeroe = nombre
+	perfil.creado = true
+	DatosJugador.guardar(j)
+	enviarEstado(j)
+	notificar(j, "¡Qué buena pinta!")
 end)
 
 -- ===================== MUNDO Y GUARIDAS =====================

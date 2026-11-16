@@ -137,6 +137,73 @@ Datos.Llaves = {
 }
 Datos.OrdenLlaves = { "cuerda", "hacha", "llave", "farol" }
 
+-- ============ ESTILO DE CARTULINA ============
+-- Todos los colores pasan por aquí: se apagan un poco hacia un gris cálido de cartón (nada de colores chillones).
+local CARTON = Color3.fromRGB(150, 138, 122)
+function Datos.apagar(c: Color3, cuanto: number?): Color3
+	return c:Lerp(CARTON, cuanto or 0.22)
+end
+Datos.TINTA = Color3.fromRGB(48, 38, 34) -- contorno marrón muy oscuro (en vez de negro puro)
+local okMaterial, carton = pcall(function()
+	return Enum.Material.Cardboard
+end)
+Datos.MaterialCarton = okMaterial and carton or Enum.Material.SmoothPlastic
+
+--- Pasa todas las piezas a cartulina: textura de cartón, sin neón ni brillos, colores apagados.
+--- Los contornos (color tinta) se dejan como están.
+function Datos.encartonar(raiz: Instance, tinta: Color3?)
+	local t = tinta or Datos.TINTA
+	for _, d in raiz:GetDescendants() do
+		if d:IsA("BasePart") and d.Transparency < 1 then
+			if d.Color ~= t then
+				d.Color = Datos.apagar(d.Color, 0.2)
+			end
+			if d.Material ~= Enum.Material.Glass then
+				d.Material = Datos.MaterialCarton
+			end
+			d.Reflectance = 0
+		end
+	end
+end
+
+-- ============ PERSONALIZAR EL PERSONAJE ============
+Datos.Apariencia = {
+	pieles = { Color3.fromRGB(255, 224, 189), Color3.fromRGB(241, 194, 150), Color3.fromRGB(214, 160, 112), Color3.fromRGB(170, 115, 75), Color3.fromRGB(120, 78, 50), Color3.fromRGB(180, 220, 160) },
+	pelos = { "Calvo", "Corto", "Flequillo", "Melena", "Cresta", "Coleta", "Afro" },
+	coloresPelo = { Color3.fromRGB(60, 40, 30), Color3.fromRGB(25, 22, 25), Color3.fromRGB(150, 85, 40), Color3.fromRGB(235, 195, 90), Color3.fromRGB(200, 70, 50), Color3.fromRGB(210, 210, 215), Color3.fromRGB(90, 140, 220), Color3.fromRGB(230, 120, 190) },
+	ojos = { "Normales", "Grandes", "Dormilones", "Bizcos", "Enfadados" },
+	coloresOjos = { Color3.fromRGB(25, 20, 25), Color3.fromRGB(60, 110, 200), Color3.fromRGB(70, 140, 70), Color3.fromRGB(120, 75, 40), Color3.fromRGB(150, 60, 170) },
+	coloresRopa = { Color3.fromRGB(0, 0, 0), Color3.fromRGB(200, 70, 60), Color3.fromRGB(70, 110, 190), Color3.fromRGB(80, 150, 80), Color3.fromRGB(235, 190, 70), Color3.fromRGB(140, 90, 180), Color3.fromRGB(240, 130, 60), Color3.fromRGB(80, 80, 90), Color3.fromRGB(230, 225, 210) },
+	gorros = { "De la clase", "Ninguno", "Gorro de lana", "Sombrero vaquero", "Corona de cartón", "Gorra", "Chistera" },
+	coloresGorro = { Color3.fromRGB(200, 70, 60), Color3.fromRGB(70, 110, 190), Color3.fromRGB(80, 150, 80), Color3.fromRGB(235, 190, 70), Color3.fromRGB(140, 90, 180), Color3.fromRGB(60, 55, 60), Color3.fromRGB(150, 100, 60) },
+	accesorios = { "Ninguno", "Gafas", "Gafas de sol", "Bigote", "Tirita", "Parche de pirata", "Pato en la cabeza", "Pajarita" },
+}
+-- el primer color de ropa (negro) significa "el color de mi clase"
+Datos.CAMPOS_APARIENCIA = { piel = "pieles", pelo = "pelos", colorPelo = "coloresPelo", ojos = "ojos", colorOjos = "coloresOjos", ropa = "coloresRopa", gorro = "gorros", colorGorro = "coloresGorro", accesorio = "accesorios" }
+
+function Datos.aparienciaInicial(): { [string]: any }
+	return { piel = 1, pelo = 2, colorPelo = 1, ojos = 1, colorOjos = 1, ropa = 1, gorro = 1, colorGorro = 1, accesorio = 1, nombre = "" }
+end
+
+--- Deja solo valores válidos (lo que llegue del cliente no es de fiar).
+function Datos.validarApariencia(t: any): { [string]: any }
+	local r = Datos.aparienciaInicial()
+	if type(t) ~= "table" then
+		return r
+	end
+	for campo, lista in Datos.CAMPOS_APARIENCIA do
+		local v = tonumber(t[campo])
+		local n = #Datos.Apariencia[lista]
+		if v then
+			r[campo] = math.clamp(math.floor(v), 1, n)
+		end
+	end
+	if type(t.nombre) == "string" then
+		r.nombre = string.sub(string.gsub(t.nombre, "[%c]", ""), 1, 16)
+	end
+	return r
+end
+
 Datos.MAX_EQUIPO = 4
 Datos.TIEMPO_TURNO = 20 -- segundos para elegir acción
 

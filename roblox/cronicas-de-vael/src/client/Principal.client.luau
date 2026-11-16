@@ -30,7 +30,28 @@ end
 local gui = Ui.crear("ScreenGui", { Name = "Vael", ResetOnSpawn = false, IgnoreGuiInset = true, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, Parent = jugador:WaitForChild("PlayerGui") })
 
 --- Retrato animado (el muñeco 2D vivo, recortado en un círculo). tipo: "clase" o "enemigo".
-local function retrato(padre: Instance, tipo: string, id: string, pos: UDim2, tam: UDim2, fondo: Color3?, z: number?): CanvasGroup
+local HttpService = game:GetService("HttpService")
+
+--- Apariencia de un jugador (la guarda el servidor en el atributo "Apariencia").
+local function aparienciaDe(p: Player?): any
+	local texto = p and (p:GetAttribute("Apariencia") :: string?)
+	if texto then
+		local ok, t = pcall(function()
+			return HttpService:JSONDecode(texto)
+		end)
+		if ok then
+			return t
+		end
+	end
+	return nil
+end
+
+local function jugadorDeEntidad(id: string): Player?
+	local uid = tonumber(string.match(id, "^j(%d+)$"))
+	return uid and Players:GetPlayerByUserId(uid) or nil
+end
+
+local function retrato(padre: Instance, tipo: string, id: string, pos: UDim2, tam: UDim2, fondo: Color3?, z: number?, ap: any?): CanvasGroup
 	local marco = Ui.crear("CanvasGroup", { Position = pos, Size = tam, BackgroundColor3 = fondo or Color3.fromRGB(255, 240, 200), BorderSizePixel = 0, ZIndex = z or 1, Parent = padre })
 	Ui.crear("UICorner", { CornerRadius = UDim.new(0.5, 0), Parent = marco })
 	Ui.crear("UIStroke", { Thickness = 3, Color = C.tinta, Parent = marco })
@@ -42,7 +63,7 @@ local function retrato(padre: Instance, tipo: string, id: string, pos: UDim2, ta
 		lienzo.Size = UDim2.fromScale(1.7, 2.21)
 		lienzo.Position = UDim2.fromScale(-0.35, -0.42)
 	end
-	Munecos.crear(lienzo, tipo, id, 2)
+	Munecos.crear(lienzo, tipo, id, 2, ap)
 	return marco
 end
 
@@ -64,9 +85,10 @@ remoto("Sonido").OnClientEvent:Connect(function(nombre: string)
 	Audio.sfx(nombre)
 end)
 
--- el menú de inicio tapa todo hasta pulsar «Jugar»
-local enMenu = true
-local selectorPendiente = false
+-- el menú de inicio (otro script) avisa con el atributo local "EnMenu"; mientras esté, no se abre nada encima
+local function enMenu(): boolean
+	return jugador:GetAttribute("EnMenu") == true
+end
 
 -- ===================== HUD =====================
 local hud = Ui.panel({ Position = UDim2.fromOffset(18, 18), Size = UDim2.fromOffset(410, 176), Parent = gui, Visible = false })
@@ -85,7 +107,7 @@ local hudInfo = Ui.texto({ Position = UDim2.fromOffset(156, 136), Size = UDim2.n
 
 -- mochila: mejoras (como en los roguelikes, se ven todas) y objetos clave
 local mochila = Ui.crear("Frame", { Position = UDim2.fromOffset(18, 202), Size = UDim2.fromOffset(410, 40), BackgroundTransparency = 1, Parent = gui, Visible = false })
-Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), Wraps = true, Parent = mochila })
+Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), Parent = mochila })
 local consejo = Ui.panel({ Size = UDim2.fromOffset(260, 74), Parent = gui, Visible = false, ZIndex = 60 })
 local consejoTexto = Ui.texto({ Position = UDim2.fromOffset(12, 8), Size = UDim2.new(1, -24, 1, -16), Text = "", TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, Parent = consejo, ZIndex = 61 })
 local function casillaMochila(icono: string, color: Color3, borde: Color3, titulo: string, texto: string, apagada: boolean?, cuenta: number?)
@@ -216,8 +238,9 @@ end
 local function actualizarHud(e: any)
 	estadoActual = e
 	Escena.estado(e)
-	if enMenu then
-		selectorPendiente = not e.clase
+	if enMenu() then
+		hud.Visible = false
+		mochila.Visible = false
 		return
 	end
 	if not e.clase then
@@ -235,15 +258,16 @@ local function actualizarHud(e: any)
 		Ui.aparecer(hud)
 	end
 	local cl = Datos.Clases[e.clase]
-	if hudClase ~= e.clase then
-		hudClase = e.clase
+	local firma = e.clase .. HttpService:JSONEncode(e.apariencia or {})
+	if hudClase ~= firma then
+		hudClase = firma
 		if hudRetrato then
 			hudRetrato:Destroy()
 		end
-		hudRetrato = retrato(hud, "clase", e.clase, UDim2.fromOffset(18, 16), UDim2.fromOffset(96, 96), cl.color:Lerp(Color3.new(1, 1, 1), 0.55), 2)
+		hudRetrato = retrato(hud, "clase", e.clase, UDim2.fromOffset(18, 16), UDim2.fromOffset(96, 96), Color3.fromRGB(236, 222, 190), 2, e.apariencia)
 	end
 	hudNivel.Text = "Nv. " .. e.nivel
-	hudNombre.Text = jugador.DisplayName .. " · " .. cl.nombre
+	hudNombre.Text = ((e.nombreHeroe and e.nombreHeroe ~= "") and e.nombreHeroe or jugador.DisplayName) .. " · " .. cl.nombre
 	hudNombre.TextColor3 = cl.color:Lerp(Color3.new(1, 1, 1), 0.35)
 	hudVida.set(e.hp, e.maxHp)
 	hudMana.set(e.mp, e.maxMp)
@@ -577,7 +601,7 @@ local function tarjeta(e: any)
 	if not t then
 		local marco = Ui.panel({ Size = UDim2.new(1, 0, 0, 66), Parent = equipo })
 		local cl = e.clase and Datos.Clases[e.clase]
-		retrato(marco, "clase", e.clase or "guerrero", UDim2.fromOffset(10, 7), UDim2.fromOffset(52, 52), cl and cl.color:Lerp(Color3.new(1, 1, 1), 0.5) or nil, 2)
+		retrato(marco, "clase", e.clase or "guerrero", UDim2.fromOffset(10, 7), UDim2.fromOffset(52, 52), Color3.fromRGB(236, 222, 190), 2, aparienciaDe(jugadorDeEntidad(e.id)))
 		local nombre = Ui.texto({ Position = UDim2.fromOffset(72, 6), Size = UDim2.new(1, -84, 0, 22), Text = e.nombre, TextXAlignment = Enum.TextXAlignment.Left, Parent = marco })
 		local vida = Ui.barra(marco, UDim2.fromOffset(72, 34), UDim2.new(0.6, -76, 0, 20), C.vida, true)
 		local mana = Ui.barra(marco, UDim2.new(0.6, 4, 0, 34), UDim2.new(0.4, -16, 0, 20), C.mana, true)
@@ -597,7 +621,7 @@ local function ficha(e: any): Frame
 		local cl = e.clase and Datos.Clases[e.clase]
 		f = Ui.crear("Frame", { Size = UDim2.fromOffset(60, 60), BackgroundTransparency = 1, Parent = tira })
 		local fondo = e.lado == "aliado" and (cl and cl.color:Lerp(Color3.new(1, 1, 1), 0.45) or C.borde) or Color3.fromRGB(240, 170, 170)
-		retrato(f, e.lado == "aliado" and "clase" or "enemigo", e.lado == "aliado" and (e.clase or "guerrero") or (e.enemigo or "babosa"), UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), fondo)
+		retrato(f, e.lado == "aliado" and "clase" or "enemigo", e.lado == "aliado" and (e.clase or "guerrero") or (e.enemigo or "babosa"), UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), fondo, nil, e.lado == "aliado" and aparienciaDe(jugadorDeEntidad(e.id)) or nil)
 		Ui.crear("UIScale", { Parent = f })
 		fichasTira[e.id] = f
 	end
@@ -1123,154 +1147,11 @@ remoto("Teletransporte").OnClientEvent:Connect(function(_: Vector3?, texto: stri
 	end)
 end)
 
--- ===================== MENÚ DE INICIO =====================
-local controles: any = nil
-pcall(function()
-	local modulo = require(jugador:WaitForChild("PlayerScripts"):WaitForChild("PlayerModule") :: ModuleScript) :: any
-	controles = modulo:GetControls()
-end)
+-- el menú de inicio y el de pausa están en Menu.client.luau (script aparte, para que salgan siempre)
 
-local function abrirMenuInicio()
-	enMenu = true
-	Escena.modoMenu = true
-	if controles then
-		controles:Disable()
-	end
-	hud.Visible = false
-	mochila.Visible = false
-	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 90, Parent = gui })
-	-- viñeta suave para que se lea el título sobre el mundo
-	Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(20, 14, 34), BackgroundTransparency = 0.35, BorderSizePixel = 0, ZIndex = 90, Parent = capa }, {
-		Ui.crear("UIGradient", { Rotation = 90, Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(0.5, 0.9), NumberSequenceKeypoint.new(1, 0.1) }) }),
-	})
-	local titulo = Ui.texto({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 40), Size = UDim2.fromOffset(820, 110), Text = "Crónicas de Vael", TextColor3 = C.oro, ZIndex = 92, Parent = capa })
-	local trazo = titulo:FindFirstChildOfClass("UIStroke")
-	if trazo then
-		trazo.Thickness = 6
-	end
-	Ui.texto({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 150), Size = UDim2.fromOffset(700, 32), Text = "Un RPG de papel, por turnos y con amigos", TextColor3 = C.texto, ZIndex = 92, Parent = capa })
-	Ui.aparecer(titulo)
-	task.spawn(function()
-		local lado = 1
-		while titulo.Parent do
-			Ui.tween(titulo, { Rotation = 2 * lado, Position = UDim2.new(0.5, 0, 0, 40 + lado * 4) }, 1.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-			lado = -lado
-			task.wait(1.6)
-		end
-	end)
-	-- desfile: los cuatro héroes corren y un monstruo los persigue (y al revés)
-	local desfile = Ui.crear("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -20), Size = UDim2.new(1, 0, 0, 150), BackgroundTransparency = 1, ClipsDescendants = true, ZIndex = 91, Parent = capa })
-	local actores = {}
-	for i, cid in Datos.OrdenClases do
-		local f = Ui.crear("Frame", { Size = UDim2.fromOffset(100, 130), Position = UDim2.new(0, -120 - i * 110, 1, -135), BackgroundTransparency = 1, ZIndex = 92, Parent = desfile })
-		local m = Munecos.crear(f, "clase", cid, 3)
-		m.andar = 1
-		table.insert(actores, { f = f, m = m, dx = -120 - i * 110 })
-	end
-	local monstruos = { "lobo", "babosa", "abeja", "reyHongo", "fantasma", "golem" }
-	local fm = Ui.crear("Frame", { Size = UDim2.fromOffset(130, 130), Position = UDim2.new(0, -700, 1, -135), BackgroundTransparency = 1, ZIndex = 92, Parent = desfile })
-	local mm = Munecos.crear(fm, "enemigo", monstruos[math.random(1, #monstruos)], 3)
-	mm.andar = 1
-	Munecos.espejo(mm, true)
-	task.spawn(function()
-		local t0 = os.clock()
-		while desfile.Parent do
-			local ancho = desfile.AbsoluteSize.X
-			local x = ((os.clock() - t0) * 160) % (ancho + 900) - 160
-			for _, a in actores do
-				a.f.Position = UDim2.new(0, x + a.dx + 600, 1, -135)
-			end
-			fm.Position = UDim2.new(0, x - 140, 1, -135)
-			task.wait()
-		end
-	end)
-	-- botones
-	local caja = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 210), Size = UDim2.fromOffset(300, 260), BackgroundTransparency = 1, ZIndex = 92, Parent = capa })
-	Ui.crear("UIListLayout", { Padding = UDim.new(0, 12), HorizontalAlignment = Enum.HorizontalAlignment.Center, Parent = caja })
-	local function panelInfo(tituloTexto: string, cuerpo: string)
-		local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(640, 420), Parent = capa, ZIndex = 95 })
-		Ui.aparecer(p)
-		Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = tituloTexto, TextColor3 = C.oro, ZIndex = 96, Parent = p })
-		Ui.texto({ Position = UDim2.fromOffset(28, 66), Size = UDim2.new(1, -56, 1, -140), Text = cuerpo, TextScaled = false, TextSize = 20, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 96, Parent = p })
-		Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 44), Text = "Vale", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 96, Parent = p }, function()
-			cerrarPanel(p)
-		end)
-	end
-	local function jugar()
-		Audio.sfx("mejora", 0.8)
-		Ui.tween(fundido, { BackgroundTransparency = 0 }, 0.4).Completed:Wait()
-		capa:Destroy()
-		enMenu = false
-		Escena.modoMenu = false
-		if controles then
-			controles:Enable()
-		end
-		Ui.tween(fundido, { BackgroundTransparency = 1 }, 0.6)
-		if estadoActual then
-			actualizarHud(estadoActual)
-		elseif selectorPendiente then
-			abrirSelector()
-		end
-	end
-	local botones = {
-		{ "¡Jugar!", Color3.fromRGB(80, 170, 90), "estrella", jugar },
-		{ "Cómo se juega", Color3.fromRGB(80, 60, 150), "magia", function()
-			panelInfo("Cómo se juega", "• Muévete con A y D (W y S, al fondo y hacia delante). Salta con Espacio.\n• Habla con la gente (tecla E): tabernero, herrera, ermitaño, posadera…\n• Explora: hay caminos cerrados. Busca la cuerda, el hacha, la llave y el farol.\n• Entra en las guaridas del fondo para luchar. En tu turno, muévete por las casillas verdes y luego ataca. Empuja a los monstruos contra rocas: ¡CATAPLÁN!\n• Gana cofres con mejoras. Se suman y algunas se combinan.\n• Atento a los paraderos: hogueras, pozos, cofres… y un vendedor muy raro.")
-		end },
-		{ "Ajustes", Color3.fromRGB(60, 110, 190), "escudo", function()
-			local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.52), Size = UDim2.fromOffset(460, 300), Parent = capa, ZIndex = 95 })
-			Ui.aparecer(p)
-			Ui.texto({ Position = UDim2.fromOffset(0, 16), Size = UDim2.new(1, 0, 0, 40), Text = "Ajustes", TextColor3 = C.oro, ZIndex = 96, Parent = p })
-			local function fila(y: number, nombre: string, actual: () -> number, poner: (number) -> ())
-				local etiqueta = Ui.texto({ Position = UDim2.fromOffset(30, y), Size = UDim2.fromOffset(180, 40), Text = "", TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 96, Parent = p })
-				local function refrescar()
-					etiqueta.Text = nombre .. ": " .. math.floor(actual() * 100 + 0.5) .. " %"
-				end
-				refrescar()
-				Ui.boton({ Position = UDim2.fromOffset(230, y), Size = UDim2.fromOffset(80, 40), Text = "−", BackgroundColor3 = C.fondo, ZIndex = 96, Parent = p }, function()
-					poner(math.max(0, actual() - 0.1))
-					refrescar()
-				end)
-				Ui.boton({ Position = UDim2.fromOffset(330, y), Size = UDim2.fromOffset(80, 40), Text = "+", BackgroundColor3 = C.fondo, ZIndex = 96, Parent = p }, function()
-					poner(math.min(1, actual() + 0.1))
-					refrescar()
-				end)
-			end
-			fila(80, "Música", function()
-				return Audio.volMusica
-			end, function(v)
-				Audio.volumen(v, nil)
-			end)
-			fila(140, "Efectos", function()
-				return Audio.volEfectos
-			end, function(v)
-				Audio.volumen(nil, v)
-			end)
-			Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(200, 44), Text = "Listo", Icono = "volver", BackgroundColor3 = C.fondo, ZIndex = 96, Parent = p }, function()
-				cerrarPanel(p)
-			end)
-		end },
-		{ "Créditos", Color3.fromRGB(100, 100, 120), "corazon", function()
-			panelInfo("Créditos", "Crónicas de Vael\n\nIdea y dirección: tú.\nCódigo, dibujos, música y efectos: hechos a medida para este juego.\n\nGracias por jugar. Y por no comerte las setas del suelo… o sí.")
-		end },
-	}
-	for i, b in botones do
-		local boton = Ui.boton({ Size = UDim2.fromOffset(300, 54), Text = b[1], BackgroundColor3 = b[2], Icono = b[3], ZIndex = 93, LayoutOrder = i, Parent = caja }, b[4])
-		boton.Visible = false
-		Ui.aparecer(boton, 0.3 + i * 0.1)
-	end
-end
-
--- si algo del menú fallara, que el juego siga (sin quedarse atascado en la pantalla de inicio)
-local okMenu, errMenu = pcall(abrirMenuInicio)
-if not okMenu then
-	warn("Menú de inicio: " .. tostring(errMenu))
-	enMenu = false
-	Escena.modoMenu = false
-	if controles then
-		controles:Enable()
-	end
+-- al pulsar «Jugar» (o volver al inicio) se enseña u oculta el HUD
+jugador:GetAttributeChangedSignal("EnMenu"):Connect(function()
 	if estadoActual then
 		actualizarHud(estadoActual)
 	end
-end
+end)

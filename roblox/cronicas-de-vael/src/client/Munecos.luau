@@ -12,7 +12,7 @@ local Datos = require(game:GetService("ReplicatedStorage"):WaitForChild("Vael"):
 
 local Munecos = {}
 
-local NEGRO = Color3.fromRGB(25, 20, 30)
+local NEGRO = Datos.TINTA -- contorno marrón muy oscuro (estilo cartulina)
 local BLANCO = Color3.fromRGB(255, 255, 255)
 
 type Pieza = { f: Frame, x: number, rot: number, color: Color3 }
@@ -51,6 +51,12 @@ local conexion: RBXScriptConnection? = nil
 type Opciones = { sb: boolean?, t: number?, gr: number? }
 
 local function pieza(m: Muneco, x: number, y: number, w: number, h: number, color: Color3, radio: number?, z: number?, rot: number?, op: Opciones?): Pieza
+	-- colores apagados, como de cartulina (nada de colores chillones)
+	if color ~= NEGRO and color ~= BLANCO then
+		color = Datos.apagar(color, 0.18)
+	elseif color == BLANCO then
+		color = Color3.fromRGB(246, 240, 226)
+	end
 	local f = Instance.new("Frame")
 	f.AnchorPoint = Vector2.new(0.5, 0.5)
 	f.Position = UDim2.fromScale(x, y)
@@ -85,12 +91,13 @@ local function circ(m: Muneco, x: number, y: number, d: number, color: Color3, z
 	return pieza(m, x, y, d, d / m.aspecto, color, 0.5, z, 0, op)
 end
 
-local function ojo(m: Muneco, x: number, y: number, w: number, h: number, z: number, colorOjo: Color3?, colorPupila: Color3?, tamPupila: number?)
+local function ojo(m: Muneco, x: number, y: number, w: number, h: number, z: number, colorOjo: Color3?, colorPupila: Color3?, tamPupila: number?, dxPupila: number?)
 	local o = pieza(m, x, y, w, h, colorOjo or BLANCO, 0.5, z)
 	table.insert(m.ojos, { f = o.f, tam = o.f.Size })
-	local d = tamPupila or w * 0.42
-	local p = pieza(m, x, y + h * 0.05, d, d / m.aspecto, colorPupila or NEGRO, 0.5, z + 1, 0, { sb = true })
-	table.insert(m.pupilas, { f = p.f, x = x, y = y + h * 0.05 })
+	local d = tamPupila or w * 0.3
+	local px = x + (dxPupila or 0)
+	local p = pieza(m, px, y + h * 0.05, d, d / m.aspecto, colorPupila or NEGRO, 0.5, z + 1, 0, { sb = true })
+	table.insert(m.pupilas, { f = p.f, x = px, y = y + h * 0.05 })
 end
 
 local function boca(m: Muneco, x: number, y: number, w: number, h: number, z: number, color: Color3?)
@@ -112,89 +119,219 @@ local function sombra(m: Muneco, ancho: number)
 	pieza(m, 0.5, 0.975, ancho, 0.04, NEGRO, 0.5, 0, 0, { sb = true, t = 0.65 })
 end
 
-local function brillo(m: Muneco, p: Pieza)
+local function brillo(_m: Muneco, p: Pieza)
+	-- sin brillos que parpadean: en cartulina todo es mate
 	p.f.BackgroundTransparency = 0
-	table.insert(m.brillos, p.f)
 end
 
--- ===================== HÉROES =====================
-local PIEL: { [string]: Color3 } = {
-	guerrero = Color3.fromRGB(255, 214, 170),
-	maga = Color3.fromRGB(250, 222, 196),
-	arquero = Color3.fromRGB(226, 176, 132),
-	sanador = Color3.fromRGB(190, 140, 100),
-}
+-- ===================== HÉROES (personalizables) =====================
 local COLOR_CLASE: { [string]: Color3 } = {
-	guerrero = Color3.fromRGB(214, 69, 65),
-	maga = Color3.fromRGB(122, 92, 214),
-	arquero = Color3.fromRGB(70, 160, 90),
-	sanador = Color3.fromRGB(240, 200, 80),
+	guerrero = Color3.fromRGB(200, 75, 65),
+	maga = Color3.fromRGB(125, 95, 200),
+	arquero = Color3.fromRGB(80, 150, 90),
+	sanador = Color3.fromRGB(230, 195, 90),
 }
+local A = Datos.Apariencia
 
-local function cabezaBasica(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3)
+--- Cuerpo de muñeco de cartulina: pies, cuerpo, manos y una cabeza grande y redonda.
+local function cuerpoBase(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3)
 	sombra(m, 0.62)
 	pie(m, 0.37, 0.935, 0.2, 0.06, pies)
 	pie(m, 0.63, 0.935, 0.2, 0.06, pies)
 	pieza(m, 0.5, 0.76, 0.56, 0.3, colorCuerpo, 0.3, 3)
 	pieza(m, 0.5, 0.84, 0.56, 0.035, Color3.fromRGB(90, 60, 40), 0, 4, 0, { sb = true })
+	pieza(m, 0.5, 0.64, 0.04, 0.2, colorCuerpo:Lerp(NEGRO, 0.25), 0, 4, 0, { sb = true }) -- costura de la chaqueta
 	circ(m, 0.2, 0.77, 0.15, piel, 6)
 	circ(m, 0.8, 0.77, 0.15, piel, 6)
 	circ(m, 0.5, 0.42, 0.74, piel, 5)
-	circ(m, 0.29, 0.5, 0.1, Color3.fromRGB(250, 130, 140), 7, { sb = true, t = 0.45 })
-	circ(m, 0.71, 0.5, 0.1, Color3.fromRGB(250, 130, 140), 7, { sb = true, t = 0.45 })
-	ojo(m, 0.41, 0.41, 0.17, 0.15, 8)
-	ojo(m, 0.59, 0.41, 0.17, 0.15, 8)
-	boca(m, 0.5, 0.56, 0.12, 0.024, 8)
 end
 
-local function dibujarHeroe(m: Muneco, clase: string)
-	local piel = PIEL[clase] or PIEL.guerrero
-	local color = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
+--- Ojos grandes que se tocan en el centro, con pupilas pequeñas (estilo recortable).
+local function cara(m: Muneco, piel: Color3, estilo: number, colorPupila: Color3)
+	local z = 8
+	if estilo == 2 then -- grandes
+		ojo(m, 0.385, 0.4, 0.24, 0.2, z, nil, colorPupila, 0.07)
+		ojo(m, 0.615, 0.4, 0.24, 0.2, z, nil, colorPupila, 0.07)
+	elseif estilo == 4 then -- bizcos
+		ojo(m, 0.4, 0.41, 0.2, 0.16, z, nil, colorPupila, 0.055, 0.04)
+		ojo(m, 0.6, 0.41, 0.2, 0.16, z, nil, colorPupila, 0.055, -0.04)
+	else
+		ojo(m, 0.4, 0.41, 0.2, 0.16, z, nil, colorPupila, 0.055)
+		ojo(m, 0.6, 0.41, 0.2, 0.16, z, nil, colorPupila, 0.055)
+	end
+	if estilo == 3 then -- dormilones: párpado a media asta
+		pieza(m, 0.4, 0.375, 0.21, 0.085, piel, 0.3, z + 2)
+		pieza(m, 0.6, 0.375, 0.21, 0.085, piel, 0.3, z + 2)
+	elseif estilo == 5 then -- enfadados: cejas de cartón en diagonal
+		pieza(m, 0.4, 0.335, 0.2, 0.025, NEGRO, 0, z + 2, 18, { sb = true })
+		pieza(m, 0.6, 0.335, 0.2, 0.025, NEGRO, 0, z + 2, -18, { sb = true })
+	end
+	boca(m, 0.5, 0.56, 0.11, 0.022, 8)
+end
+
+local function cabezaBasica(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3)
+	cuerpoBase(m, piel, colorCuerpo, pies)
+	cara(m, piel, 1, NEGRO)
+end
+
+local function peloAtras(m: Muneco, estilo: number, c: Color3)
+	if estilo == 4 then -- melena
+		pieza(m, 0.5, 0.5, 0.84, 0.46, c, 0.4, 4)
+	elseif estilo == 6 then -- coleta
+		pieza(m, 0.87, 0.38, 0.14, 0.24, c, 0.45, 4, 22)
+		circ(m, 0.82, 0.29, 0.06, Color3.fromRGB(220, 70, 90), 4)
+	elseif estilo == 7 then -- afro
+		circ(m, 0.5, 0.3, 0.98, c, 4)
+	end
+end
+
+local function peloDelante(m: Muneco, estilo: number, c: Color3)
+	if estilo == 2 or estilo == 4 or estilo == 6 then
+		pieza(m, 0.5, 0.19, 0.64, 0.13, c, 0.5, 9)
+	elseif estilo == 3 then -- flequillo
+		pieza(m, 0.5, 0.19, 0.64, 0.13, c, 0.5, 9)
+		pieza(m, 0.4, 0.25, 0.4, 0.08, c, 0.4, 9, -14)
+	elseif estilo == 5 then -- cresta
+		for k = -1, 1 do
+			pieza(m, 0.5 + k * 0.08, 0.1 - (k == 0 and 0.03 or 0), 0.09, 0.17, c, 0.3, 9, k * 18)
+		end
+	elseif estilo == 7 then
+		pieza(m, 0.5, 0.2, 0.7, 0.12, c, 0.5, 9)
+	end
+end
+
+local function gorroDe(m: Muneco, tipo: number, c: Color3)
+	if tipo == 3 then -- gorro de lana
+		pieza(m, 0.5, 0.18, 0.66, 0.17, c, 0.45, 11)
+		pieza(m, 0.5, 0.26, 0.72, 0.06, c:Lerp(BLANCO, 0.35), 0.3, 12)
+		circ(m, 0.5, 0.07, 0.13, c:Lerp(BLANCO, 0.5), 12)
+	elseif tipo == 4 then -- sombrero vaquero
+		pieza(m, 0.5, 0.215, 1.0, 0.05, c, 0.5, 12)
+		pieza(m, 0.5, 0.14, 0.5, 0.13, c, 0.25, 11)
+		pieza(m, 0.5, 0.185, 0.51, 0.025, NEGRO, 0, 12, 0, { sb = true })
+	elseif tipo == 5 then -- corona de cartón
+		pieza(m, 0.5, 0.17, 0.5, 0.07, Color3.fromRGB(240, 200, 70), 0.1, 11)
+		for k = -1, 1 do
+			pieza(m, 0.5 + k * 0.16, 0.12, 0.08, 0.08, Color3.fromRGB(240, 200, 70), 0.1, 11, 45)
+		end
+		circ(m, 0.5, 0.17, 0.04, Color3.fromRGB(210, 60, 70), 12, { sb = true })
+	elseif tipo == 6 then -- gorra
+		pieza(m, 0.47, 0.19, 0.64, 0.14, c, 0.5, 11)
+		pieza(m, 0.74, 0.245, 0.32, 0.045, c:Lerp(NEGRO, 0.2), 0.5, 12)
+	elseif tipo == 7 then -- chistera
+		pieza(m, 0.5, 0.215, 0.8, 0.045, Color3.fromRGB(50, 45, 50), 0.4, 12)
+		pieza(m, 0.5, 0.09, 0.42, 0.22, Color3.fromRGB(55, 50, 55), 0.08, 11)
+		pieza(m, 0.5, 0.17, 0.43, 0.04, c, 0, 12, 0, { sb = true })
+	end
+end
+
+local function accesorio(m: Muneco, tipo: number, colorPelo: Color3)
+	if tipo == 2 then -- gafas
+		for _, x in { 0.4, 0.6 } do
+			local g = pieza(m, x, 0.41, 0.22, 0.18, BLANCO, 0.5, 14, 0, { t = 1, gr = m.grosor + 1 })
+			g.f.BackgroundTransparency = 1
+		end
+	elseif tipo == 3 then -- gafas de sol
+		pieza(m, 0.39, 0.41, 0.21, 0.13, Color3.fromRGB(40, 40, 50), 0.4, 14)
+		pieza(m, 0.61, 0.41, 0.21, 0.13, Color3.fromRGB(40, 40, 50), 0.4, 14)
+		pieza(m, 0.5, 0.4, 0.05, 0.02, NEGRO, 0, 14, 0, { sb = true })
+	elseif tipo == 4 then -- bigote
+		pieza(m, 0.44, 0.515, 0.16, 0.05, colorPelo, 0.5, 14, -8)
+		pieza(m, 0.56, 0.515, 0.16, 0.05, colorPelo, 0.5, 14, 8)
+	elseif tipo == 5 then -- tirita
+		pieza(m, 0.68, 0.3, 0.15, 0.05, Color3.fromRGB(240, 200, 160), 0.3, 14, 30)
+		pieza(m, 0.68, 0.3, 0.05, 0.03, Color3.fromRGB(210, 160, 120), 0, 15, 30, { sb = true })
+	elseif tipo == 6 then -- parche de pirata
+		pieza(m, 0.5, 0.33, 0.78, 0.02, NEGRO, 0, 15, -14, { sb = true })
+		pieza(m, 0.6, 0.41, 0.17, 0.15, Color3.fromRGB(40, 35, 40), 0.5, 15)
+	elseif tipo == 7 then -- pato en la cabeza
+		circ(m, 0.5, 0.06, 0.22, Color3.fromRGB(250, 215, 70), 16)
+		circ(m, 0.6, -0.03, 0.13, Color3.fromRGB(250, 215, 70), 16)
+		pieza(m, 0.68, -0.02, 0.07, 0.03, Color3.fromRGB(240, 140, 50), 0.3, 17)
+		circ(m, 0.61, -0.04, 0.025, NEGRO, 17, { sb = true })
+	elseif tipo == 8 then -- pajarita
+		pieza(m, 0.44, 0.625, 0.1, 0.06, Color3.fromRGB(200, 60, 60), 0.2, 14, 20)
+		pieza(m, 0.56, 0.625, 0.1, 0.06, Color3.fromRGB(200, 60, 60), 0.2, 14, -20)
+		circ(m, 0.5, 0.625, 0.045, Color3.fromRGB(170, 40, 40), 15)
+	end
+end
+
+local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
+	local a = Datos.validarApariencia(ap or {})
+	local piel = A.pieles[a.piel]
+	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
+	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local cPelo = A.coloresPelo[a.colorPelo]
+	local cGorro = A.coloresGorro[a.colorGorro]
+	local deClase = a.gorro == 1
+	local capucha = deClase and (clase == "arquero" or clase == "sanador")
+	local casco = deClase and clase == "guerrero"
+	-- detrás de la cabeza
 	if clase == "guerrero" then
-		pieza(m, 0.5, 0.78, 0.7, 0.34, Color3.fromRGB(150, 40, 40), 0.2, 2)
-		cabezaBasica(m, piel, color, Color3.fromRGB(70, 50, 40))
-		pieza(m, 0.5, 0.2, 0.72, 0.2, Color3.fromRGB(175, 180, 195), 0.45, 10)
-		pieza(m, 0.5, 0.275, 0.8, 0.06, Color3.fromRGB(140, 145, 160), 0.3, 11)
-		pieza(m, 0.5, 0.32, 0.05, 0.09, Color3.fromRGB(140, 145, 160), 0.3, 11)
-		pieza(m, 0.12, 0.14, 0.08, 0.14, Color3.fromRGB(250, 240, 215), 0.4, 9, -28)
-		pieza(m, 0.88, 0.14, 0.08, 0.14, Color3.fromRGB(250, 240, 215), 0.4, 9, 28)
-		pieza(m, 0.88, 0.57, 0.06, 0.32, Color3.fromRGB(225, 230, 240), 0.3, 12)
-		pieza(m, 0.88, 0.73, 0.18, 0.03, Color3.fromRGB(240, 190, 60), 0.3, 13)
-		pieza(m, 0.88, 0.78, 0.045, 0.07, Color3.fromRGB(110, 70, 45), 0.3, 12)
-	elseif clase == "maga" then
-		pieza(m, 0.5, 0.52, 0.84, 0.44, Color3.fromRGB(80, 45, 100), 0.4, 4)
-		cabezaBasica(m, piel, color, Color3.fromRGB(60, 40, 80))
-		pieza(m, 0.5, 0.21, 0.96, 0.06, Color3.fromRGB(85, 55, 165), 0.5, 12)
-		pieza(m, 0.5, 0.13, 0.46, 0.13, Color3.fromRGB(110, 80, 200), 0.3, 11)
-		pieza(m, 0.54, 0.05, 0.28, 0.09, Color3.fromRGB(110, 80, 200), 0.3, 11, 10)
-		pieza(m, 0.62, -0.01, 0.13, 0.07, Color3.fromRGB(110, 80, 200), 0.3, 11, 24)
-		pieza(m, 0.46, 0.13, 0.06, 0.046, Color3.fromRGB(255, 220, 80), 0.1, 13, 45)
-		pieza(m, 0.12, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 12)
-		brillo(m, circ(m, 0.12, 0.33, 0.13, Color3.fromRGB(120, 230, 255), 13))
-	elseif clase == "arquero" then
+		pieza(m, 0.5, 0.78, 0.7, 0.34, ropa:Lerp(NEGRO, 0.3), 0.2, 2) -- capa
+	end
+	if capucha then
+		local cc = clase == "arquero" and Color3.fromRGB(70, 115, 70) or Color3.fromRGB(235, 228, 212)
+		circ(m, 0.5, 0.4, 0.88, cc, 4)
+		pieza(m, 0.5, 0.11, 0.24, 0.12, cc, 0.2, 4, 45)
+	elseif not casco then
+		peloAtras(m, a.pelo, cPelo)
+	elseif a.pelo == 4 or a.pelo == 6 then
+		peloAtras(m, a.pelo, cPelo)
+	end
+	-- arco y carcaj del arquero (detrás del cuerpo)
+	if clase == "arquero" then
 		local arco = pieza(m, 0.13, 0.68, 0.26, 0.42, BLANCO, 0.5, 2, 0, { t = 1, gr = m.grosor + 2 })
+		arco.f.BackgroundTransparency = 1
 		local trazo = arco.f:FindFirstChildOfClass("UIStroke")
 		if trazo then
 			trazo.Color = Color3.fromRGB(120, 80, 45)
 		end
 		pieza(m, 0.13, 0.68, 0.012, 0.4, Color3.fromRGB(240, 240, 230), 0, 2, 0, { sb = true })
 		pieza(m, 0.8, 0.6, 0.1, 0.24, Color3.fromRGB(130, 85, 50), 0.3, 2, 15)
-		pieza(m, 0.84, 0.47, 0.025, 0.08, Color3.fromRGB(240, 70, 70), 0, 1, 15)
-		circ(m, 0.5, 0.4, 0.88, Color3.fromRGB(55, 120, 65), 4)
-		pieza(m, 0.5, 0.11, 0.24, 0.12, Color3.fromRGB(55, 120, 65), 0.2, 4, 45)
-		cabezaBasica(m, piel, color, Color3.fromRGB(90, 60, 40))
-		pieza(m, 0.66, 0.16, 0.05, 0.16, Color3.fromRGB(240, 70, 70), 0.5, 4, 30)
-	else -- sanador
-		circ(m, 0.5, 0.4, 0.88, Color3.fromRGB(245, 240, 228), 4)
-		pieza(m, 0.5, 0.11, 0.24, 0.12, Color3.fromRGB(245, 240, 228), 0.2, 4, 45)
-		cabezaBasica(m, piel, Color3.fromRGB(245, 240, 228), Color3.fromRGB(110, 80, 60))
-		pieza(m, 0.5, 0.74, 0.05, 0.12, color, 0, 5, 0, { sb = true })
-		pieza(m, 0.5, 0.725, 0.15, 0.035, color, 0, 5, 0, { sb = true })
-		pieza(m, 0.88, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 12)
-		local c1 = pieza(m, 0.88, 0.34, 0.05, 0.11, color, 0.2, 13)
-		pieza(m, 0.88, 0.33, 0.13, 0.035, color, 0.2, 13)
-		brillo(m, c1)
 	end
+	cuerpoBase(m, piel, ropa, Color3.fromRGB(70, 50, 40))
+	cara(m, piel, a.ojos, A.coloresOjos[a.colorOjos])
+	if clase == "sanador" then
+		pieza(m, 0.5, 0.74, 0.05, 0.12, COLOR_CLASE.sanador:Lerp(Color3.fromRGB(200, 60, 60), 0.6), 0, 5, 0, { sb = true })
+		pieza(m, 0.5, 0.725, 0.15, 0.035, COLOR_CLASE.sanador:Lerp(Color3.fromRGB(200, 60, 60), 0.6), 0, 5, 0, { sb = true })
+	end
+	-- pelo de delante (lo tapan la capucha y el casco)
+	if not capucha and not casco and a.gorro ~= 7 then
+		peloDelante(m, a.pelo, cPelo)
+	end
+	-- lo que lleva en la cabeza
+	if casco then
+		pieza(m, 0.5, 0.2, 0.72, 0.2, Color3.fromRGB(175, 180, 195), 0.45, 10)
+		pieza(m, 0.5, 0.275, 0.8, 0.06, Color3.fromRGB(140, 145, 160), 0.3, 11)
+		pieza(m, 0.5, 0.32, 0.05, 0.09, Color3.fromRGB(140, 145, 160), 0.3, 11)
+		pieza(m, 0.12, 0.14, 0.08, 0.14, Color3.fromRGB(250, 240, 215), 0.4, 9, -28)
+		pieza(m, 0.88, 0.14, 0.08, 0.14, Color3.fromRGB(250, 240, 215), 0.4, 9, 28)
+	elseif deClase and clase == "maga" then
+		pieza(m, 0.5, 0.21, 0.96, 0.06, Color3.fromRGB(85, 60, 150), 0.5, 12)
+		pieza(m, 0.5, 0.13, 0.46, 0.13, Color3.fromRGB(110, 85, 180), 0.3, 11)
+		pieza(m, 0.54, 0.05, 0.28, 0.09, Color3.fromRGB(110, 85, 180), 0.3, 11, 10)
+		pieza(m, 0.62, -0.01, 0.13, 0.07, Color3.fromRGB(110, 85, 180), 0.3, 11, 24)
+		pieza(m, 0.46, 0.13, 0.06, 0.046, Color3.fromRGB(240, 210, 90), 0.1, 13, 45)
+	elseif clase == "arquero" and capucha then
+		pieza(m, 0.66, 0.16, 0.05, 0.16, Color3.fromRGB(220, 80, 70), 0.5, 4, 30)
+	elseif not deClase then
+		gorroDe(m, a.gorro, cGorro)
+	end
+	-- arma de la clase
+	if clase == "guerrero" then
+		pieza(m, 0.88, 0.57, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 12)
+		pieza(m, 0.88, 0.73, 0.18, 0.03, Color3.fromRGB(220, 180, 70), 0.3, 13)
+		pieza(m, 0.88, 0.78, 0.045, 0.07, Color3.fromRGB(110, 70, 45), 0.3, 12)
+	elseif clase == "maga" then
+		pieza(m, 0.12, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 12)
+		circ(m, 0.12, 0.33, 0.13, Color3.fromRGB(130, 200, 220), 13)
+	elseif clase == "sanador" then
+		pieza(m, 0.88, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 12)
+		pieza(m, 0.88, 0.34, 0.05, 0.11, COLOR_CLASE.sanador, 0.2, 13)
+		pieza(m, 0.88, 0.33, 0.13, 0.035, COLOR_CLASE.sanador, 0.2, 13)
+	end
+	accesorio(m, a.accesorio, cPelo)
 end
 
 -- ===================== VECINOS DE LA CIUDAD =====================
@@ -537,7 +674,7 @@ local function nuevo(padre: Instance, aspecto: number, grosor: number?): Muneco
 		raiz = raiz,
 		cuerpo = cuerpo,
 		aspecto = aspecto,
-		grosor = grosor or 3,
+		grosor = math.max(1.5, (grosor or 3) - 0.5),
 		piezas = {},
 		ojos = {},
 		pupilas = {},
@@ -584,7 +721,7 @@ local function arrancar()
 end
 
 --- tipo: "clase" (héroe), "enemigo" o "vecino". Devuelve el muñeco ya animándose.
-function Munecos.crear(padre: Instance, tipo: string, id: string, grosor: number?): Muneco
+function Munecos.crear(padre: Instance, tipo: string, id: string, grosor: number?, apariencia: { [string]: any }?): Muneco
 	local m
 	if tipo == "enemigo" then
 		m = nuevo(padre, 1, grosor)
@@ -600,7 +737,7 @@ function Munecos.crear(padre: Instance, tipo: string, id: string, grosor: number
 		dibujarVecino(m, tonumber(id) or 1)
 	else
 		m = nuevo(padre, 1.3, grosor)
-		dibujarHeroe(m, id)
+		dibujarHeroe(m, id, apariencia)
 	end
 	table.insert(activos, m)
 	arrancar()

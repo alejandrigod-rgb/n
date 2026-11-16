@@ -3,8 +3,10 @@
 Juego original: un mundo de fantasía con combates por turnos en equipo. Tu grupo (tú y hasta 3 amigos) contra grupos de enemigos.
 
 ## Qué tiene
-- **Menú de inicio** con Jugar, Cómo se juega, Ajustes (volumen de música y efectos) y Créditos. La cámara pasea por la ciudad y desfilan los héroes con un monstruo detrás.
-- **Estilo 2D de recortes de papel** (personajes y mundo propios):
+- **Menú de inicio** (script propio, `src/client/Menu.client.luau`) con Jugar, Mi personaje, Cómo se juega, Ajustes (volumen) y Créditos. **Menú de pausa** durante la partida: botón «Menú» arriba a la derecha o tecla **M** (Continuar, Mi personaje, Ajustes, Cómo se juega, Volver al inicio).
+- **Crea a tu héroe** (`src/client/Editor.luau`): piel, pelo (7 peinados) y su color, ojos (5 estilos) y su color, color de la ropa, gorro (7: el de tu clase, de lana, vaquero, corona de cartón, gorra, chistera…), accesorio gracioso (gafas, bigote, tirita, parche, pato en la cabeza, pajarita…) y nombre del héroe (pasa por el filtro de texto de Roblox). Se abre al elegir clase y se cambia cuando quieras desde el menú.
+- **Estilo cartulina recortada** (propio): colores apagados, textura de cartón (material Cardboard), sin neón, sin resplandores ni degradados, contornos marrón oscuro, letra de rotulador y chinchetas en los paneles.
+- **Estilo 2D de recortes** (personajes y mundo propios):
   - Cámara de lado, como un juego 2D con un poco de fondo. Sube contigo cuando saltas a las plataformas.
   - El mundo está hecho de piezas planas con contorno negro.
   - Los personajes y monstruos son muñecos dibujados con la interfaz (`src/client/Munecos.luau`), sin imágenes. Respiran, dan saltitos al andar, parpadean, se ponen rojos al recibir un golpe y caen al morir.
@@ -95,6 +97,8 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 | … → **Escena** | ModuleScript | `src/client/Escena.luau` |
 | … → **Efectos** | ModuleScript | `src/client/Efectos.luau` |
 | … → **Audio** | ModuleScript | `src/client/Audio.luau` |
+| … → **Editor** | ModuleScript | `src/client/Editor.luau` |
+| … → **Menu** | LocalScript | `src/client/Menu.client.luau` |
 | ServerScriptService → VaelServidor → **Eventos** | ModuleScript | `src/server/Eventos.luau` |
 | ReplicatedStorage → Vael → **Sonidos** | ModuleScript | `src/shared/Sonidos.luau` |
 

@@ -18,7 +18,7 @@ Mundo.Limites = { -195, 605 }
 
 local raiz: Folder
 local pasto: Folder
-local NEGRO = Color3.fromRGB(25, 20, 30)
+local NEGRO = Datos.TINTA
 
 local function nueva(clase: string, props: { [string]: any }, padre: Instance?): any
 	local p = Instance.new(clase)
@@ -252,15 +252,37 @@ end
 
 -- ===================== CONSTRUCCIÓN =====================
 local function luces()
+	-- luz plana y suave, como un escenario de cartulina: sin resplandores ni contraste fuerte
 	pcall(function()
 		Lighting.GlobalShadows = false
-		Lighting.Ambient = Color3.fromRGB(175, 175, 180)
-		Lighting.OutdoorAmbient = Color3.fromRGB(190, 190, 195)
-		Lighting.Brightness = 1.6
+		Lighting.Ambient = Color3.fromRGB(200, 194, 184)
+		Lighting.OutdoorAmbient = Color3.fromRGB(205, 198, 188)
+		Lighting.Brightness = 1.1
 		Lighting.ClockTime = 14
 		Lighting.EnvironmentDiffuseScale = 0
 		Lighting.EnvironmentSpecularScale = 0
+		Lighting.ExposureCompensation = 0
 	end)
+	for _, e in Lighting:GetChildren() do
+		pcall(function()
+			if e:IsA("BloomEffect") or e:IsA("SunRaysEffect") or e:IsA("DepthOfFieldEffect") or e:IsA("BlurEffect") then
+				(e :: any).Enabled = false
+			elseif e:IsA("Atmosphere") then
+				e.Density = 0
+				e.Haze = 0
+				e.Glare = 0
+			elseif e:IsA("ColorCorrectionEffect") then
+				e:Destroy()
+			end
+		end)
+	end
+	local cc = Instance.new("ColorCorrectionEffect")
+	cc.Name = "Cartulina"
+	cc.Saturation = -0.18
+	cc.Contrast = -0.12
+	cc.Brightness = 0.02
+	cc.TintColor = Color3.fromRGB(255, 246, 230)
+	cc.Parent = Lighting
 end
 
 local function cielo()
@@ -276,9 +298,9 @@ local function cielo()
 	nueva("UIGradient", {
 		Rotation = 90,
 		Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(70, 140, 225)),
-			ColorSequenceKeypoint.new(0.55, Color3.fromRGB(140, 205, 250)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 245, 250)),
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(150, 180, 200)),
+			ColorSequenceKeypoint.new(0.55, Color3.fromRGB(190, 210, 215)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(230, 225, 210)),
 		}),
 	}, f)
 	local sol = disco(-20, 95, -240, 34, Color3.fromRGB(255, 220, 90))
@@ -976,6 +998,8 @@ function Mundo.construir(): { [BasePart]: any }
 	for _, z in Datos.Zonas do
 		zonas[guarida(z)] = z
 	end
+	-- todo a cartulina (textura de cartón, sin neón, colores apagados)
+	Datos.encartonar(raiz, NEGRO)
 	raiz.Parent = workspace
 	return zonas
 end

@@ -16,7 +16,7 @@ Escena.enBatalla = false
 
 local jugador = Players.LocalPlayer
 local camara = workspace.CurrentCamera
-local NEGRO = Color3.fromRGB(25, 20, 30)
+local NEGRO = Color3.fromRGB(48, 38, 34)
 
 local porEntidad: { [string]: Munecos.Muneco } = {}
 local anclaDe: { [string]: BasePart } = {}
@@ -164,9 +164,17 @@ local function montarHeroe(p: Player)
 	end
 	esconderAvatar(ch)
 	local clase = (p:GetAttribute("Clase") :: string?) or "guerrero"
+	local ap = nil
+	local texto = p:GetAttribute("Apariencia") :: string?
+	if texto then
+		local ok, t = pcall(function()
+			return game:GetService("HttpService"):JSONDecode(texto)
+		end)
+		ap = ok and t or nil
+	end
 	local b = billboard(raiz, 4.6, 6, 0.05)
-	local m = Munecos.crear(b, "clase", clase, 3)
-	nombreFlotante(raiz, p.DisplayName, p == jugador and Color3.fromRGB(255, 205, 90) or Color3.fromRGB(150, 200, 255), 3.9)
+	local m = Munecos.crear(b, "clase", clase, 3, ap)
+	nombreFlotante(raiz, (p:GetAttribute("NombreHeroe") :: string?) or p.DisplayName, p == jugador and Color3.fromRGB(255, 205, 90) or Color3.fromRGB(150, 200, 255), 3.9)
 	heroes[p] = { m = m, b = b, raiz = raiz, clase = clase }
 	porEntidad["j" .. p.UserId] = m
 	anclaDe["j" .. p.UserId] = raiz
@@ -177,9 +185,11 @@ local function seguirJugador(p: Player)
 		task.wait(0.1)
 		montarHeroe(p)
 	end)
-	p:GetAttributeChangedSignal("Clase"):Connect(function()
-		montarHeroe(p)
-	end)
+	for _, atributo in { "Clase", "Apariencia", "NombreHeroe" } do
+		p:GetAttributeChangedSignal(atributo):Connect(function()
+			montarHeroe(p)
+		end)
+	end
 	if p.Character then
 		task.spawn(montarHeroe, p)
 	end
@@ -358,7 +368,7 @@ local function burbuja(pa: Paseante, texto: string)
 	b.Adornee = pa.ancla
 	local f = Instance.new("Frame")
 	f.Size = UDim2.fromScale(1, 1)
-	f.BackgroundColor3 = Color3.new(1, 1, 1)
+	f.BackgroundColor3 = Color3.fromRGB(246, 238, 220)
 	f.BorderSizePixel = 0
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, 16)
@@ -586,7 +596,7 @@ function Escena.decir(id: string, texto: string)
 	b.Adornee = a
 	local f = Instance.new("Frame")
 	f.Size = UDim2.fromScale(1, 1)
-	f.BackgroundColor3 = Color3.new(1, 1, 1)
+	f.BackgroundColor3 = Color3.fromRGB(246, 238, 220)
 	f.BorderSizePixel = 0
 	local c = Instance.new("UICorner")
 	c.CornerRadius = UDim.new(0, 16)

@@ -1,6 +1,6 @@
 --!strict
--- Piezas de interfaz de Crónicas de Vael, en estilo dibujo animado: contorno negro grueso, colores planos con
--- un degradado suave, esquinas con adornos dorados e iconos dibujados con Frames (sin imágenes).
+-- Piezas de interfaz de Crónicas de Vael, en estilo CARTULINA RECORTADA: cartón marrón, papel crema, colores
+-- planos y apagados (sin degradados ni brillos), chinchetas en las esquinas, letra de rotulador e iconos dibujados.
 -- TODO lo que se mueve usa TweenService (interpolado por el motor en cada fotograma, a 60 fps).
 
 local TweenService = game:GetService("TweenService")
@@ -8,21 +8,28 @@ local TweenService = game:GetService("TweenService")
 local Ui = {}
 
 Ui.Colores = {
-	fondo = Color3.fromRGB(28, 22, 44),
-	panel = Color3.fromRGB(58, 44, 96),
-	borde = Color3.fromRGB(255, 205, 90),
-	texto = Color3.fromRGB(255, 250, 235),
-	suave = Color3.fromRGB(205, 195, 230),
-	vida = Color3.fromRGB(240, 72, 84),
-	mana = Color3.fromRGB(70, 150, 250),
-	xp = Color3.fromRGB(150, 225, 90),
-	oro = Color3.fromRGB(255, 205, 80),
-	peligro = Color3.fromRGB(240, 70, 70),
-	tinta = Color3.fromRGB(25, 20, 30),
+	fondo = Color3.fromRGB(92, 74, 60),
+	panel = Color3.fromRGB(150, 118, 88), -- cartón
+	borde = Color3.fromRGB(236, 222, 190), -- papel
+	texto = Color3.fromRGB(250, 244, 230),
+	suave = Color3.fromRGB(232, 218, 190),
+	vida = Color3.fromRGB(200, 80, 75),
+	mana = Color3.fromRGB(85, 130, 190),
+	xp = Color3.fromRGB(135, 175, 90),
+	oro = Color3.fromRGB(240, 200, 100),
+	peligro = Color3.fromRGB(200, 75, 70),
+	tinta = Color3.fromRGB(48, 38, 34),
 }
 
-Ui.Fuente = Enum.Font.FredokaOne
-Ui.FuenteTexto = Enum.Font.FredokaOne
+-- letra de rotulador (como escrita a mano sobre cartulina)
+Ui.Fuente = Enum.Font.PermanentMarker
+Ui.FuenteTexto = Enum.Font.PermanentMarker
+
+local CARTON = Color3.fromRGB(150, 138, 122)
+--- Apaga un color (estilo cartulina, nada chillón).
+function Ui.apagar(c: Color3): Color3
+	return c:Lerp(CARTON, 0.22)
+end
 
 -- claves propias que no son propiedades de Roblox
 local PROPIAS = { Contorno = true, BorderColor = true, Icono = true, ColorIcono = true }
@@ -61,25 +68,26 @@ function Ui.borde(o: GuiObject, color: Color3?, grosor: number?)
 	Ui.crear("UIStroke", { Color = color or Ui.Colores.tinta, Thickness = grosor or 3, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = o })
 end
 
-local function degradado(o: GuiObject, oscuro: number?)
-	Ui.crear("UIGradient", { Rotation = 90, Color = ColorSequence.new(Color3.new(1, 1, 1), Color3.new(1, 1, 1):Lerp(Color3.new(0, 0, 0), oscuro or 0.25)), Parent = o })
+local function degradado(_o: GuiObject, _oscuro: number?)
+	-- en cartulina no hay degradados ni brillos: color plano
 end
 
---- Panel de cuento: relleno con degradado, contorno negro grueso, filete dorado por dentro y rombos en las esquinas.
+--- Panel de cartulina: cartón plano con contorno marrón, una hoja de papel algo torcida dentro y chinchetas.
 function Ui.panel(props: { [string]: any }): Frame
 	local f = Ui.crear("Frame", props)
-	f.BackgroundColor3 = props.BackgroundColor3 or Ui.Colores.panel
+	f.BackgroundColor3 = props.BackgroundColor3 and Ui.apagar(props.BackgroundColor3) or Ui.Colores.panel
 	f.BorderSizePixel = 0
-	Ui.esquinas(f, 18)
-	Ui.borde(f, Ui.Colores.tinta, 4)
-	degradado(f, 0.3)
+	Ui.esquinas(f, 6)
+	Ui.borde(f, Ui.Colores.tinta, 3)
 	local z = f.ZIndex
-	local filete = Ui.crear("Frame", { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.fromOffset(6, 6), BackgroundTransparency = 1, ZIndex = z, Parent = f })
-	Ui.esquinas(filete, 13)
-	Ui.borde(filete, Ui.Colores.borde, 2)
-	for _, p in { { 0, 0 }, { 1, 0 }, { 0, 1 }, { 1, 1 } } do
-		local r = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(p[1], p[1] == 0 and 6 or -6, p[2], p[2] == 0 and 6 or -6), Size = UDim2.fromOffset(12, 12), Rotation = 45, BackgroundColor3 = Ui.Colores.borde, BorderSizePixel = 0, ZIndex = z, Parent = f })
-		Ui.borde(r, Ui.Colores.tinta, 2)
+	-- borde de papel recortado (un poco torcido, como pegado a mano)
+	local filete = Ui.crear("Frame", { Size = UDim2.new(1, -12, 1, -12), Position = UDim2.fromOffset(6, 6), Rotation = (math.random() - 0.5) * 0.8, BackgroundTransparency = 1, ZIndex = z, Parent = f })
+	Ui.esquinas(filete, 4)
+	Ui.borde(filete, Ui.Colores.borde, 1.5)
+	for _, p in { { 0, 0 }, { 1, 0 } } do
+		local chincheta = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.new(p[1], p[1] == 0 and 12 or -12, 0, 10), Size = UDim2.fromOffset(11, 11), BackgroundColor3 = Color3.fromRGB(190, 70, 65), BorderSizePixel = 0, ZIndex = z, Parent = f })
+		Ui.esquinas(chincheta, 6)
+		Ui.borde(chincheta, Ui.Colores.tinta, 1.5)
 	end
 	return f
 end
@@ -104,7 +112,7 @@ end
 
 -- ===================== ICONOS DIBUJADOS =====================
 local function pz(padre: Instance, x: number, y: number, w: number, h: number, color: Color3, radio: number?, rot: number?, z: number?, borde: boolean?): Frame
-	local f = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(x, y), Size = UDim2.fromScale(w, h), Rotation = rot or 0, BackgroundColor3 = color, BorderSizePixel = 0, ZIndex = z or 1, Parent = padre })
+	local f = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(x, y), Size = UDim2.fromScale(w, h), Rotation = rot or 0, BackgroundColor3 = Ui.apagar(color), BorderSizePixel = 0, ZIndex = z or 1, Parent = padre })
 	if radio then
 		Ui.crear("UICorner", { CornerRadius = UDim.new(radio, 0), Parent = f })
 	end
@@ -168,8 +176,8 @@ function Ui.boton(props: { [string]: any }, alPulsar: () -> ()): TextButton
 	b.TextColor3 = props.TextColor3 or Ui.Colores.texto
 	b.TextScaled = true
 	b.BorderSizePixel = 0
-	b.BackgroundColor3 = props.BackgroundColor3 or Ui.Colores.panel
-	Ui.esquinas(b, 14)
+	b.BackgroundColor3 = props.BackgroundColor3 and Ui.apagar(props.BackgroundColor3) or Ui.Colores.panel
+	Ui.esquinas(b, 6)
 	Ui.borde(b, props.BorderColor or Ui.Colores.tinta, 3)
 	degradado(b, 0.35)
 	local izq = props.Icono and 44 or 10
@@ -219,12 +227,11 @@ function Ui.barra(padre: Instance, pos: UDim2, tam: UDim2, color: Color3, conTex
 	Ui.borde(marco, Ui.Colores.tinta, 2.5)
 	local estela = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.25, BorderSizePixel = 0, Parent = marco })
 	Ui.esquinas(estela, 999)
-	local relleno = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = color, BorderSizePixel = 0, Parent = marco })
+	local relleno = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Ui.apagar(color), BorderSizePixel = 0, Parent = marco })
 	Ui.esquinas(relleno, 999)
 	degradado(relleno, 0.3)
 	-- brillo de dibujo arriba
-	local brillo = Ui.crear("Frame", { Position = UDim2.new(0, 6, 0.18, 0), Size = UDim2.new(1, -12, 0.22, 0), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.55, BorderSizePixel = 0, Parent = relleno })
-	Ui.esquinas(brillo, 999)
+
 	local etiqueta: TextLabel? = nil
 	if conTexto then
 		etiqueta = Ui.texto({ Size = UDim2.fromScale(1, 1), Text = "", TextColor3 = Color3.new(1, 1, 1), Parent = marco, ZIndex = 3 })
