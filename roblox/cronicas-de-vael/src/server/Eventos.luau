@@ -24,10 +24,10 @@ type Ctx = {
 local ctx: Ctx
 
 local ZONAS = {
-	{ nombre = "la Pradera", desde = 45, hasta = 155, llave = nil },
-	{ nombre = "el Pantano", desde = 178, hasta = 222, llave = "cuerda" },
-	{ nombre = "el Bosque", desde = 270, hasta = 325, llave = "hacha" },
-	{ nombre = "las Ruinas", desde = 368, hasta = 405, llave = "llave" },
+	{ nombre = "la Pradera", desde = 55, hasta = 140, llave = nil }, -- lejos del río: el campo de batalla mide ±18
+	{ nombre = "el Pantano", desde = 185, hasta = 205, llave = "cuerda" },
+	{ nombre = "el Bosque", desde = 282, hasta = 325, llave = "hacha" },
+	{ nombre = "las Ruinas", desde = 382, hasta = 405, llave = "llave" },
 }
 
 local function parte(padre: Instance, x: number, y: number, z: number, w: number, h: number, color: Color3, redondo: boolean?, giro: number?)

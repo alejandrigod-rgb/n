@@ -349,6 +349,12 @@ local function limpiarCasillas()
 end
 
 local function pintar(k: string, color: Color3)
+	if not casillas[k] then
+		if not carpetaBatalla and estadoBatalla then
+			carpetaBatalla = workspace:FindFirstChild("Batalla_" .. tostring(estadoBatalla.id))
+		end
+		cargarCasillas()
+	end
 	local c = casillas[k]
 	if c and c.p.Parent then
 		c.p.Color = color
@@ -404,7 +410,8 @@ local function opcion(texto: string, color: Color3?, activa: boolean, alPulsar: 
 		end
 	end)
 	if not activa then
-		b.TextTransparency = 0.55
+		b.TextTransparency = 0.45
+		b.TextStrokeTransparency = 0.7
 		b.BackgroundTransparency = 0.4
 	end
 	Ui.aparecer(b, orden * 0.03)
@@ -525,10 +532,14 @@ end)
 
 -- pulsar una casilla del campo: moverse o elegir objetivo
 local function casillaBajo(pos: Vector2): string?
+	if not carpetaBatalla and estadoBatalla then
+		carpetaBatalla = workspace:FindFirstChild("Batalla_" .. tostring(estadoBatalla.id))
+		cargarCasillas()
+	end
 	if not carpetaBatalla then
 		return nil
 	end
-	local rayo = camara:ViewportPointToRay(pos.X, pos.Y)
+	local rayo = camara:ScreenPointToRay(pos.X, pos.Y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = { carpetaBatalla :: Instance }
@@ -891,7 +902,7 @@ local function cartaMejora(padre: Instance, id: string, retraso: number, pie: st
 	Ui.borde(fondoIcono, C.tinta, 3)
 	Ui.icono(m.icono, fondoIcono, UDim2.fromOffset(18, 18), UDim2.fromOffset(60, 60), 74)
 	Ui.texto({ Position = UDim2.fromOffset(10, 118), Size = UDim2.new(1, -20, 0, 30), Text = m.nombre, TextColor3 = C.tinta, Contorno = false, ZIndex = 73, Parent = carta })
-	local etiqueta = Ui.texto({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 150), Size = UDim2.fromOffset(120, 20), Text = string.upper(m.rareza == "comun" and "común" or m.rareza), TextColor3 = Color3.new(1, 1, 1), ZIndex = 74, Parent = carta })
+	local etiqueta = Ui.texto({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 150), Size = UDim2.fromOffset(120, 20), Text = ({ comun = "COMÚN", rara = "RARA", legendaria = "LEGENDARIA" })[m.rareza] or "COMÚN", TextColor3 = Color3.new(1, 1, 1), ZIndex = 74, Parent = carta })
 	Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 148), Size = UDim2.fromOffset(110, 24), BackgroundColor3 = colorR, BorderSizePixel = 0, ZIndex = 73, Parent = carta }, { Ui.crear("UICorner", { CornerRadius = UDim.new(0.5, 0) }) })
 	etiqueta.ZIndex = 75
 	Ui.texto({ Position = UDim2.fromOffset(12, 178), Size = UDim2.new(1, -24, 0, 66), Text = m.descripcion, TextWrapped = true, TextColor3 = Color3.fromRGB(70, 60, 80), Contorno = false, ZIndex = 73, Parent = carta })
@@ -1250,4 +1261,16 @@ local function abrirMenuInicio()
 	end
 end
 
-abrirMenuInicio()
+-- si algo del menú fallara, que el juego siga (sin quedarse atascado en la pantalla de inicio)
+local okMenu, errMenu = pcall(abrirMenuInicio)
+if not okMenu then
+	warn("Menú de inicio: " .. tostring(errMenu))
+	enMenu = false
+	Escena.modoMenu = false
+	if controles then
+		controles:Enable()
+	end
+	if estadoActual then
+		actualizarHud(estadoActual)
+	end
+end

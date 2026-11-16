@@ -89,12 +89,18 @@ if hay(Sonidos.IDS.efectos) then
 	s.SoundGroup = grupoEfectos
 	s.Parent = SoundService
 	plantilla = s
+	-- que esté cargado antes de saltar a un tramo (si no, sonaría desde el principio)
+	task.spawn(function()
+		pcall(function()
+			game:GetService("ContentProvider"):PreloadAsync({ s })
+		end)
+	end)
 end
 
 --- Suena un efecto por su nombre (ver Sonidos.Efectos). tono cambia la velocidad (1 = normal).
 function Audio.sfx(nombre: string, volumen: number?, tono: number?)
 	local tramo = Sonidos.Efectos[nombre]
-	if not plantilla or not tramo then
+	if not plantilla or not tramo or not (plantilla :: Sound).IsLoaded then
 		return
 	end
 	local s = (plantilla :: Sound):Clone()

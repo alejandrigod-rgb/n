@@ -195,11 +195,11 @@ end
 local mundo = workspace:WaitForChild("MundoVael")
 local ultimaFuente: { [Player]: number } = {}
 
-local function aviso(parte: BasePart, accion: string, objeto: string, alPulsar: (Player) -> ())
+local function aviso(parte: BasePart, accion: string, objeto: string, alPulsar: (Player) -> (), distancia: number?)
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = accion
 	prompt.ObjectText = objeto
-	prompt.MaxActivationDistance = 11
+	prompt.MaxActivationDistance = distancia or 11
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = parte
 	prompt.Triggered:Connect(function(j)
@@ -456,7 +456,7 @@ for _, d in mundo:GetDescendants() do
 			else
 				darLlave(j, "hacha")
 			end
-		end)
+		end, 6)
 	elseif nombre == "seta" then
 		local id = p:GetAttribute("SetaId") :: number
 		aviso(p, "Coger", "Seta brillante", function(j)
@@ -469,7 +469,7 @@ for _, d in mundo:GetDescendants() do
 			notificar(j, "Seta brillante (" .. #perfil.progreso.setas .. " de 3). Huele a menta.")
 			DatosJugador.guardar(j)
 			enviarEstado(j)
-		end)
+		end, 6)
 	elseif nombre == "palanca" then
 		local id = p:GetAttribute("PalancaId") :: number
 		aviso(p, "Tirar", "Palanca", function(j)
@@ -483,7 +483,7 @@ for _, d in mundo:GetDescendants() do
 			notificar(j, n >= 3 and "¡CLONK! Se oye abrirse algo en las Ruinas…" or ("Clac. Palanca " .. n .. " de 3."))
 			DatosJugador.guardar(j)
 			enviarEstado(j)
-		end)
+		end, 6)
 	elseif nombre == "cofreFarol" then
 		aviso(p, "Abrir", "Cofre de la cripta", function(j)
 			local perfil = DatosJugador.obtener(j) :: any
