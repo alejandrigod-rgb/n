@@ -7,9 +7,27 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ScriptContext = game:GetService("ScriptContext")
 
-local VERSION = "v0.9 · 17-nov"
+local VERSION = "v1.0 · 17-nov"
 
 local jugador = Players.LocalPlayer
+
+-- Limpieza: si alguien descomprime el ZIP nuevo ENCIMA de la carpeta vieja, quedan scripts antiguos
+-- (por ejemplo, el minimapa viejo "Mapa.client.luau") que chocan con los módulos nuevos. Aquí se apagan.
+local VIEJOS = { Mapa = true }
+for _, h in script.Parent:GetChildren() do
+	if VIEJOS[h.Name] and h:IsA("LocalScript") then
+		h.Disabled = true
+		h:Destroy()
+	end
+end
+task.spawn(function()
+	local pg = jugador:WaitForChild("PlayerGui")
+	for _ = 1, 30 do
+		local viejo = pg:FindFirstChild("VaelMapa")
+		if viejo then viejo:Destroy() end
+		task.wait(0.5)
+	end
+end)
 local gui = Instance.new("ScreenGui")
 gui.Name = "VaelDiagnostico"
 gui.ResetOnSpawn = false

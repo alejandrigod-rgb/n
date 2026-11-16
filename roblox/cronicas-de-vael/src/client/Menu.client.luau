@@ -490,7 +490,7 @@ task.spawn(function()
 		Escena.modoMenu = inicio ~= nil
 	end
 	Editor = cargar("Editor")
-	Mapa = cargar("Mapa")
+	Mapa = cargar("MapaVael")
 	Mochila = cargar("Mochila")
 	Interaccion = cargar("Interaccion")
 	if Interaccion then

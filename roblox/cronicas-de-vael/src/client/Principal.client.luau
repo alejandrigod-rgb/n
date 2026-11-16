@@ -119,7 +119,7 @@ local hudMana = Ui.barra(hud, UDim2.fromOffset(110, 53), UDim2.new(1, -122, 0, 1
 local hudXp = Ui.barra(hud, UDim2.fromOffset(92, 71), UDim2.new(1, -104, 0, 5), C.xp, false)
 local hudInfo = Ui.texto({ Position = UDim2.fromOffset(92, 79), Size = UDim2.new(1, -104, 0, 15), Text = "", TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
 -- misión actual: discreta, debajo del HUD
-local Mapa = require(script.Parent:WaitForChild("Mapa"))
+local Mapa = require(script.Parent:WaitForChild("MapaVael"))
 local mision = Ui.panel({ Position = UDim2.fromOffset(12, 164), Size = UDim2.fromOffset(300, 40), BackgroundColor3 = Color3.fromRGB(120, 95, 70), Parent = gui, Visible = false })
 Ui.icono("estrella", mision, UDim2.fromOffset(10, 9), UDim2.fromOffset(22, 22), 2)
 local misionTexto = Ui.texto({ Position = UDim2.fromOffset(38, 6), Size = UDim2.new(1, -48, 1, -12), Text = "", TextXAlignment = Enum.TextXAlignment.Left, Parent = mision, ZIndex = 2 })

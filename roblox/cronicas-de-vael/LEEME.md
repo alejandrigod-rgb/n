@@ -22,7 +22,7 @@ Juego original: un mundo de fantasía con combates por turnos en equipo. Tu grup
 ## Qué tiene
 - **Menú de inicio** (script propio, `src/client/Menu.client.luau`) con Jugar, Mi personaje, Cómo se juega, Ajustes (volumen) y Créditos. **Menú de pausa** durante la partida: botón «Menú» arriba a la derecha o tecla **M** (Continuar, Mi personaje, Ajustes, Cómo se juega, Volver al inicio).
 - **Cuadro de errores y versión** (`src/client/Diagnostico.client.luau`): abajo a la derecha sale la versión (por ejemplo "v0.7"); si algo falla, un cuadro rojo abajo a la izquierda enseña el error (en Studio, también los del servidor). Con una captura basta para arreglarlo.
-- **Mapa de papel dibujado** (`src/client/Mapa.luau`, tecla **M**): zonas, caminos, el río, las calles de la ciudad, sitios importantes, candados en los caminos cerrados, paraderos (!), la misión (estrella) y tú. No ocupa la pantalla: se abre y se cierra con M.
+- **Mapa de papel dibujado** (`src/client/MapaVael.luau`, tecla **M**): zonas, caminos, el río, las calles de la ciudad, sitios importantes, candados en los caminos cerrados, paraderos (!), la misión (estrella) y tú. No ocupa la pantalla: se abre y se cierra con M.
 - **Misión actual**: una franja pequeña debajo del HUD con lo que toca hacer.
 - **Mochila** (`src/client/Mochila.luau`, tecla **B**): mochila de cartón con tu héroe, casillas de objetos (se pueden usar), objetos clave y mejoras; al elegir una casilla salen su nombre y descripción.
 - **Diálogos de cine**: franja abajo, retrato grande, nombre en una pestaña, texto grande que se escribe solo (clic para terminarlo) y flecha para continuar. Mientras se habla, el HUD y los botones se esconden.
@@ -129,7 +129,7 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 | … → **Audio** | ModuleScript | `src/client/Audio.luau` |
 | … → **Editor** | ModuleScript | `src/client/Editor.luau` |
 | … → **Menu** | LocalScript | `src/client/Menu.client.luau` |
-| … → **Mapa** | ModuleScript | `src/client/Mapa.luau` |
+| … → **MapaVael** | ModuleScript | `src/client/MapaVael.luau` |
 | … → **Mochila** | ModuleScript | `src/client/Mochila.luau` |
 | … → **Interaccion** | ModuleScript | `src/client/Interaccion.luau` |
 | … → **Idioma** | ModuleScript | `src/client/Idioma.luau` |
