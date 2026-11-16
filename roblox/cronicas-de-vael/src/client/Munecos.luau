@@ -27,6 +27,10 @@ export type Muneco = {
 	boca: { f: Frame, tam: UDim2 }?,
 	pies: { { f: Frame, y: number } },
 	alas: { { p: Pieza, amp: number, vel: number, fase: number } },
+	manos: { { f: Frame, x: number, y: number } },
+	vy: number, -- velocidad vertical (la pone quien lo usa): >0 sube, <0 cae
+	enSuelo: boolean,
+	aterriza: number,
 	brillos: { Frame },
 	vuela: boolean,
 	andar: number, -- 0 quieto, 1 andando (lo pone quien lo usa)
@@ -134,15 +138,27 @@ local COLOR_CLASE: { [string]: Color3 } = {
 local A = Datos.Apariencia
 
 --- Cuerpo de muñeco de cartulina: pies, cuerpo, manos y una cabeza grande y redonda.
-local function cuerpoBase(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3)
+local function cuerpoBase(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3, sinMochila: boolean?)
 	sombra(m, 0.62)
+	if not sinMochila then
+		-- mochila de aventurero (asoma por detrás, con saco de dormir enrollado encima)
+		pieza(m, 0.5, 0.7, 0.66, 0.3, Color3.fromRGB(150, 105, 60), 0.25, 1)
+		pieza(m, 0.5, 0.55, 0.62, 0.07, Color3.fromRGB(110, 140, 90), 0.5, 1)
+		pieza(m, 0.21, 0.76, 0.08, 0.12, Color3.fromRGB(130, 90, 50), 0.3, 1)
+	end
 	pie(m, 0.37, 0.935, 0.2, 0.06, pies)
 	pie(m, 0.63, 0.935, 0.2, 0.06, pies)
 	pieza(m, 0.5, 0.76, 0.56, 0.3, colorCuerpo, 0.3, 3)
 	pieza(m, 0.5, 0.84, 0.56, 0.035, Color3.fromRGB(90, 60, 40), 0, 4, 0, { sb = true })
 	pieza(m, 0.5, 0.64, 0.04, 0.2, colorCuerpo:Lerp(NEGRO, 0.25), 0, 4, 0, { sb = true }) -- costura de la chaqueta
-	circ(m, 0.2, 0.77, 0.15, piel, 6)
-	circ(m, 0.8, 0.77, 0.15, piel, 6)
+	if not sinMochila then
+		pieza(m, 0.36, 0.7, 0.04, 0.24, Color3.fromRGB(110, 75, 45), 0, 5, 8, { sb = true }) -- correas
+		pieza(m, 0.64, 0.7, 0.04, 0.24, Color3.fromRGB(110, 75, 45), 0, 5, -8, { sb = true })
+	end
+	local mi = circ(m, 0.2, 0.77, 0.15, piel, 6)
+	local md = circ(m, 0.8, 0.77, 0.15, piel, 6)
+	table.insert(m.manos, { f = mi.f, x = 0.2, y = 0.77 })
+	table.insert(m.manos, { f = md.f, x = 0.8, y = 0.77 })
 	circ(m, 0.5, 0.42, 0.74, piel, 5)
 end
 
@@ -170,7 +186,7 @@ local function cara(m: Muneco, piel: Color3, estilo: number, colorPupila: Color3
 end
 
 local function cabezaBasica(m: Muneco, piel: Color3, colorCuerpo: Color3, pies: Color3)
-	cuerpoBase(m, piel, colorCuerpo, pies)
+	cuerpoBase(m, piel, colorCuerpo, pies, true)
 	cara(m, piel, 1, NEGRO)
 end
 
@@ -681,6 +697,10 @@ local function nuevo(padre: Instance, aspecto: number, grosor: number?): Muneco
 		boca = nil,
 		pies = {},
 		alas = {},
+		manos = {},
+		vy = 0,
+		enSuelo = true,
+		aterriza = 0,
 		brillos = {},
 		vuela = false,
 		andar = 0,
@@ -781,6 +801,22 @@ function Munecos.actualizar(m: Muneco, dt: number, ahora: number)
 		local k = m.salto / 0.45
 		bote += math.sin(k * math.pi) * 0.18
 	end
+	-- en el aire: se estira al subir y encoge las piernas al caer; al aterrizar, se aplasta (como en los plataformas)
+	local inclina = 0
+	if not m.enSuelo and not m.vuela then
+		if m.vy > 2 then
+			aplasta = -0.09
+		elseif m.vy < -2 then
+			aplasta = -0.04
+		end
+		inclina = math.clamp(-m.vy * 0.4, -8, 8) * (m.mirar ~= 0 and m.mirar or 1)
+		m.aterriza = 0.18
+	elseif m.aterriza > 0 then
+		m.aterriza = math.max(0, m.aterriza - dt)
+		if m.aterriza < 0.16 then
+			aplasta = 0.12 * (m.aterriza / 0.16)
+		end
+	end
 	local temblor = 0
 	if m.golpe > 0 then
 		m.golpe = math.max(0, m.golpe - dt)
@@ -792,12 +828,29 @@ function Munecos.actualizar(m: Muneco, dt: number, ahora: number)
 	end
 	m.cuerpo.Position = UDim2.fromScale(0.5 + temblor + avance, 1 - bote)
 	m.cuerpo.Size = UDim2.fromScale(1 + aplasta, 1 - aplasta)
-	m.cuerpo.Rotation = m.andar > 0.05 and math.sin(t * 9) * 4 * m.andar or 0
+	-- al correr se inclina hacia delante (hacia donde mira) y se balancea
+	local carrera = m.andar > 0.05 and (math.sin(t * 9) * 3 * m.andar + 7 * m.andar * m.mirar) or 0
+	m.cuerpo.Rotation = carrera + inclina
+	-- brazos: se balancean al correr y suben al saltar
+	for k, mano in m.manos do
+		local lado = k == 1 and 1 or -1
+		local dy = 0
+		if not m.enSuelo and not m.vuela then
+			dy = m.vy > 0 and -0.14 or -0.07
+		elseif m.andar > 0.05 then
+			dy = math.sin(t * 9 + (lado > 0 and 0 or math.pi)) * 0.035 * m.andar
+		end
+		local x = m.espejo and (1 - mano.x) or mano.x
+		mano.f.Position = UDim2.fromScale(x, mano.y + dy)
+	end
 
 	-- pies alternos
 	for k, p in m.pies do
 		local lado = (k % 2 == 0) and 1 or -1
 		local sube = m.andar > 0.05 and math.max(0, math.sin(t * 9 + (lado > 0 and math.pi or 0))) * 0.04 * m.andar or 0
+		if not m.enSuelo and not m.vuela then
+			sube = 0.05 + (lado > 0 and 0.02 or 0)
+		end
 		p.f.Position = UDim2.new(p.f.Position.X.Scale, 0, p.y - sube, 0)
 	end
 

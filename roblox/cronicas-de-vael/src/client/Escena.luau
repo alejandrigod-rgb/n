@@ -445,7 +445,7 @@ do
 	local mercader = crearPaseante("vecino", "424242", -26, -9.9, -26, -26, 4.4, 5.7, 0, { "¡Pociones frescas!", "¡Éter para tu maná!", "Pasa, pasa, mira sin compromiso." })
 	mercader.espera = math.huge
 	-- monstruos que asoman junto a cada guarida
-	local guaridas = { pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+	local guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
 	for _, zona in Datos.Zonas do
 		local gx = guaridas[zona.id]
 		if gx then
@@ -470,6 +470,62 @@ do
 	rey.espera = math.huge
 	-- mariposas en la pradera y luciérnagas en el pantano y la cueva (decoración pequeña)
 end
+
+-- ----- conversaciones entre vecinos (se paran y hablan entre ellos) -----
+local CONVERSACIONES = {
+	{ "¿Has visto al Rey Hongo?", "No, pero lo he olido.", "Huele a sopa de champiñones caducada." },
+	{ "Mi gallina ha puesto un huevo cuadrado.", "¿Y eso es bueno?", "Para jugar a los dados, sí." },
+	{ "Dicen que Bruno hace trampas con los vasos.", "¡Calla, que te oye!", "¡TE HE OÍDO!" },
+	{ "Ayer vi una babosa con sombrero.", "Sería la del alcalde.", "El alcalde ES una babosa." },
+	{ "¿Vas a la taberna?", "No, que el guiso de ayer aún me habla.", "¿Y qué te dice?", "«Vuelve…»" },
+	{ "El puente del río sigue roto.", "Hace falta una cuerda.", "Bruno tiene una. Pero no la da gratis." },
+	{ "¿Has subido al pantano?", "Hay un cofre en lo alto de unas tablas.", "Yo tengo vértigo hasta en las escaleras." },
+	{ "El ermitaño busca setas que brillan.", "¿Y para qué?", "Para leer de noche, supongo." },
+	{ "¡Buenos días!", "Son las dos de la tarde.", "Pues buenos días igual." },
+	{ "Me ha mordido un mímico.", "¿Un qué?", "Un cofre con dientes. No preguntes." },
+}
+
+local enConversacion: { [any]: boolean } = {}
+local function conversar(a: any, b: any, lineas: { string })
+	enConversacion[a], enConversacion[b] = true, true
+	a.espera, b.espera = 30, 30
+	a.dir = b.x > a.x and 1 or -1
+	b.dir = -a.dir
+	task.spawn(function()
+		for i, linea in lineas do
+			local quien = i % 2 == 1 and a or b
+			burbuja(quien, linea)
+			task.wait(2.6)
+		end
+		a.espera, b.espera = 1.5, 1.5
+		task.delay(20, function()
+			enConversacion[a], enConversacion[b] = nil, nil
+		end)
+	end)
+end
+
+local proximaCharla = os.clock() + 8
+local function quizaCharla(cx: number)
+	if os.clock() < proximaCharla then
+		return
+	end
+	proximaCharla = os.clock() + 12 + math.random() * 10
+	local cerca = {}
+	for _, pa in paseantes do
+		if pa.frases and pa.m.aspecto ~= 1 and pa.espera ~= math.huge and not enConversacion[pa] and math.abs(pa.x - cx) < 35 then
+			table.insert(cerca, pa)
+		end
+	end
+	for i = 1, #cerca do
+		for j = i + 1, #cerca do
+			if math.abs(cerca[i].x - cerca[j].x) < 16 then
+				conversar(cerca[i], cerca[j], CONVERSACIONES[math.random(1, #CONVERSACIONES)])
+				return
+			end
+		end
+	end
+end
+Escena.quizaCharla = quizaCharla
 
 -- ----- personajes con los que se habla (tabernero, ermitaño, herrera, posadera, paraderos) -----
 -- El servidor marca sus puntos con el atributo "Npc" ("vecino:semilla" o "vendedor") y "Frases" (separadas por |).
@@ -728,7 +784,7 @@ end
 do
 	local colores = { Color3.fromRGB(255, 200, 80), Color3.fromRGB(250, 130, 180), Color3.fromRGB(140, 200, 255), Color3.new(1, 1, 1) }
 	for _ = 1, 14 do
-		crearBicho(math.random(-150, 165), math.random(2, 5), math.random(-10, 6), colores[math.random(1, #colores)], false)
+		crearBicho(math.random(-430, 165), math.random(2, 5), math.random(-10, 6), colores[math.random(1, #colores)], false)
 	end
 	for _ = 1, 22 do
 		local x = math.random() < 0.5 and math.random(165, 262) or math.random(465, 600)
@@ -785,7 +841,11 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 		if h.raiz.Parent then
 			local v = h.raiz.AssemblyLinearVelocity
 			local plano = Vector3.new(v.X, 0, v.Z).Magnitude
-			local objetivo = (plano > 1.5 and not h.raiz.Anchored) and 1 or 0
+			local humH = h.raiz.Parent and h.raiz.Parent:FindFirstChildOfClass("Humanoid")
+			local enSuelo = h.raiz.Anchored or not humH or humH.FloorMaterial ~= Enum.Material.Air
+			h.m.enSuelo = enSuelo
+			h.m.vy = h.raiz.Anchored and 0 or v.Y
+			local objetivo = (plano > 1.5 and not h.raiz.Anchored and enSuelo) and 1 or 0
 			h.m.andar += (objetivo - h.m.andar) * math.min(1, dt * 10)
 			if p == jugador and h.m.andar > 0.6 then
 				local hum = ch and ch:FindFirstChildOfClass("Humanoid")
@@ -873,6 +933,8 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 			burbuja(pa, pa.frases[math.random(1, #pa.frases)])
 		end
 	end
+
+	quizaCharla(cx)
 
 	-- bichos
 	for _, b in bichos do

@@ -60,6 +60,8 @@ export type Batalla = {
 	casillas: { [string]: string },
 	decorados: { [string]: Instance },
 	carpeta: Folder,
+	emboscada: boolean,
+	alGanar: ((Player) -> ())?,
 }
 
 local Remotos: Folder
@@ -1371,6 +1373,11 @@ local function terminar(b: Batalla, victoria: boolean)
 			if Combate.alCambiarJugador then
 				Combate.alCambiarJugador(j)
 			end
+			if victoria and b.alGanar then
+				task.spawn(function()
+					pcall(b.alGanar :: any, j)
+				end)
+			end
 			if mejora then
 				task.delay(2.6, function()
 					if j.Parent then
@@ -1408,6 +1415,19 @@ local function comprobarFin(b: Batalla): boolean
 		end
 	end
 	if enemigosVivos == 0 then
+		-- un héroe vivo suelta una frase de victoria
+		local vivos = {}
+		for _, e in b.aliados do
+			if e.vivo and e.jugador then
+				table.insert(vivos, e)
+			end
+		end
+		if #vivos > 0 then
+			local FRASES = { "¡Ni sudé!", "¿Ya está? Quiero más.", "Eso ha sido trabajo en equipo… mío.", "¡A la taberna a celebrarlo!", "Que alguien me quite esta baba de la bota." }
+			local e = vivos[rng:NextInteger(1, #vivos)]
+			aTodos(b, "BatallaEvento", { texto = "", actor = e.id, golpes = {}, dice = { id = e.id, texto = FRASES[rng:NextInteger(1, #FRASES)] } })
+			task.wait(0.8)
+		end
 		terminar(b, true)
 		return true
 	elseif aliadosVivos == 0 then
@@ -1418,7 +1438,8 @@ local function comprobarFin(b: Batalla): boolean
 end
 
 --- Empieza un combate en una zona con los jugadores dados (hasta 4).
-function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Batalla?
+--- opciones: { emboscada = true } (los monstruos actúan primero) y { alGanar = function(jugador) end } (premio extra).
+function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opciones: any?): Batalla?
 	centro = Vector3.new(centro.X, 0, 0)
 	siguienteId += 1
 	local carpeta = Instance.new("Folder")
@@ -1438,6 +1459,8 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 		jefe = false,
 		casillas = {},
 		decorados = {},
+		emboscada = opciones ~= nil and opciones.emboscada == true,
+		alGanar = opciones and opciones.alGanar or nil,
 		carpeta = carpeta,
 	}
 	sembrarCasillas(b)
@@ -1518,7 +1541,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 	b.anillo = anillo
 
 	for _, j in jugadoresDe(b) do
-		remoto("BatallaInicio"):FireClient(j, { centro = centro, zona = zona.nombre, zonaId = zona.id, carpeta = carpeta, jefe = b.jefe })
+		remoto("BatallaInicio"):FireClient(j, { centro = centro, zona = zona.nombre, zonaId = zona.id, carpeta = carpeta, jefe = b.jefe, emboscada = b.emboscada })
 	end
 
 	task.spawn(function()
@@ -1542,6 +1565,10 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }): Bat
 				azar[e.id] = e.max.spd + rng:NextNumber(0, 3)
 			end
 			table.sort(orden, function(a, c)
+				-- en una emboscada, la primera ronda la empiezan los monstruos
+				if b.emboscada and b.ronda == 1 and a.lado ~= c.lado then
+					return a.lado == "enemigo"
+				end
 				return azar[a.id] > azar[c.id]
 			end)
 			emitirEstado(b, orden)

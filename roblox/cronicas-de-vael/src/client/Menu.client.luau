@@ -10,7 +10,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
 local jugador = Players.LocalPlayer
-jugador:SetAttribute("EnMenu", true)
 
 local Vael = ReplicatedStorage:WaitForChild("Vael")
 local Datos = require(Vael:WaitForChild("Datos")) :: any
@@ -301,20 +300,25 @@ UserInputService.InputBegan:Connect(function(entrada, procesado)
 	end
 end)
 
--- la primera vez que elige clase, se abre el editor para crear al héroe
+-- crear al héroe: en cuanto tenga clase y no lo haya creado aún (también si ya tenía clase de antes)
 local yaPedido = false
-jugador:GetAttributeChangedSignal("Clase"):Connect(function()
-	task.wait(0.8)
-	while jugador:GetAttribute("EnMenu") ~= false do
-		task.wait(0.5)
+local function quizaCrear()
+	if yaPedido or not Editor or jugador:GetAttribute("EnMenu") == true then
+		return
 	end
-	if not yaPedido and jugador:GetAttribute("Clase") and jugador:GetAttribute("Creado") ~= true and Editor then
+	local clase = jugador:GetAttribute("Clase") :: string?
+	if clase and jugador:GetAttribute("Creado") ~= true then
 		yaPedido = true
-		Editor.abrir(gui, jugador:GetAttribute("Clase") :: string, apariencia(), function(ap)
+		Editor.abrir(gui, clase, apariencia(), function(ap)
 			Vael:WaitForChild("Remotos"):WaitForChild("GuardarApariencia"):FireServer(ap)
 		end, true)
 	end
-end)
+end
+for _, atributo in { "Clase", "Creado", "EnMenu" } do
+	jugador:GetAttributeChangedSignal(atributo):Connect(function()
+		task.delay(0.6, quizaCrear)
+	end)
+end
 
 local ok, err = pcall(abrirInicio)
 if not ok then

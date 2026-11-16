@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -31,6 +31,15 @@ Remotos.Parent = Vael
 
 local function remoto(nombre: string): RemoteEvent
 	return Remotos:FindFirstChild(nombre) :: RemoteEvent
+end
+
+-- en Studio, los errores del servidor salen también en la pantalla del jugador (cuadro rojo abajo a la izquierda)
+if game:GetService("RunService"):IsStudio() then
+	game:GetService("LogService").MessageOut:Connect(function(mensaje, tipo)
+		if tipo == Enum.MessageType.MessageError then
+			remoto("ErrorServidor"):FireAllClients(mensaje)
+		end
+	end)
 end
 
 Combate.iniciar(Remotos)
@@ -76,6 +85,8 @@ local function notificar(j: Player, texto: string)
 	remoto("Notificar"):FireClient(j, texto)
 end
 
+local pista: (any) -> string
+
 -- ===================== DIÁLOGOS =====================
 -- dialogo(j, { titulo, texto, quien = { tipo, id }, opciones = { { texto, accion = function() return "respuesta" end } } })
 type Opcion = { texto: string, accion: (() -> string?)? }
@@ -107,6 +118,20 @@ remoto("ElegirOpcion").OnServerEvent:Connect(function(j, id, indice)
 	end
 	enviarEstado(j)
 end)
+
+--- Qué toca hacer ahora (lo dicen la abuela y la lista de objetivos).
+pista = function(perfil: any): string
+	if not perfil.llaves.cuerda then
+		return "Para cruzar el río necesitas una cuerda. Ve a la ciudad (a la derecha), entra en la taberna y gánale a Bruno a los vasos dos veces seguidas."
+	elseif not perfil.llaves.hacha then
+		return "Ya tienes la cuerda. Cruza el río hasta el Pantano y sube por las tablas: arriba hay un cofre con un hacha."
+	elseif not perfil.llaves.llave then
+		return "Con el hacha cortas las zarzas del Bosque. El ermitaño Fermín busca 3 setas que brillan: llévaselas y te dará una llave."
+	elseif not perfil.llaves.farol then
+		return "La llave abre las Ruinas. Tira de las 3 palancas (¡una está arriba!) y abre el cofre de la cripta: dentro hay un farol."
+	end
+	return "¡Ya lo tienes todo! Entra en la Cueva y dale su merecido al Rey Hongo."
+end
 
 local function darLlave(j: Player, llave: string)
 	local perfil = DatosJugador.obtener(j)
@@ -162,9 +187,24 @@ remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
 		nombre = ok and filtrado or ""
 	end
 	ap.nombre = nombre
+	local primeraVez = not perfil.creado
 	perfil.apariencia = ap
 	perfil.nombreHeroe = nombre
 	perfil.creado = true
+	if primeraVez then
+		task.delay(1.5, function()
+			if j.Parent then
+				dialogo(j, {
+					titulo = "Abuela Rosa",
+					texto = "¡" .. (nombre ~= "" and nombre or j.DisplayName) .. ", por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",
+					quien = { "vecino", "1955" },
+					opciones = { { texto = "¡Allá voy!" }, { texto = "¿Puedo dormir cinco minutos más?", accion = function()
+						return "«¡NO!»"
+					end } },
+				})
+			end
+		end)
+	end
 	DatosJugador.guardar(j)
 	enviarEstado(j)
 	notificar(j, "¡Qué buena pinta!")
@@ -463,9 +503,56 @@ for _, d in mundo:GetDescendants() do
 		p:SetAttribute("Frases", "¡CLANG! ¡CLANG!|Mejoras de hierro, a buen precio.")
 		aviso(p, "Comprar", "Herrería de Olga", herrero)
 	elseif nombre == "posada" then
+		aviso(p, "Entrar", "Posada El Ronquido", function(j)
+			teletransportar(j, Mundo.Posada.entrada)
+		end)
+	elseif nombre == "salirPosada" then
+		aviso(p, "Salir", "Puerta", function(j)
+			teletransportar(j, Mundo.Posada.salida)
+		end)
+	elseif nombre == "abuela" then
+		p:SetAttribute("Npc", "vecino:1955")
+		p:SetAttribute("Frases", "¡Ten cuidado ahí fuera, cielo!|¿Has comido? Estás muy flaco.|En mis tiempos las babosas eran más pequeñas.")
+		aviso(p, "Hablar", "Abuela Rosa", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			dialogo(j, {
+				titulo = "Abuela Rosa",
+				texto = pista(perfil),
+				quien = { "vecino", "1955" },
+				opciones = { { texto = "¡Gracias, abuela!" }, { texto = "Cuéntame lo del Rey Hongo", accion = function()
+					return "«Vive en la cueva del final del camino. Dicen que su corona es de verdad… y que huele fatal.»"
+				end } },
+			})
+		end)
+	elseif nombre == "granjero" then
+		p:SetAttribute("Npc", "vecino:4242")
+		p:SetAttribute("Frases", "¡Las babosas se comen mis coles!|Ese espantapájaros no espanta ni a una mosca.")
+		aviso(p, "Hablar", "Granjero Tomás", function(j)
+			dialogo(j, {
+				titulo = "Granjero Tomás",
+				texto = "¡Las babosas se han metido en mi huerto! Entra en la mancha verde de detrás de las coles y échalas. Es fácil, hasta mi gallina lo haría.",
+				quien = { "vecino", "4242" },
+				opciones = { { texto = "¡Voy!" }, { texto = "¿Y tu gallina?", accion = function()
+					return "«Está de vacaciones.»"
+				end } },
+			})
+		end)
+	elseif nombre == "guardaPuente" then
+		p:SetAttribute("Npc", "vecino:8080")
+		p:SetAttribute("Frases", "Sin cuerda no se cruza.|El río lleva agua de verdad, eh.")
+		aviso(p, "Hablar", "Guardia del puente", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			dialogo(j, {
+				titulo = "Guardia del puente",
+				texto = perfil.llaves.cuerda and "¡Con esa cuerda el puente queda como nuevo! Adelante, el Pantano te espera." or "El puente está roto. Necesitas una CUERDA. Bruno, el de la taberna de la ciudad, tiene una… pero solo se la da a quien le gane dos veces seguidas a los vasos.",
+				quien = { "vecino", "8080" },
+				opciones = { { texto = "Entendido" } },
+			})
+		end)
+	elseif nombre == "posadera" then
 		p:SetAttribute("Npc", "vecino:2468")
 		p:SetAttribute("Frases", "Camas blanditas, ronquidos incluidos.|¿Una siestecita?")
-		aviso(p, "Dormir (10 oro)", "Posada", function(j)
+		aviso(p, "Dormir (10 oro)", "Posadera Lola", function(j)
 			local perfil = DatosJugador.obtener(j) :: any
 			if perfil.oro < 10 then
 				notificar(j, "«Sin 10 de oro no hay cama, cielo.»")
@@ -554,6 +641,66 @@ remoto("Comprar").OnServerEvent:Connect(function(j, objetoId)
 	perfil.objetos[o.id] = (perfil.objetos[o.id] or 0) + 1
 	enviarEstado(j)
 	notificar(j, "Has comprado: " .. o.nombre)
+end)
+
+-- ===================== EMBOSCADAS =====================
+-- Al ir andando por las zonas salvajes, a veces saltan monstruos de entre los arbustos: ¡EMBOSCADA!
+-- (los monstruos atacan primero). El campo de batalla se coloca dentro de la zona, sin cruzar barreras.
+local TRAMOS = {
+	{ id = "pradera", desde = 64, hasta = 144 },
+	{ id = "pantano", desde = 183, hasta = 244 },
+	{ id = "bosque", desde = 283, hasta = 344 },
+	{ id = "ruinas", desde = 383, hasta = 444 },
+}
+local ultimaEmboscada: { [Player]: number } = {}
+local ultimaPos: { [Player]: Vector3 } = {}
+local rngEmb = Random.new()
+
+local function zonaPorId(id: string): any
+	for _, z in Datos.Zonas do
+		if z.id == id then
+			return z
+		end
+	end
+	return nil
+end
+
+task.spawn(function()
+	while true do
+		task.wait(12)
+		for _, j in Players:GetPlayers() do
+			local ch = j.Character
+			local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
+			local perfil = DatosJugador.obtener(j)
+			if raiz and perfil and perfil.clase and perfil.creado and not Combate.enBatalla(j) then
+				local pos = raiz.Position
+				local antes = ultimaPos[j]
+				ultimaPos[j] = pos
+				local andando = antes ~= nil and (pos - antes).Magnitude > 8 and pos.Y < 100
+				if andando and os.clock() > (ultimaEmboscada[j] or 0) + 90 and rngEmb:NextNumber() < 0.3 then
+					for _, t in TRAMOS do
+						if pos.X > t.desde - 18 and pos.X < t.hasta + 18 then
+							local zona = zonaPorId(t.id)
+							if zona then
+								ultimaEmboscada[j] = os.clock()
+								notificar(j, "¡Algo se mueve entre los arbustos…!")
+								task.wait(1)
+								if not Combate.enBatalla(j) then
+									local x = math.clamp(pos.X, t.desde, t.hasta)
+									Combate.empezar({ id = zona.id, nombre = "¡Emboscada en " .. zona.nombre .. "!", nivel = zona.nivel, grupos = zona.grupos, color = zona.color }, Vector3.new(x, 0, 0), { j }, { emboscada = true })
+								end
+							end
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+end)
+Players.PlayerRemoving:Connect(function(j)
+	ultimaEmboscada[j] = nil
+	ultimaPos[j] = nil
 end)
 
 -- autoguardado cada 2 minutos

@@ -24,10 +24,10 @@ type Ctx = {
 local ctx: Ctx
 
 local ZONAS = {
-	{ nombre = "la Pradera", desde = 55, hasta = 140, llave = nil }, -- lejos del río: el campo de batalla mide ±18
-	{ nombre = "el Pantano", desde = 185, hasta = 205, llave = "cuerda" },
-	{ nombre = "el Bosque", desde = 282, hasta = 325, llave = "hacha" },
-	{ nombre = "las Ruinas", desde = 382, hasta = 405, llave = "llave" },
+	{ id = "pradera", nombre = "la Pradera", desde = 64, hasta = 140, llave = nil }, -- lejos del río: el campo de batalla mide ±18
+	{ id = "pantano", nombre = "el Pantano", desde = 185, hasta = 205, llave = "cuerda" },
+	{ id = "bosque", nombre = "el Bosque", desde = 285, hasta = 325, llave = "hacha" },
+	{ id = "ruinas", nombre = "las Ruinas", desde = 383, hasta = 405, llave = "llave" },
 }
 
 local function parte(padre: Instance, x: number, y: number, z: number, w: number, h: number, color: Color3, redondo: boolean?, giro: number?)
@@ -52,10 +52,10 @@ local function parte(padre: Instance, x: number, y: number, z: number, w: number
 	end
 end
 
-type Paradero = { tipo: string, modelo: Model, usados: { [Player]: boolean }, x: number, stock: { string }?, comprados: { [Player]: { [string]: boolean } } }
+type Paradero = { tipo: string, modelo: Model, usados: { [Player]: boolean }, x: number, stock: { string }?, comprados: { [Player]: { [string]: boolean } }, zonaId: string? }
 local activos: { Paradero } = {}
 
-local TIPOS = { "hoguera", "hoguera", "cofre", "cofre", "pozo", "viajero", "viajero", "vendedor" }
+local TIPOS = { "hoguera", "hoguera", "cofre", "cofre", "pozo", "viajero", "asalto", "asalto", "vendedor" }
 
 local function crearModelo(tipo: string, x: number): (Model, Part)
 	local m = Instance.new("Model")
@@ -77,6 +77,12 @@ local function crearModelo(tipo: string, x: number): (Model, Part)
 		parte(m, x + 1.8, 3.4, z - 0.3, 0.4, 4, Color3.fromRGB(120, 80, 50))
 		parte(m, x, 5.6, z - 0.2, 5, 0.8, Color3.fromRGB(190, 75, 60))
 		parte(m, x, 2.5, z + 0.2, 3.4, 0.4, Color3.fromRGB(80, 160, 230))
+	elseif tipo == "asalto" then
+		-- carro de un comerciante volcado
+		parte(m, x + 2.5, 1.8, z, 6, 2.6, Color3.fromRGB(160, 110, 65), false, 12)
+		parte(m, x + 0.4, 0.9, z + 0.3, 1.8, 0, Color3.fromRGB(110, 75, 45), true)
+		parte(m, x + 4.8, 1.5, z + 0.3, 1.8, 0, Color3.fromRGB(110, 75, 45), true)
+		parte(m, x + 3.5, 0.5, z + 0.5, 1.2, 1, Color3.fromRGB(230, 200, 120))
 	elseif tipo == "vendedor" then
 		parte(m, x + 2.6, 1.2, z, 2.4, 2.4, Color3.fromRGB(120, 80, 50))
 		parte(m, x + 2.6, 2.6, z + 0.2, 1.4, 0, Color3.fromRGB(190, 120, 255), true)
@@ -93,6 +99,9 @@ local function crearModelo(tipo: string, x: number): (Model, Part)
 	if tipo == "viajero" then
 		p:SetAttribute("Npc", "vecino:" .. rng:NextInteger(1, 99999))
 		p:SetAttribute("Frases", "Creo que me he perdido…|¿Esto es el Pantano o la Pradera?")
+	elseif tipo == "asalto" then
+		p:SetAttribute("Npc", "vecino:" .. rng:NextInteger(1, 99999))
+		p:SetAttribute("Frases", "¡SOCORRO!|¡Mi carro! ¡Mis quesos!")
 	elseif tipo == "vendedor" then
 		p:SetAttribute("Npc", "vendedor")
 		p:SetAttribute("Frases", "Psst… ¿mejoras?|Yo no estuve aquí.|No preguntes de dónde las saco.")
@@ -248,6 +257,38 @@ local function usar(par: Paradero, j: Player)
 				{ texto = "Hacer como que no lo ves" },
 			},
 		})
+	elseif par.tipo == "asalto" then
+		ctx.dialogo(j, {
+			titulo = "¡Un comerciante en apuros!",
+			texto = "«¡Unos monstruos me han volcado el carro! ¡Si los echas te pago bien!»",
+			quien = { "vecino", "999" },
+			opciones = {
+				{ texto = "¡Yo me encargo!", accion = function()
+					hecho()
+					quitar(par)
+					local zona = nil
+					for _, z in Datos.Zonas do
+						if z.id == par.zonaId then
+							zona = z
+						end
+					end
+					zona = zona or Datos.Zonas[2]
+					ctx.Combate.empezar({ id = zona.id, nombre = "¡Defiende el carro!", nivel = zona.nivel, grupos = zona.grupos, color = zona.color }, Vector3.new(par.x, 0, 0), { j }, {
+						alGanar = function(ganador: Player)
+							local p2 = ctx.DatosJugador.obtener(ganador)
+							if p2 then
+								p2.oro += 50
+								p2.objetos.pocion = (p2.objetos.pocion or 0) + 1
+								ctx.notificar(ganador, "Comerciante: «¡Gracias! Toma 50 de oro y una poción. ¡Y un queso!»")
+								ctx.enviarEstado(ganador)
+							end
+						end,
+					})
+					return "¡A por ellos!"
+				end },
+				{ texto = "Hacer como que no oyes" },
+			},
+		})
 	elseif par.tipo == "vendedor" then
 		local lista = {}
 		par.comprados[j] = par.comprados[j] or {}
@@ -311,10 +352,10 @@ local function aparecer()
 		return
 	end
 	local m, p = crearModelo(tipo, x)
-	local par: Paradero = { tipo = tipo, modelo = m, usados = {}, x = x, stock = tipo == "vendedor" and Datos.ofertaMejoras(rng) or nil, comprados = {} }
+	local par: Paradero = { tipo = tipo, modelo = m, usados = {}, x = x, stock = tipo == "vendedor" and Datos.ofertaMejoras(rng) or nil, comprados = {}, zonaId = zona.id }
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = tipo == "vendedor" and "Hablar" or (tipo == "cofre" and "Mirar" or "Acercarse")
-	prompt.ObjectText = ({ hoguera = "Hoguera", cofre = "Cofre", pozo = "Pozo de los deseos", viajero = "Viajero", vendedor = "Vendedor sospechoso" })[tipo]
+	prompt.ObjectText = ({ hoguera = "Hoguera", cofre = "Cofre", pozo = "Pozo de los deseos", viajero = "Viajero", vendedor = "Vendedor sospechoso", asalto = "Comerciante" })[tipo]
 	prompt.MaxActivationDistance = 10
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = p
@@ -330,6 +371,7 @@ local function aparecer()
 		pozo = "Ha aparecido un pozo de los deseos en " .. zona.nombre,
 		viajero = "Un viajero se ha perdido en " .. zona.nombre,
 		vendedor = "Psst… un vendedor sospechoso ronda por " .. zona.nombre,
+		asalto = "¡Han asaltado a un comerciante en " .. zona.nombre .. "!",
 	})[tipo]
 	for _, j in Players:GetPlayers() do
 		ctx.notificar(j, aviso)

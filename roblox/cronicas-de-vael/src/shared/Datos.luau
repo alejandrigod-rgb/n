@@ -120,6 +120,7 @@ Datos.OrdenObjetos = { "pocion", "eter" }
 -- ============ ZONAS DEL MAPA ============
 -- Cada zona dispara un combate al pisarla. `grupos`: posibles grupos de enemigos (se elige uno al azar).
 Datos.Zonas = {
+	{ id = "huerto", nombre = "Huerto invadido", nivel = 1, color = Color3.fromRGB(170, 200, 110), grupos = { { "babosa" }, { "babosa", "hongo" }, { "hongo", "hongo" } } },
 	{ id = "pradera", nombre = "Pradera de Vael", nivel = 1, color = Color3.fromRGB(140, 210, 110), grupos = { { "babosa", "babosa" }, { "hongo", "abeja" }, { "abeja", "abeja", "babosa" }, { "lobo" }, { "hongo", "hongo", "babosa" } } },
 	{ id = "pantano", nombre = "Pantano Brumoso", nivel = 2, color = Color3.fromRGB(110, 160, 140), grupos = { { "rana", "babosa" }, { "planta", "rana" }, { "fantasma", "rana" }, { "planta", "planta" } } },
 	{ id = "bosque", nombre = "Bosque Susurrante", nivel = 3, color = Color3.fromRGB(70, 140, 80), grupos = { { "duende", "lobo" }, { "arana", "duende" }, { "tronco" }, { "lobo", "lobo", "arana" }, { "duende", "duende" } } },

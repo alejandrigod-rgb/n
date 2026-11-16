@@ -12,9 +12,10 @@ local Datos = require(ReplicatedStorage.Vael.Datos)
 local Mundo = {}
 
 -- dónde está la guarida de cada zona (en X; todas en el fondo del camino)
-Mundo.Guaridas = { pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
-Mundo.Inicio = -60 -- x de la plaza de la ciudad (aparición)
-Mundo.Limites = { -195, 605 }
+Mundo.Guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+Mundo.Inicio = -60 -- x de la plaza de la ciudad
+Mundo.Aparicion = -395 -- se empieza en la Aldea de Brezo, a las afueras
+Mundo.Limites = { -445, 605 }
 
 local raiz: Folder
 local pasto: Folder
@@ -310,7 +311,7 @@ end
 
 local function fondoLejano(rng: Random)
 	-- montañas azuladas con nieve
-	local x = -320
+	local x = -580
 	while x < 820 do
 		local w = rng:NextNumber(130, 210)
 		local h = rng:NextNumber(70, 120)
@@ -319,12 +320,12 @@ local function fondoLejano(rng: Random)
 		x += w * 0.6
 	end
 	-- colinas lejanas y cercanas
-	x = -300
+	x = -560
 	while x < 800 do
 		disco(x, -30, -110, rng:NextNumber(90, 130), Color3.fromRGB(135, 200, 120))
 		x += rng:NextNumber(55, 80)
 	end
-	x = -290
+	x = -550
 	while x < 800 do
 		if x < 440 then
 			disco(x, -22, -60, rng:NextNumber(55, 75), Color3.fromRGB(105, 180, 90))
@@ -332,7 +333,7 @@ local function fondoLejano(rng: Random)
 		x += rng:NextNumber(38, 55)
 	end
 	for _ = 1, 16 do
-		nube(rng:NextNumber(-300, 800), rng:NextNumber(48, 80), rng:NextNumber(-140, -95), rng:NextNumber(1, 1.8), rng:NextNumber(0.6, 1.6))
+		nube(rng:NextNumber(-560, 800), rng:NextNumber(48, 80), rng:NextNumber(-140, -95), rng:NextNumber(1, 1.8), rng:NextNumber(0.6, 1.6))
 	end
 end
 
@@ -342,21 +343,21 @@ local function suelo()
 	s.Name = "Suelo"
 	s.CanCollide = true
 	s.CanQuery = true
-	s.Size = Vector3.new(860, 4, 70)
-	s.Position = Vector3.new(205, -1.95, -21)
+	s.Size = Vector3.new(1100, 4, 70)
+	s.Position = Vector3.new(85, -1.95, -21)
 	s.Color = Color3.fromRGB(112, 190, 82)
 	s.Parent = raiz
 	-- borde delantero de tierra (el corte del papel)
-	plano(205, -6, 14.6, 860, 12, Color3.fromRGB(125, 85, 55))
-	plano(205, -0.3, 14.9, 860, 1, Color3.fromRGB(85, 155, 62), false)
-	for k = 0, 80 do
-		disco(-215 + k * 10.6, -4 - (k % 3) * 2.5, 15, 1.2 + (k % 4) * 0.4, Color3.fromRGB(100, 68, 45), false)
+	plano(85, -6, 14.6, 1100, 12, Color3.fromRGB(125, 85, 55))
+	plano(85, -0.3, 14.9, 1100, 1, Color3.fromRGB(85, 155, 62), false)
+	for k = 0, 103 do
+		disco(-460 + k * 10.6, -4 - (k % 3) * 2.5, 15, 1.2 + (k % 4) * 0.4, Color3.fromRGB(100, 68, 45), false)
 	end
 	-- camino de tierra
-	local camino = plano(205, 0.06, 1, 860, 0.1, Color3.fromRGB(225, 200, 140), false)
-	camino.Size = Vector3.new(860, 0.1, 6)
+	local camino = plano(85, 0.06, 1, 1100, 0.1, Color3.fromRGB(225, 200, 140), false)
+	camino.Size = Vector3.new(1100, 0.1, 6)
 	-- paredes invisibles para quedarse en el carril (como en un juego 2D con algo de fondo)
-	for _, datos in { { 205, -12.8, 860, 1 }, { 205, 10.8, 860, 1 } } do
+	for _, datos in { { 85, -12.8, 1100, 1 }, { 85, 10.8, 1100, 1 } } do
 		local muro = Instance.new("Part")
 		base(muro)
 		muro.CanCollide = true
@@ -648,19 +649,19 @@ end
 
 local function pastoPorTodas(rng: Random)
 	for _ = 1, 260 do
-		local x = rng:NextNumber(-190, 600)
+		local x = rng:NextNumber(-440, 600)
 		if not (x > 462) then
 			mata(x, rng:NextNumber(-12, -3), rng:NextNumber(0.8, 1.2), rng)
 		end
 	end
 	-- primer plano (más grande, delante del camino)
 	for _ = 1, 170 do
-		local x = rng:NextNumber(-190, 600)
+		local x = rng:NextNumber(-440, 600)
 		local tono = x > 462 and Color3.fromRGB(90, 110, 90) or nil
 		mata(x, rng:NextNumber(5, 10), rng:NextNumber(1.1, 1.7), rng, tono)
 	end
 	for _ = 1, 50 do
-		local x = rng:NextNumber(-190, 360)
+		local x = rng:NextNumber(-440, 360)
 		flor(x, rng:NextNumber(6, 10), rng:NextNumber(0.9, 1.3), rng)
 	end
 end
@@ -840,6 +841,131 @@ local function exploracion(rng: Random)
 	punto("entrarTaberna", Vector3.new(-102, 2.8, -11.5))
 end
 
+
+-- ===================== ALDEA DE BREZO (donde empieza la aventura) =====================
+local function aldea(rng: Random)
+	-- tu casa, la de la abuela y la del granjero
+	casa(-415, -18, 13, 9, Color3.fromRGB(235, 215, 175), Color3.fromRGB(150, 85, 60), "Tu casa", rng)
+	casa(-375, -19, 11, 8, Color3.fromRGB(215, 225, 200), Color3.fromRGB(90, 120, 150), nil, rng)
+	casa(-340, -18.5, 12, 8.5, Color3.fromRGB(230, 205, 190), Color3.fromRGB(120, 95, 70), nil, rng)
+	-- granero rojo
+	plano(-292, 6, -21, 18, 12, Color3.fromRGB(170, 70, 55))
+	tri(-292, 11.8, -20.8, 21, 7, Color3.fromRGB(110, 55, 45))
+	plano(-292, 3.5, -20.5, 7, 7, Color3.fromRGB(120, 55, 45))
+	plano(-292, 3.5, -20.2, 7, 0.4, Color3.fromRGB(240, 230, 210), false, nil, 45)
+	plano(-292, 3.5, -20.2, 7, 0.4, Color3.fromRGB(240, 230, 210), false, nil, -45)
+	-- huerto con filas de coles y un espantapájaros
+	for fila = 0, 2 do
+		for k = 0, 9 do
+			disco(-252 + k * 3.2 - 14, 0.7, -12.2 + fila * 0.4, 1.6, Color3.fromRGB(110, 160, 80))
+		end
+	end
+	plano(-238, 3, -11.5, 0.5, 6, Color3.fromRGB(120, 85, 55))
+	plano(-238, 4.6, -11.4, 5, 0.5, Color3.fromRGB(120, 85, 55))
+	disco(-238, 6.6, -11.3, 2, Color3.fromRGB(230, 190, 120))
+	tri(-238, 7.3, -11.1, 3.2, 1.6, Color3.fromRGB(150, 110, 60))
+	plano(-238, 4.2, -11.2, 2.6, 2.4, Color3.fromRGB(120, 140, 190))
+	-- vallas, pozo y árboles
+	for x = -440, -208, 4 do
+		plano(x, 1.3, -12.2, 0.45, 2.6, Color3.fromRGB(190, 150, 100))
+	end
+	plano(-324, 2, -12, 232, 0.35, Color3.fromRGB(190, 150, 100), false)
+	plano(-358, 1.3, -10, 4, 2.6, Color3.fromRGB(160, 155, 165))
+	plano(-359.6, 3.6, -10.2, 0.35, 3.2, Color3.fromRGB(120, 85, 55))
+	plano(-356.4, 3.6, -10.2, 0.35, 3.2, Color3.fromRGB(120, 85, 55))
+	tri(-358, 5, -10, 5, 1.6, Color3.fromRGB(150, 85, 60))
+	for _, x in { -432, -398, -322, -270, -222 } do
+		arbol(x, -15 + rng:NextNumber(-2, 0), rng:NextNumber(0.8, 1.1))
+	end
+	-- carteles y puerta de la ciudad (lado oeste)
+	plano(-212, 2.4, -10.5, 0.6, 4.8, Color3.fromRGB(120, 80, 50))
+	letrero(-212, 5.2, -10.2, 9, 1.8, "Ciudad de Vael →", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	letrero(-440 + 12, 6, -12, 10, 1.8, "Aldea de Brezo", Color3.fromRGB(110, 140, 90))
+	plano(-200, 9, -13, 5, 18, Color3.fromRGB(170, 160, 145))
+	plano(-200, 9, 9.5, 5, 18, Color3.fromRGB(170, 160, 145))
+	tri(-200, 18, -12.8, 7, 5, Color3.fromRGB(70, 90, 150))
+	-- la abuela Rosa y el granjero Tomás
+	punto("abuela", Vector3.new(-386, 2.8, -9.5))
+	punto("granjero", Vector3.new(-300, 2.8, -9.5))
+	-- el guardia del puente roto
+	punto("guardaPuente", Vector3.new(154, 2.8, -10))
+end
+
+--- Sala interior genérica: suelo, pared del fondo grande, paredes invisibles y un faldón por delante
+--- (para que no se vea el vacío por debajo del suelo).
+local function sala(cx: number, Y: number, pared: Color3, suelo: Color3)
+	local s = plano(cx, Y - 1, 0, 44, 2, suelo)
+	s.CanCollide = true
+	s.CanQuery = true
+	s.Size = Vector3.new(44, 2, 26)
+	s.CFrame = CFrame.new(cx, Y - 1, 0)
+	local ancho = plano(cx, Y - 1.25, 0, 120, 2, suelo:Lerp(NEGRO, 0.12), false)
+	ancho.Size = Vector3.new(120, 2, 32)
+	ancho.CFrame = CFrame.new(cx, Y - 1.25, 0)
+	plano(cx, Y - 26, 15.5, 140, 50, suelo:Lerp(NEGRO, 0.35), false) -- faldón delantero
+	plano(cx, Y + 19, -12.4, 120, 44, pared)
+	for k = 0, 10 do
+		plano(cx - 50 + k * 10, Y - 1, 13.2, 0.15, 2, suelo:Lerp(NEGRO, 0.3), false)
+	end
+	for _, lado in { -1, 1 } do
+		plano(cx + lado * 40, Y + 19, -11.8, 30, 44, pared:Lerp(NEGRO, 0.2))
+		plano(cx + lado * 25, Y + 12, -11.6, 2, 26, Color3.fromRGB(110, 70, 40))
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(1, 30, 26)
+		m.Position = Vector3.new(cx + lado * 22.5, Y + 10, 0)
+		m.Parent = raiz
+	end
+	for _, z in { -11, 10.5 } do
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(44, 30, 1)
+		m.Position = Vector3.new(cx, Y + 10, z)
+		m.Parent = raiz
+	end
+	plano(cx, Y + 25, -12, 120, 1.2, Color3.fromRGB(110, 70, 40), false)
+end
+
+--- Interior de la posada: camas, mostrador con la posadera, alfombra y ventana con luna.
+Mundo.Posada = { entrada = Vector3.new(-35, 263.5, 2), salida = Vector3.new(-23, 3.5, -8) }
+local function posada()
+	local Y = 260
+	local cx = -20
+	sala(cx, Y, Color3.fromRGB(150, 165, 190), Color3.fromRGB(140, 100, 70))
+	-- papel pintado de rayas
+	for k = 0, 9 do
+		plano(cx - 22 + k * 5, Y + 9, -12, 1.2, 18, Color3.fromRGB(135, 150, 178), false)
+	end
+	-- camas
+	for i, x in { -6, 6, 16 } do
+		local bx = cx + x
+		plano(bx, Y + 0.9, -9.5, 7, 1.8, Color3.fromRGB(120, 80, 50))
+		plano(bx - 3.2, Y + 2.2, -9.7, 0.7, 4.4, Color3.fromRGB(110, 70, 45))
+		plano(bx, Y + 1.9, -9.2, 6.4, 1, ({ Color3.fromRGB(190, 80, 80), Color3.fromRGB(90, 130, 190), Color3.fromRGB(110, 160, 100) })[i])
+		disco(bx - 2.2, Y + 2.4, -9, 1.3, Color3.fromRGB(240, 235, 225))
+	end
+	-- mostrador
+	plano(cx - 14, Y + 1.6, -8, 8, 3.2, Color3.fromRGB(150, 100, 60))
+	plano(cx - 14, Y + 3.3, -7.8, 8.6, 0.5, Color3.fromRGB(180, 125, 70))
+	disco(cx - 12, Y + 4.1, -7.6, 1, Color3.fromRGB(230, 190, 80))
+	-- alfombra, planta y ventana con luna
+	local alfombra = plano(cx + 4, Y + 0.05, 2, 16, 0.1, Color3.fromRGB(170, 70, 70), false)
+	alfombra.Size = Vector3.new(16, 0.1, 8)
+	plano(cx + 20, Y + 1.5, -9, 2, 3, Color3.fromRGB(170, 100, 60))
+	disco(cx + 20, Y + 4, -8.8, 3, Color3.fromRGB(90, 150, 80))
+	plano(cx, Y + 11, -11.5, 6, 5, Color3.fromRGB(40, 55, 100))
+	disco(cx + 1.4, Y + 12, -11.3, 1.4, Color3.fromRGB(245, 240, 200), false)
+	letrero(cx, Y + 16.5, -11.4, 12, 2.4, "Posada El Ronquido", Color3.fromRGB(90, 110, 150), Color3.fromRGB(255, 235, 170))
+	plano(cx - 19, Y + 3, -10.8, 4, 6, Color3.fromRGB(110, 70, 40))
+	letrero(cx - 19, Y + 7, -10.6, 4, 1.2, "Salida", Color3.fromRGB(150, 95, 55))
+	punto("salirPosada", Vector3.new(cx - 19, Y + 2.8, -8))
+	punto("posadera", Vector3.new(cx - 14, Y + 2.8, -9.2))
+end
+
 --- Interior de la taberna (lejos, en lo alto: se entra y se sale con la puerta).
 Mundo.Taberna = { entrada = Vector3.new(-112, 203.5, 2), salida = Vector3.new(-102, 3.5, -8) }
 local function taberna()
@@ -891,6 +1017,10 @@ local function taberna()
 		m.Position = Vector3.new(-100, Y + 10, z)
 		m.Parent = raiz
 	end
+	plano(-100, Y - 26, 15.5, 140, 50, Color3.fromRGB(90, 60, 40), false) -- faldón: que no se vea el vacío
+	punto("cliente", Vector3.new(-111, Y + 2.8, 4), { Npc = "vecino:777", Frases = "¡Otra ronda de zumo de seta!|Hip.|Bruno hace trampas, lo sé." })
+	punto("cliente", Vector3.new(-88, Y + 2.8, 4), { Npc = "vecino:31415", Frases = "¿Has probado el guiso? Yo tampoco.|Dicen que el ermitaño habla con setas.|¡Por la Pradera!" })
+	punto("cliente", Vector3.new(-84, Y + 2.8, -6), { Npc = "vecino:2718", Frases = "Qué calorcito da la chimenea.|Zzz…" })
 	plano(-122, Y + 9, -6, 1, 20, Color3.fromRGB(120, 80, 50))
 	plano(-78, Y + 9, -6, 1, 20, Color3.fromRGB(120, 80, 50))
 	-- barra, barriles, mesas y chimenea
@@ -983,12 +1113,14 @@ function Mundo.construir(): { [BasePart]: any }
 	cueva(rng)
 	pastoPorTodas(rng)
 	exploracion(rng)
+	aldea(rng)
 	taberna()
+	posada()
 
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true
 	sp.Size = Vector3.new(6, 1, 6)
-	sp.Position = Vector3.new(Mundo.Inicio, 0.5, 2)
+	sp.Position = Vector3.new(Mundo.Aparicion, 0.5, 2)
 	sp.Transparency = 1
 	sp.CanCollide = false
 	sp.Neutral = true

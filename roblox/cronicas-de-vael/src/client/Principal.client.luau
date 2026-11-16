@@ -87,7 +87,9 @@ end)
 
 -- el menú de inicio (otro script) avisa con el atributo local "EnMenu"; mientras esté, no se abre nada encima
 local function enMenu(): boolean
-	return jugador:GetAttribute("EnMenu") == true
+	-- solo si el menú existe de verdad (si fallara, el HUD se ve igual)
+	local pg = jugador:FindFirstChild("PlayerGui")
+	return jugador:GetAttribute("EnMenu") == true and pg ~= nil and pg:FindFirstChild("VaelMenu") ~= nil
 end
 
 -- ===================== HUD =====================
@@ -781,18 +783,73 @@ remoto("BatallaEvento").OnClientEvent:Connect(function(ev: any)
 	Efectos.accion(ev, posDe, alImpacto)
 end)
 
--- cámara de combate: de lado, como un escenario de teatro de papel; se acerca de forma exponencial
+-- cámara de combate: tablero de juego de mesa, que se puede girar (Q/E o arrastrar con el botón derecho),
+-- acercar (rueda) y cambiar de vista (botón «Cámara» o tecla C). Se mueve con suavizado exponencial.
+local VISTAS = {
+	{ nombre = "Lateral", alto = 18, lejos = 30 },
+	{ nombre = "Desde arriba", alto = 32, lejos = 12 },
+	{ nombre = "Cerca", alto = 10, lejos = 22 },
+}
+local vista = 1
+local giro = 0 -- grados alrededor del centro del campo
+local zoom = 1
+local girando = false
+
+local botonCamara = Ui.boton({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 112), Size = UDim2.fromOffset(170, 44), Text = "Cámara", Icono = "estrella", BackgroundColor3 = Color3.fromRGB(90, 110, 140), ZIndex = 20, Parent = capaBatalla }, function()
+	vista = vista % #VISTAS + 1
+	giro = 0
+	notificar("Cámara: " .. VISTAS[vista].nombre)
+end)
+Ui.texto({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 160), Size = UDim2.fromOffset(240, 20), Text = "Q/E girar · rueda acercar · C vista", TextColor3 = C.suave, ZIndex = 20, Parent = capaBatalla })
+local _ = botonCamara
+
+UserInputService.InputBegan:Connect(function(entrada, procesado)
+	if not enBatalla then
+		return
+	end
+	if entrada.UserInputType == Enum.UserInputType.MouseButton2 then
+		girando = true
+	elseif not procesado and entrada.KeyCode == Enum.KeyCode.C then
+		vista = vista % #VISTAS + 1
+		giro = 0
+		notificar("Cámara: " .. VISTAS[vista].nombre)
+	end
+end)
+UserInputService.InputEnded:Connect(function(entrada)
+	if entrada.UserInputType == Enum.UserInputType.MouseButton2 then
+		girando = false
+	end
+end)
+UserInputService.InputChanged:Connect(function(entrada, procesado)
+	if not enBatalla then
+		return
+	end
+	if entrada.UserInputType == Enum.UserInputType.MouseWheel and not procesado then
+		zoom = math.clamp(zoom - entrada.Position.Z * 0.08, 0.55, 1.5)
+	elseif entrada.UserInputType == Enum.UserInputType.MouseMovement and girando then
+		giro = math.clamp(giro + entrada.Delta.X * 0.3, -70, 70)
+	end
+end)
+
 RunService:BindToRenderStep("CamaraVael", Enum.RenderPriority.Camera.Value + 2, function(dt)
 	if not enBatalla then
 		return
 	end
+	if not UserInputService:GetFocusedTextBox() then
+		if UserInputService:IsKeyDown(Enum.KeyCode.Q) then
+			giro = math.clamp(giro - 70 * dt, -70, 70)
+		elseif UserInputService:IsKeyDown(Enum.KeyCode.E) then
+			giro = math.clamp(giro + 70 * dt, -70, 70)
+		end
+	end
 	local t = os.clock()
 	camara.CameraType = Enum.CameraType.Scriptable
 	camara.FieldOfView = 44
-	local respira = math.sin(t * 0.6) * 0.5
-	-- en alto y de lado: se ve todo el campo de casillas como un tablero de juego de mesa
-	local deseada = CFrame.lookAt(centro + Vector3.new(0, 18 + respira, 30), centro + Vector3.new(0, 1.2, -1.5))
-	local k = 1 - math.exp(-dt * 4)
+	local v = VISTAS[vista]
+	local respira = math.sin(t * 0.6) * 0.4
+	local brazo = CFrame.Angles(0, math.rad(giro), 0) * Vector3.new(0, (v.alto + respira) * zoom, v.lejos * zoom)
+	local deseada = CFrame.lookAt(centro + brazo, centro + Vector3.new(0, 1.2, -1.5))
+	local k = 1 - math.exp(-dt * 5)
 	local cf = camara.CFrame:Lerp(deseada, k)
 	if sacudida > 0.01 then
 		cf *= CFrame.new(math.noise(t * 25, 0) * sacudida, math.noise(0, t * 25) * sacudida, 0)
@@ -802,8 +859,8 @@ RunService:BindToRenderStep("CamaraVael", Enum.RenderPriority.Camera.Value + 2, 
 end)
 
 local function franjasCine(abrir: boolean)
-	Ui.tween(barraArriba, { Size = UDim2.new(1, 0, 0, abrir and 80 or 0) }, 0.6)
-	Ui.tween(barraAbajo, { Size = UDim2.new(1, 0, 0, abrir and 80 or 0) }, 0.6)
+	Ui.tween(barraArriba, { Size = UDim2.new(1, 0, 0, abrir and 36 or 0) }, 0.6)
+	Ui.tween(barraAbajo, { Size = UDim2.new(1, 0, 0, abrir and 36 or 0) }, 0.6)
 end
 
 local function mostrarTitulo(texto: string, color: Color3)
@@ -832,7 +889,7 @@ remoto("BatallaInicio").OnClientEvent:Connect(function(d: any)
 	capaBatalla.Visible = true
 	Ui.tween(hud, { Position = UDim2.fromOffset(18, -200) }, 0.5)
 	franjasCine(true)
-	mostrarTitulo("¡COMBATE!  ·  " .. d.zona, C.borde)
+	mostrarTitulo(d.emboscada and "¡EMBOSCADA!" or ("¡COMBATE!  ·  " .. d.zona), d.emboscada and C.peligro or C.borde)
 	sacudida = 1
 end)
 
