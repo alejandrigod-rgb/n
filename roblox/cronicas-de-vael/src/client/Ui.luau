@@ -93,7 +93,11 @@ function Ui.texto(props: { [string]: any }): TextLabel
 		t.TextScaled = true
 	end
 	if props.Contorno ~= false then
-		Ui.crear("UIStroke", { Thickness = 2, Color = Ui.Colores.tinta, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual, Parent = t })
+		local trazo = Ui.crear("UIStroke", { Thickness = 2, Color = Ui.Colores.tinta, ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual, Transparency = t.TextTransparency, Parent = t })
+		-- el contorno se apaga con el texto (si no, queda un "fantasma" negro al desvanecer)
+		t:GetPropertyChangedSignal("TextTransparency"):Connect(function()
+			trazo.Transparency = t.TextTransparency
+		end)
 	end
 	return t
 end
@@ -178,6 +182,17 @@ function Ui.boton(props: { [string]: any }, alPulsar: () -> ()): TextButton
 		ic.AnchorPoint = Vector2.new(0, 0.5)
 	end
 	local escala = Ui.crear("UIScale", { Scale = 1, Parent = b })
+	local okAudio, Audio = pcall(function()
+		return require(script.Parent:WaitForChild("Audio")) :: any
+	end)
+	if okAudio then
+		b.MouseEnter:Connect(function()
+			Audio.sfx("hover", 0.3)
+		end)
+		b.Activated:Connect(function()
+			Audio.sfx("click", 0.5)
+		end)
+	end
 	b.MouseEnter:Connect(function()
 		Ui.tween(escala, { Scale = 1.07 }, 0.18, Enum.EasingStyle.Back)
 		Ui.tween(b, { Rotation = math.random() < 0.5 and -2 or 2 }, 0.18, Enum.EasingStyle.Back)

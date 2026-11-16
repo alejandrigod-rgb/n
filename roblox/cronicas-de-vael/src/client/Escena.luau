@@ -53,21 +53,74 @@ local function billboard(adornee: BasePart, ancho: number, alto: number, desplaz
 	return b
 end
 
-local function nombreFlotante(padre: BillboardGui, texto: string, color: Color3)
+--- Etiqueta con el nombre: texto blanco sobre una pastilla oscura, de tamaño fijo en pantalla (siempre se lee).
+--- Con conVida, añade una barra de vida debajo (para los monstruos).
+local function nombreFlotante(adornee: BasePart, texto: string, color: Color3, altura: number, conVida: boolean?): Frame?
+	local b = Instance.new("BillboardGui")
+	b.Name = "Nombre"
+	b.Size = UDim2.fromOffset(170, conVida and 44 or 28)
+	b.StudsOffset = Vector3.new(0, altura, 0)
+	b.LightInfluence = 0
+	b.AlwaysOnTop = true
+	b.MaxDistance = 120
+	b.Adornee = adornee
+	local fondo = Instance.new("Frame")
+	fondo.AnchorPoint = Vector2.new(0.5, 0)
+	fondo.Position = UDim2.fromScale(0.5, 0)
+	fondo.Size = UDim2.new(0, 0, 0, 26)
+	fondo.AutomaticSize = Enum.AutomaticSize.X
+	fondo.BackgroundColor3 = Color3.fromRGB(30, 24, 44)
+	fondo.BackgroundTransparency = 0.15
+	fondo.BorderSizePixel = 0
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0.5, 0)
+	c.Parent = fondo
+	local s = Instance.new("UIStroke")
+	s.Thickness = 2
+	s.Color = color
+	s.Parent = fondo
+	local pad = Instance.new("UIPadding")
+	pad.PaddingLeft = UDim.new(0, 10)
+	pad.PaddingRight = UDim.new(0, 10)
+	pad.Parent = fondo
 	local t = Instance.new("TextLabel")
-	t.AnchorPoint = Vector2.new(0.5, 1)
-	t.Position = UDim2.fromScale(0.5, -0.02)
-	t.Size = UDim2.fromScale(1.6, 0.13)
+	t.Size = UDim2.new(0, 0, 1, 0)
+	t.AutomaticSize = Enum.AutomaticSize.X
 	t.BackgroundTransparency = 1
 	t.Text = texto
 	t.Font = Enum.Font.FredokaOne
-	t.TextScaled = true
-	t.TextColor3 = color
-	local s = Instance.new("UIStroke")
-	s.Thickness = 2
-	s.Color = NEGRO
-	s.Parent = t
-	t.Parent = padre
+	t.TextSize = 18
+	t.TextColor3 = Color3.new(1, 1, 1)
+	t.Parent = fondo
+	fondo.Parent = b
+	local relleno: Frame? = nil
+	if conVida then
+		local barra = Instance.new("Frame")
+		barra.AnchorPoint = Vector2.new(0.5, 0)
+		barra.Position = UDim2.new(0.5, 0, 0, 30)
+		barra.Size = UDim2.fromOffset(110, 11)
+		barra.BackgroundColor3 = Color3.fromRGB(40, 20, 25)
+		barra.BorderSizePixel = 0
+		local c2 = Instance.new("UICorner")
+		c2.CornerRadius = UDim.new(0.5, 0)
+		c2.Parent = barra
+		local s2 = Instance.new("UIStroke")
+		s2.Thickness = 2
+		s2.Color = NEGRO
+		s2.Parent = barra
+		local r = Instance.new("Frame")
+		r.Size = UDim2.fromScale(1, 1)
+		r.BackgroundColor3 = Color3.fromRGB(240, 70, 70)
+		r.BorderSizePixel = 0
+		local c3 = Instance.new("UICorner")
+		c3.CornerRadius = UDim.new(0.5, 0)
+		c3.Parent = r
+		r.Parent = barra
+		barra.Parent = b
+		relleno = r
+	end
+	b.Parent = adornee
+	return relleno
 end
 
 -- ===================== JUGADORES =====================
@@ -104,12 +157,16 @@ local function montarHeroe(p: Player)
 	local anterior = heroes[p]
 	if anterior then
 		anterior.b:Destroy()
+		local viejo = anterior.raiz:FindFirstChild("Nombre")
+		if viejo then
+			viejo:Destroy()
+		end
 	end
 	esconderAvatar(ch)
 	local clase = (p:GetAttribute("Clase") :: string?) or "guerrero"
 	local b = billboard(raiz, 4.6, 6, 0.05)
 	local m = Munecos.crear(b, "clase", clase, 3)
-	nombreFlotante(b, p.DisplayName, p == jugador and Color3.fromRGB(255, 230, 120) or Color3.new(1, 1, 1))
+	nombreFlotante(raiz, p.DisplayName, p == jugador and Color3.fromRGB(255, 205, 90) or Color3.fromRGB(150, 200, 255), 3.9)
 	heroes[p] = { m = m, b = b, raiz = raiz, clase = clase }
 	porEntidad["j" .. p.UserId] = m
 	anclaDe["j" .. p.UserId] = raiz
@@ -155,8 +212,23 @@ local function montarEnemigo(modelo: Model)
 	end)
 	porEntidad[id] = m
 	anclaDe[id] = ancla
+	local relleno = nombreFlotante(ancla, def and def.nombre or "?", Color3.fromRGB(240, 90, 90), lado - t / 2 + 0.6, true)
+	local function vida()
+		local v = (modelo:GetAttribute("Vida") :: number?) or 1
+		local mx = (modelo:GetAttribute("VidaMax") :: number?) or 1
+		if relleno then
+			TweenService:Create(relleno, TweenInfo.new(0.3), { Size = UDim2.fromScale(math.clamp(v / math.max(1, mx), 0, 1), 1) }):Play()
+		end
+	end
+	vida()
+	modelo:GetAttributeChangedSignal("Vida"):Connect(vida)
 	modelo:GetAttributeChangedSignal("Caido"):Connect(function()
-		Munecos.caer(m, modelo:GetAttribute("Caido") == true)
+		local caido = modelo:GetAttribute("Caido") == true
+		Munecos.caer(m, caido)
+		local n = ancla:FindFirstChild("Nombre")
+		if n then
+			(n :: BillboardGui).Enabled = not caido
+		end
 	end)
 	-- entrada: aparece de un salto
 	local escala = Instance.new("UIScale")
@@ -254,7 +326,7 @@ task.spawn(function()
 end)
 
 -- ----- personajes del mapa (solo en este cliente) -----
-type Paseante = { m: Munecos.Muneco, ancla: Part, x: number, z: number, desde: number, hasta: number, vel: number, dir: number, espera: number, burbuja: BillboardGui?, frases: { string }?, proxFrase: number, vuela: boolean }
+type Paseante = { m: Munecos.Muneco, ancla: Part, x: number, z: number, desde: number, hasta: number, vel: number, dir: number, espera: number, burbuja: BillboardGui?, frases: { string }?, proxFrase: number, vuela: boolean, fuente: BasePart? }
 local paseantes: { Paseante } = {}
 
 local carpetaVida = Instance.new("Folder")
@@ -313,6 +385,9 @@ local function burbuja(pa: Paseante, texto: string)
 	pa.burbuja = b
 	TweenService:Create(escala, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Scale = 1 }):Play()
 	Munecos.hablar(pa.m, 1.2)
+	if Escena.alHablar then
+		Escena.alHablar(pa.m.semilla, #texto)
+	end
 	task.delay(3.4, function()
 		if pa.burbuja == b then
 			TweenService:Create(escala, TweenInfo.new(0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0 }):Play()
@@ -338,8 +413,8 @@ local FRASES_VECINOS = {
 	"¡Qué buen tiempo hace hoy!",
 }
 
-local function crearPaseante(tipo: string, id: string, x: number, z: number, desde: number, hasta: number, ancho: number, alto: number, vel: number, frases: { string }?): Paseante
-	local ancla = anclaLocal(x, alto / 2, z)
+local function crearPaseante(tipo: string, id: string, x: number, z: number, desde: number, hasta: number, ancho: number, alto: number, vel: number, frases: { string }?, y0: number?): Paseante
+	local ancla = anclaLocal(x, (y0 or 0) + alto / 2, z)
 	local b = billboard(ancla, ancho, alto, 0)
 	b.MaxDistance = 120
 	local m = Munecos.crear(b, tipo, id, 3)
@@ -385,6 +460,215 @@ do
 	rey.espera = math.huge
 	-- mariposas en la pradera y luciérnagas en el pantano y la cueva (decoración pequeña)
 end
+
+-- ----- personajes con los que se habla (tabernero, ermitaño, herrera, posadera, paraderos) -----
+-- El servidor marca sus puntos con el atributo "Npc" ("vecino:semilla" o "vendedor") y "Frases" (separadas por |).
+local npcHechos: { [BasePart]: boolean } = {}
+local function montarNpc(p: BasePart)
+	local npc = p:GetAttribute("Npc") :: string?
+	if not npc or npcHechos[p] then
+		return
+	end
+	npcHechos[p] = true
+	local tipo, semilla = string.match(npc, "^(%a+):?(%d*)$")
+	local frases = nil
+	local f = p:GetAttribute("Frases") :: string?
+	if f then
+		frases = string.split(f, "|")
+	end
+	local x = (p:GetAttribute("NpcX") :: number?) or p.Position.X
+	local suelo = p.Position.Y - 2.8
+	local pa = crearPaseante(tipo == "vendedor" and "vendedor" or "vecino", semilla ~= "" and semilla or "1", x, p.Position.Z - 0.4, x, x, 4.4, 5.7, 0, frases, suelo)
+	pa.espera = math.huge
+	pa.fuente = p
+	pa.proxFrase = os.clock() + 1 + math.random() * 4
+end
+local function vigilarPunto(d: Instance)
+	if d:IsA("BasePart") then
+		if d:GetAttribute("Npc") then
+			montarNpc(d)
+		elseif d:GetAttribute("Punto") then
+			d:GetAttributeChangedSignal("Npc"):Connect(function()
+				montarNpc(d)
+			end)
+		end
+	end
+end
+task.spawn(function()
+	local mundo = workspace:WaitForChild("MundoVael", 60)
+	if mundo then
+		for _, d in mundo:GetDescendants() do
+			vigilarPunto(d)
+		end
+		mundo.DescendantAdded:Connect(function(d)
+			task.defer(vigilarPunto, d)
+		end)
+	end
+end)
+
+-- ----- barreras (cuerda, hacha, llave, farol) y secretos ya recogidos -----
+local llavesMias: { [string]: boolean } = {}
+local murosLocales: { [string]: Part } = {}
+local function verModelo(m: Instance, visible: boolean)
+	for _, d in m:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.LocalTransparencyModifier = visible and 0 or 1
+		elseif d:IsA("SurfaceGui") or d:IsA("BillboardGui") then
+			d.Enabled = visible
+		elseif d:IsA("ProximityPrompt") then
+			d.Enabled = visible
+		end
+	end
+	if m:IsA("BasePart") then
+		m.LocalTransparencyModifier = visible and 0 or 1
+	end
+end
+
+local estadoMio: any = nil
+local function aplicarEstado()
+	local mundo = workspace:FindFirstChild("MundoVael")
+	if not mundo or not estadoMio then
+		return
+	end
+	llavesMias = estadoMio.llaves or {}
+	for _, m in mundo:GetChildren() do
+		local llave = m:GetAttribute("Llave") :: string?
+		if llave then
+			local abierta = llavesMias[llave] == true
+			local esCerrado = m:GetAttribute("Estado") == "cerrado"
+			verModelo(m, esCerrado ~= abierta)
+			if esCerrado then
+				local muro = murosLocales[llave]
+				if not abierta and not muro then
+					local x = m:GetAttribute("MuroX") :: number
+					local p = Instance.new("Part")
+					p.Name = "Muro_" .. llave
+					p.Anchored = true
+					p.CanCollide = true
+					p.CanQuery = false
+					p.Transparency = 1
+					p.Size = Vector3.new(1.5, 80, 30)
+					p.Position = Vector3.new(x, 30, 0)
+					p.Parent = carpetaVida
+					murosLocales[llave] = p
+				elseif abierta and muro then
+					muro:Destroy()
+					murosLocales[llave] = nil
+				end
+			end
+		end
+		local seta = m:GetAttribute("SetaId") :: number?
+		if seta then
+			verModelo(m, not (table.find(estadoMio.setas or {}, seta) or llavesMias.llave))
+		end
+		local palanca = m:GetAttribute("PalancaId") :: number?
+		if palanca then
+			local brazo = m:FindFirstChild("Brazo") :: BasePart?
+			if brazo and table.find(estadoMio.palancas or {}, palanca) and not brazo:GetAttribute("Tirada") then
+				brazo:SetAttribute("Tirada", true)
+				TweenService:Create(brazo, TweenInfo.new(0.4, Enum.EasingStyle.Back), { CFrame = brazo.CFrame * CFrame.Angles(0, 0, math.rad(60)) }):Play()
+			end
+		end
+	end
+end
+
+--- Bocadillo encima de una entidad del combate (frases de los monstruos y de los héroes).
+function Escena.decir(id: string, texto: string)
+	local a = anclaDe[id]
+	if not a or not a:IsDescendantOf(workspace) then
+		return
+	end
+	local b = Instance.new("BillboardGui")
+	b.Size = UDim2.fromOffset(240, 60)
+	b.StudsOffset = Vector3.new(0, 6.5, 0)
+	b.LightInfluence = 0
+	b.AlwaysOnTop = true
+	b.Adornee = a
+	local f = Instance.new("Frame")
+	f.Size = UDim2.fromScale(1, 1)
+	f.BackgroundColor3 = Color3.new(1, 1, 1)
+	f.BorderSizePixel = 0
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 16)
+	c.Parent = f
+	local s = Instance.new("UIStroke")
+	s.Thickness = 3
+	s.Color = NEGRO
+	s.Parent = f
+	local t = Instance.new("TextLabel")
+	t.Size = UDim2.new(1, -16, 1, -10)
+	t.Position = UDim2.fromOffset(8, 5)
+	t.BackgroundTransparency = 1
+	t.Text = texto
+	t.Font = Enum.Font.FredokaOne
+	t.TextScaled = true
+	t.TextColor3 = NEGRO
+	t.Parent = f
+	f.Parent = b
+	local escala = Instance.new("UIScale")
+	escala.Scale = 0
+	escala.Parent = f
+	b.Parent = a
+	TweenService:Create(escala, TweenInfo.new(0.3, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+	local m = porEntidad[id]
+	if m then
+		Munecos.hablar(m, 1)
+	end
+	task.delay(2.6, function()
+		b:Destroy()
+	end)
+end
+
+--- Lo llama la interfaz cada vez que llega el estado del jugador.
+function Escena.estado(e: any)
+	estadoMio = e
+	aplicarEstado()
+end
+task.spawn(function()
+	-- con StreamingEnabled las barreras pueden llegar tarde: se repasan cada poco
+	while true do
+		task.wait(3)
+		aplicarEstado()
+	end
+end)
+
+-- ----- aviso "Unirse al combate": solo para los que NO están en ese combate -----
+local avisosUnirse: { ProximityPrompt } = {}
+workspace.DescendantAdded:Connect(function(d)
+	if d:IsA("ProximityPrompt") then
+		task.defer(function()
+			if d:GetAttribute("UnirseBatalla") then
+				table.insert(avisosUnirse, d)
+			end
+		end)
+	end
+end)
+
+--- Esconde el pasto de delante en la zona del combate (para que no tape a nadie).
+local pastoOculto: { BasePart } = {}
+function Escena.ocultarPasto(centro: Vector3?)
+	for _, p in pastoOculto do
+		p.LocalTransparencyModifier = 0
+	end
+	pastoOculto = {}
+	if not centro then
+		return
+	end
+	for _, b in balanceos do
+		if math.abs(b.x - centro.X) < 24 and b.m.Parent then
+			for _, p in b.m:GetDescendants() do
+				if p:IsA("BasePart") then
+					p.LocalTransparencyModifier = 1
+					table.insert(pastoOculto, p)
+				end
+			end
+		end
+	end
+end
+
+Escena.modoMenu = false
+Escena.alHablar = nil :: ((number, number) -> ())?
+Escena.alPaso = nil :: (() -> ())?
 
 type Bicho = { f: Frame, ancla: Part, base: Vector3, fase: number, alas: { Frame }? }
 local bichos: { Bicho } = {}
@@ -444,6 +728,8 @@ end
 
 -- ===================== BUCLE POR FOTOGRAMA =====================
 local camX: number? = nil
+local camY: number? = nil
+local relojPaso = 0
 local tiempo = 0
 
 RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, function(dt)
@@ -456,10 +742,31 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 		camara.CameraType = Enum.CameraType.Scriptable
 		camara.FieldOfView = 42
 		local objetivoX = raiz.Position.X
-		camX = camX and (camX + (objetivoX - camX) * (1 - math.exp(-dt * 5))) or objetivoX
+		local k = 1 - math.exp(-dt * 5)
+		camX = camX and (camX + (objetivoX - camX) * k) or objetivoX
+		-- la cámara sube con el jugador (plataformas, interiores)
+		local objetivoY = math.max(11.5, raiz.Position.Y + 8.5)
+		camY = camY and (camY + (objetivoY - camY) * k) or objetivoY
 		local x = camX :: number
-		local deseada = CFrame.lookAt(Vector3.new(x, 11.5, 44), Vector3.new(x, 4.5, -2))
-		camara.CFrame = camara.CFrame:Lerp(deseada, 1 - math.exp(-dt * 10))
+		local y = camY :: number
+		local deseada = CFrame.lookAt(Vector3.new(x, y, 44), Vector3.new(x, y - 7, -2))
+		if math.abs(camara.CFrame.Position.Y - y) > 60 then
+			camara.CFrame = deseada -- tras entrar o salir de la taberna
+		else
+			camara.CFrame = camara.CFrame:Lerp(deseada, 1 - math.exp(-dt * 10))
+		end
+	end
+	if Escena.modoMenu then
+		-- menú de inicio: la cámara pasea despacio por la ciudad
+		camara.CameraType = Enum.CameraType.Scriptable
+		camara.FieldOfView = 40
+		local x = -60 + math.sin(tiempo * 0.06) * 75
+		camara.CFrame = CFrame.lookAt(Vector3.new(x, 15, 50), Vector3.new(x + 4, 6, -6))
+	end
+	for _, a in avisosUnirse do
+		if a.Parent then
+			a.Enabled = not Escena.enBatalla
+		end
 	end
 	local cx = camara.CFrame.Position.X
 
@@ -470,6 +777,18 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 			local plano = Vector3.new(v.X, 0, v.Z).Magnitude
 			local objetivo = (plano > 1.5 and not h.raiz.Anchored) and 1 or 0
 			h.m.andar += (objetivo - h.m.andar) * math.min(1, dt * 10)
+			if p == jugador and h.m.andar > 0.6 then
+				local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+				if hum and hum.FloorMaterial ~= Enum.Material.Air then
+					relojPaso -= dt
+					if relojPaso <= 0 then
+						relojPaso = 0.3
+						if Escena.alPaso then
+							Escena.alPaso()
+						end
+					end
+				end
+			end
 			if h.raiz.Anchored then
 				h.m.mirar = 1
 			elseif math.abs(v.X) > 1 then
@@ -508,6 +827,14 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 
 	-- paseantes
 	local ahora = os.clock()
+	for i = #paseantes, 1, -1 do
+		local pa = paseantes[i]
+		if pa.fuente and not pa.fuente:IsDescendantOf(workspace) then
+			pa.ancla:Destroy()
+			npcHechos[pa.fuente] = nil
+			table.remove(paseantes, i)
+		end
+	end
 	for _, pa in paseantes do
 		if pa.espera > 0 then
 			pa.espera -= dt

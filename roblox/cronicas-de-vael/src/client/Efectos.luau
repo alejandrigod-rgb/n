@@ -353,6 +353,21 @@ function Efectos.accion(ev: any, posDe: (string) -> Vector3?, alImpacto: (any) -
 					planGolpe = { impacto = "anillo", texto = "¡EN GUARDIA!", color = Color3.fromRGB(110, 180, 255) }
 				elseif g.tipo == "veneno" and not ev.habilidad then
 					planGolpe = { impacto = "veneno" }
+				elseif g.tipo == "envenenado" then
+					planGolpe = { impacto = "veneno" }
+				elseif g.tipo == "esquiva" then
+					Efectos.onomatopeya(p, "¡FALLO!", Color3.fromRGB(200, 220, 255))
+					alImpacto(g)
+					return
+				elseif g.choque then
+					Efectos.estallido(p, { Color3.fromRGB(255, 230, 120), Color3.new(1, 1, 1) }, 8, 80)
+					Efectos.onomatopeya(p, "¡CATAPLÁN!", Color3.fromRGB(255, 160, 60), true)
+					alImpacto(g)
+					return
+				elseif g.trampa then
+					Efectos.onomatopeya(p, "¡AUCH!", Color3.fromRGB(255, 120, 120))
+					alImpacto(g)
+					return
 				end
 				impacto(planGolpe, p, g.critico)
 				local texto = planGolpe.texto or plan.texto
@@ -363,7 +378,7 @@ function Efectos.accion(ev: any, posDe: (string) -> Vector3?, alImpacto: (any) -
 				alImpacto(g)
 			end
 			local retraso = (k - 1) * 0.08
-			if plan.proyectil and actorPos and g.tipo == "dano" then
+			if plan.proyectil and actorPos and g.tipo == "dano" and not g.choque and not g.trampa then
 				local desde = pantalla(actorPos)
 				if plan.proyectil == "lluvia" then
 					desde = p - Vector2.new(math.random(-80, 80), 300)

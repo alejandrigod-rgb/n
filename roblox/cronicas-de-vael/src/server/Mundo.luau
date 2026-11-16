@@ -108,8 +108,8 @@ local function tri(x: number, yBase: number, z: number, w: number, h: number, co
 end
 
 --- Cartel de texto pintado sobre una tabla.
-local function letrero(x: number, y: number, z: number, w: number, h: number, texto: string, fondo: Color3, colorTexto: Color3?): Part
-	local p = plano(x, y, z, w, h, fondo)
+local function letrero(x: number, y: number, z: number, w: number, h: number, texto: string, fondo: Color3, colorTexto: Color3?, padre: Instance?): Part
+	local p = plano(x, y, z, w, h, fondo, true, padre)
 	local sg = nueva("SurfaceGui", { Face = Enum.NormalId.Back, SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud, PixelsPerStud = 40, LightInfluence = 0 }, p)
 	local t = nueva("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = texto, Font = Enum.Font.FredokaOne, TextScaled = true, TextColor3 = colorTexto or Color3.new(1, 1, 1) }, sg)
 	nueva("UIStroke", { Thickness = 3, Color = NEGRO }, t)
@@ -229,14 +229,14 @@ local function guarida(z: any)
 	local caja = Instance.new("Part")
 	base(caja)
 	caja.Name = "Zona_" .. z.id
-	caja.Size = Vector3.new(10, 12, 7)
-	caja.Position = Vector3.new(x, 6, -8.5)
+	caja.Size = Vector3.new(10, 12, 4.5)
+	caja.Position = Vector3.new(x, 6, -10.2)
 	caja.Transparency = 1
 	caja:SetAttribute("Zona", z.id)
 	caja.Parent = raiz
 	-- marca en el suelo con el color de la zona
-	local marca = plano(x, 0.08, -8.5, 11, 0.12, z.color, false)
-	marca.Size = Vector3.new(11, 0.12, 7)
+	local marca = plano(x, 0.08, -10.2, 11, 0.12, z.color, false)
+	marca.Size = Vector3.new(11, 0.12, 4.5)
 	marca.Material = Enum.Material.Neon
 	marca.Transparency = 0.45
 	-- cartel con flecha
@@ -643,6 +643,263 @@ local function pastoPorTodas(rng: Random)
 	end
 end
 
+
+-- ===================== EXPLORACIÓN (barreras, plataformas, secretos e interiores) =====================
+--- Punto con el que se interactúa (el servidor le pone el aviso). nombre identifica qué es.
+local function punto(nombre: string, pos: Vector3, extra: { [string]: any }?): Part
+	local p = Instance.new("Part")
+	base(p)
+	p.Name = "Punto_" .. nombre
+	p.Size = Vector3.new(2, 3, 2)
+	p.Position = pos
+	p.Transparency = 1
+	p:SetAttribute("Punto", nombre)
+	if extra then
+		for k, v in extra do
+			p:SetAttribute(k, v)
+		end
+	end
+	p.Parent = raiz
+	return p
+end
+
+--- Tabla sólida (se puede pisar). y = altura de la parte de arriba.
+local function tabla(x: number, y: number, z: number, w: number, color: Color3?)
+	local col = color or Color3.fromRGB(150, 100, 60)
+	local p = plano(x, y - 0.45, z, w, 0.9, col)
+	p.CanCollide = true
+	p.CanQuery = true
+	p.Size = Vector3.new(w, 0.9, 6)
+	p.CFrame = CFrame.new(x, y - 0.45, z)
+	-- vetas
+	plano(x - w * 0.2, y - 0.45, z + 3.05, w * 0.3, 0.12, col:Lerp(NEGRO, 0.3), false)
+	plano(x + w * 0.25, y - 0.3, z + 3.05, w * 0.25, 0.12, col:Lerp(NEGRO, 0.3), false)
+end
+
+--- Barrera con dos versiones: "cerrado" (bloquea hasta tener la llave) y "abierto". Las muestra el cliente.
+local function barrera(llave: string, x: number): (Model, Model)
+	local cerrado = Instance.new("Model")
+	cerrado.Name = "Barrera_" .. llave
+	cerrado:SetAttribute("Llave", llave)
+	cerrado:SetAttribute("Estado", "cerrado")
+	cerrado:SetAttribute("MuroX", x)
+	cerrado.Parent = raiz
+	local abierto = Instance.new("Model")
+	abierto.Name = "Paso_" .. llave
+	abierto:SetAttribute("Llave", llave)
+	abierto:SetAttribute("Estado", "abierto")
+	abierto.Parent = raiz
+	return cerrado, abierto
+end
+
+local function cofre(x: number, y: number, z: number, padre: Instance?)
+	plano(x, y + 0.8, z, 3, 1.6, Color3.fromRGB(160, 100, 55), true, padre)
+	plano(x, y + 2, z - 0.05, 3.2, 1, Color3.fromRGB(190, 120, 60), true, padre)
+	plano(x, y + 1.5, z + 0.3, 3.1, 0.3, Color3.fromRGB(240, 200, 70), false, padre)
+	plano(x, y + 1.2, z + 0.35, 0.6, 0.7, Color3.fromRGB(240, 200, 70), true, padre)
+end
+
+local function exploracion(rng: Random)
+	-- 1) El río con el puente roto (Pradera → Pantano): hace falta la CUERDA
+	local rio = plano(166, 0.1, -1, 10, 0.1, Color3.fromRGB(80, 170, 230), false)
+	rio.Size = Vector3.new(10, 0.12, 26)
+	rio.Material = Enum.Material.Neon
+	rio.Transparency = 0.25
+	for k = -1, 1 do
+		disco(166 + k * 3, 0.3, 8 - k * 5, 0.8, Color3.new(1, 1, 1), false).Transparency = 0.3
+	end
+	local cerrado, abierto = barrera("cuerda", 163)
+	plano(161, 2, -1, 0.7, 4, Color3.fromRGB(120, 80, 50), true, cerrado)
+	plano(171, 2, -1, 0.7, 4, Color3.fromRGB(120, 80, 50), true, cerrado)
+	plano(162.8, 0.6, -0.8, 3, 0.5, Color3.fromRGB(160, 110, 65), true, cerrado, -25)
+	plano(169.2, 0.6, -0.8, 3, 0.5, Color3.fromRGB(160, 110, 65), true, cerrado, 25)
+	letrero(159, 5.5, -4, 9, 2, "Puente roto: falta una cuerda", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170), cerrado)
+	for k = 0, 4 do
+		plano(161.2 + k * 2.4, 0.35, -0.8, 2.2, 0.5, Color3.fromRGB(170, 120, 70), true, abierto)
+	end
+	plano(166, 1.6, -0.6, 11, 0.15, Color3.fromRGB(220, 190, 130), false, abierto)
+	plano(161, 1.3, -1, 0.6, 2.6, Color3.fromRGB(120, 80, 50), true, abierto)
+	plano(171, 1.3, -1, 0.6, 2.6, Color3.fromRGB(120, 80, 50), true, abierto)
+
+	-- 2) Las zarzas (Pantano → Bosque): hace falta el HACHA
+	cerrado, abierto = barrera("hacha", 263)
+	for k = 0, 8 do
+		local z = -11 + k * 2.6
+		disco(263 + (k % 2) * 1.2, 2.6 + (k % 3) * 0.8, z, 4.2, Color3.fromRGB(70, 90, 50), true, cerrado)
+		tri(263 + (k % 2) * 1.2 - 1.6, 3.6 + (k % 3) * 0.8, z + 0.3, 0.7, 1.3, Color3.fromRGB(200, 190, 160), true, cerrado)
+		tri(263 + (k % 2) * 1.2 + 1.4, 2.4, z + 0.3, 0.7, 1.2, Color3.fromRGB(200, 190, 160), true, cerrado)
+	end
+	letrero(256, 6, -11, 10, 2, "Zarzas: hace falta un hacha", Color3.fromRGB(90, 70, 50), Color3.fromRGB(255, 235, 170), cerrado)
+	for k = 0, 3 do
+		plano(263, 0.5, -10 + k * 6, 1.6, 1, Color3.fromRGB(150, 110, 70), true, abierto)
+	end
+
+	-- 3) La puerta de piedra (Bosque → Ruinas): hace falta la LLAVE DE PIEDRA
+	cerrado, abierto = barrera("llave", 363)
+	plano(363, 8, -12.5, 6, 16, Color3.fromRGB(150, 140, 130), true, cerrado)
+	for k = 0, 4 do
+		plano(363, 7, -11 + k * 5, 3, 14, Color3.fromRGB(165, 155, 145), true, cerrado)
+		plano(363, 7, -10.6 + k * 5, 0.5, 14, Color3.fromRGB(120, 110, 100), false, cerrado)
+	end
+	disco(363, 7, 10.2, 2.4, Color3.fromRGB(240, 200, 70), true, cerrado)
+	letrero(356, 6.5, -11, 10, 2, "Puerta cerrada: necesitas una llave", Color3.fromRGB(110, 100, 95), Color3.fromRGB(255, 235, 170), cerrado)
+	plano(363, 14, -12.5, 8, 3, Color3.fromRGB(165, 155, 145), true, abierto)
+	plano(360, 7, -12.5, 2, 14, Color3.fromRGB(150, 140, 130), true, abierto)
+	plano(366, 7, -12.5, 2, 14, Color3.fromRGB(150, 140, 130), true, abierto)
+
+	-- 4) La oscuridad (Ruinas → Cueva): hace falta el FAROL
+	cerrado, abierto = barrera("farol", 463)
+	for k = 0, 3 do
+		local n = plano(466 + k * 1.5, 10, -12 + k * 0.4, 6, 24, Color3.fromRGB(15, 10, 20), false, cerrado)
+		n.Size = Vector3.new(6, 24, 26)
+		n.CFrame = CFrame.new(466 + k * 4, 10, -1)
+		n.Transparency = 0.15 + k * 0.05
+	end
+	for k = 0, 3 do
+		disco(466 + k * 3, 5 + (k % 2) * 3, 12, 0.6, Color3.fromRGB(255, 240, 120), false, cerrado).Material = Enum.Material.Neon
+	end
+	letrero(456, 6.5, -11, 10, 2, "Demasiado oscuro: falta un farol", Color3.fromRGB(40, 35, 50), Color3.fromRGB(255, 235, 170), cerrado)
+	for k = 0, 2 do
+		plano(468 + k * 30, 3, -11.8, 0.5, 6, Color3.fromRGB(90, 70, 50), true, abierto)
+		local llama = disco(468 + k * 30, 6.6, -11.6, 1.4, Color3.fromRGB(255, 170, 50), true, abierto)
+		llama.Material = Enum.Material.Neon
+	end
+
+	-- Plataformas del Pantano con el cofre del HACHA arriba del todo
+	for _, t in { { 226, 3 }, { 232, 6 }, { 238.5, 9 }, { 245, 12 }, { 252, 12 } } do
+		tabla(t[1], t[2], -7, 5)
+		plano(t[1], t[2] / 2 - 0.5, -9.8, 0.6, t[2] - 1, Color3.fromRGB(110, 80, 55), true)
+	end
+	cofre(252, 12, -6)
+	punto("cofreHacha", Vector3.new(252, 13.5, -6))
+
+	-- El Bosque: el ermitaño y sus 3 setas brillantes escondidas
+	plano(334, 4, -17, 9, 8, Color3.fromRGB(140, 100, 65))
+	tri(334, 7.8, -16.8, 12, 5, Color3.fromRGB(90, 140, 70))
+	plano(332, 2.2, -16.6, 2, 4.4, Color3.fromRGB(80, 55, 35))
+	letrero(334, 9.6, -16.4, 8, 1.6, "Ermitaño", Color3.fromRGB(110, 80, 50))
+	punto("ermitano", Vector3.new(329, 2.8, -9.5))
+	for _, t in { { 292, 3.5 }, { 297, 7 }, { 302.5, 10.5 } } do
+		tabla(t[1], t[2], -7, 4.5, Color3.fromRGB(120, 85, 55))
+	end
+	local setas = { Vector3.new(272, 0, -11.5), Vector3.new(302.5, 10.5, -7), Vector3.new(352, 0, -11.8) }
+	for i, pos in setas do
+		local m = Instance.new("Model")
+		m.Name = "SetaBrillante_" .. i
+		m:SetAttribute("SetaId", i)
+		m.Parent = raiz
+		plano(pos.X, pos.Y + 0.6, pos.Z, 0.5, 1.2, Color3.fromRGB(240, 235, 220), true, m)
+		local cap = disco(pos.X, pos.Y + 1.4, pos.Z + 0.1, 1.8, Color3.fromRGB(120, 230, 255), true, m)
+		cap.Material = Enum.Material.Neon
+		punto("seta", pos + Vector3.new(0, 1.5, 0.5), { SetaId = i }).Parent = m
+	end
+
+	-- Las Ruinas: 3 palancas (una arriba de las columnas) y el cofre del FAROL
+	for _, t in { { 384, 4 }, { 389.5, 8 }, { 395, 12 } } do
+		tabla(t[1], t[2], -7, 4.5, Color3.fromRGB(170, 160, 145))
+	end
+	for i, pos in { Vector3.new(372, 0, -9.5), Vector3.new(395, 12, -7), Vector3.new(452, 0, -9.5) } do
+		local m = Instance.new("Model")
+		m.Name = "Palanca_" .. i
+		m:SetAttribute("PalancaId", i)
+		m.Parent = raiz
+		plano(pos.X, pos.Y + 0.4, pos.Z, 1.6, 0.8, Color3.fromRGB(110, 100, 95), true, m)
+		local brazo = plano(pos.X, pos.Y + 1.4, pos.Z + 0.2, 0.35, 2.2, Color3.fromRGB(120, 80, 50), true, m, -30)
+		brazo.Name = "Brazo"
+		disco(pos.X - 0.55, pos.Y + 2.35, pos.Z + 0.3, 0.7, Color3.fromRGB(230, 70, 60), true, m)
+		punto("palanca", pos + Vector3.new(0, 1.5, 0.5), { PalancaId = i }).Parent = m
+	end
+	cofre(440, 0, -10.5)
+	punto("cofreFarol", Vector3.new(440, 1.5, -10))
+
+	-- Ciudad: posada, herrería y la puerta de la taberna
+	punto("posada", Vector3.new(-23, 2.8, -11.5))
+	punto("herrero", Vector3.new(-168, 2.8, -11.5))
+	punto("entrarTaberna", Vector3.new(-102, 2.8, -11.5))
+end
+
+--- Interior de la taberna (lejos, en lo alto: se entra y se sale con la puerta).
+Mundo.Taberna = { entrada = Vector3.new(-112, 203.5, 2), salida = Vector3.new(-102, 3.5, -8) }
+local function taberna()
+	local Y = 200
+	local suelo = plano(-100, Y - 1, 0, 44, 2, Color3.fromRGB(150, 100, 60))
+	suelo.CanCollide = true
+	suelo.CanQuery = true
+	suelo.Size = Vector3.new(44, 2, 26)
+	suelo.CFrame = CFrame.new(-100, Y - 1, 0)
+	for k = 0, 10 do
+		plano(-121 + k * 4.2, Y - 1, 13.1, 0.15, 2, Color3.fromRGB(110, 70, 40), false)
+	end
+	-- pared de atrás con ladrillo y ventanas (grande, para que llene la pantalla) y techo de vigas
+	plano(-100, Y + 19, -12.4, 110, 44, Color3.fromRGB(205, 160, 110))
+	plano(-100, Y + 25, -12, 110, 1.2, Color3.fromRGB(110, 70, 40), false)
+	plano(-100, Y + 32, -12, 110, 1.2, Color3.fromRGB(110, 70, 40), false)
+	local sueloAncho = plano(-100, Y - 1.2, 0, 110, 2, Color3.fromRGB(130, 85, 50), false)
+	sueloAncho.Size = Vector3.new(110, 2, 30)
+	sueloAncho.CFrame = CFrame.new(-100, Y - 1.25, 0)
+	for _, lado in { -1, 1 } do
+		plano(-100 + lado * 38, Y + 19, -11.8, 28, 44, Color3.fromRGB(150, 105, 70))
+		plano(-100 + lado * 25, Y + 12, -11.6, 2, 26, Color3.fromRGB(110, 70, 40))
+	end
+	for k = 0, 12 do
+		plano(-120 + (k % 7) * 6.3, Y + 3 + math.floor(k / 7) * 9, -11.6, 3, 1.2, Color3.fromRGB(185, 140, 95), false)
+	end
+	for _, x in { -112, -88 } do
+		plano(x, Y + 10, -11.5, 5, 5, Color3.fromRGB(40, 60, 110))
+		disco(x + 1, Y + 11, -11.3, 1, Color3.fromRGB(255, 250, 200), false)
+		plano(x, Y + 10, -11.2, 5, 0.3, Color3.fromRGB(110, 70, 40), false)
+		plano(x, Y + 10, -11.2, 0.3, 5, Color3.fromRGB(110, 70, 40), false)
+	end
+	-- paredes invisibles y techo
+	for _, d in { { -122.5, 0, 1, 40 }, { -77.5, 0, 1, 40 } } do
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(1, 30, 26)
+		m.Position = Vector3.new(d[1], Y + 10, 0)
+		m.Parent = raiz
+	end
+	for _, z in { -11, 10.5 } do
+		local m = Instance.new("Part")
+		base(m)
+		m.CanCollide = true
+		m.Transparency = 1
+		m.Size = Vector3.new(44, 30, 1)
+		m.Position = Vector3.new(-100, Y + 10, z)
+		m.Parent = raiz
+	end
+	plano(-122, Y + 9, -6, 1, 20, Color3.fromRGB(120, 80, 50))
+	plano(-78, Y + 9, -6, 1, 20, Color3.fromRGB(120, 80, 50))
+	-- barra, barriles, mesas y chimenea
+	plano(-100, Y + 1.6, -8, 16, 3.2, Color3.fromRGB(130, 80, 45))
+	plano(-100, Y + 3.3, -7.8, 17, 0.5, Color3.fromRGB(170, 110, 60))
+	for k = -2, 2 do
+		plano(-100 + k * 3.5, Y + 6.8, -11.3, 2.4, 0.4, Color3.fromRGB(110, 70, 40), false)
+		disco(-100 + k * 3.5, Y + 7.6, -11.2, 1.1, ({ Color3.fromRGB(90, 200, 120), Color3.fromRGB(200, 80, 80), Color3.fromRGB(110, 140, 240) })[(k % 3) + 1])
+	end
+	for _, x in { -118, -115 } do
+		disco(x, Y + 1.5, -9.5, 3, Color3.fromRGB(150, 100, 55))
+		plano(x, Y + 1.5, -9.3, 3, 0.25, Color3.fromRGB(90, 90, 100), false)
+	end
+	for _, x in { -110, -90 } do
+		plano(x, Y + 1.8, 2, 6, 0.6, Color3.fromRGB(150, 100, 60))
+		plano(x - 2.4, Y + 0.8, 2.2, 0.5, 1.8, Color3.fromRGB(120, 80, 50))
+		plano(x + 2.4, Y + 0.8, 2.2, 0.5, 1.8, Color3.fromRGB(120, 80, 50))
+		disco(x - 1, Y + 2.6, 2.4, 1, Color3.fromRGB(240, 200, 90))
+	end
+	plano(-84, Y + 3, -11, 8, 6, Color3.fromRGB(120, 115, 120))
+	plano(-84, Y + 2, -10.6, 5, 3.6, Color3.fromRGB(30, 20, 20))
+	local fuego = disco(-84, Y + 1.6, -10.3, 2.2, Color3.fromRGB(255, 150, 40))
+	fuego.Material = Enum.Material.Neon
+	letrero(-100, Y + 15, -11.4, 12, 2.6, "Taberna El Hongo Feliz", Color3.fromRGB(150, 90, 50), Color3.fromRGB(255, 230, 150))
+	-- puerta de salida
+	plano(-119, Y + 3, -10.8, 4, 6, Color3.fromRGB(110, 70, 40))
+	letrero(-119, Y + 7, -10.6, 4, 1.2, "Salida", Color3.fromRGB(150, 95, 55))
+	punto("salirTaberna", Vector3.new(-119, Y + 2.8, -8))
+	punto("tabernero", Vector3.new(-100, Y + 2.8, -9))
+end
+
 --- Construye (o encuentra) el mundo. Devuelve las partes de zona: [parte] = datos de la zona.
 function Mundo.construir(): { [BasePart]: any }
 	local zonas: { [BasePart]: any } = {}
@@ -703,6 +960,8 @@ function Mundo.construir(): { [BasePart]: any }
 	ruinas(rng)
 	cueva(rng)
 	pastoPorTodas(rng)
+	exploracion(rng)
+	taberna()
 
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true

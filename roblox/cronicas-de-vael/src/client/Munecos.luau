@@ -231,6 +231,32 @@ local function dibujarVecino(m: Muneco, semilla: number)
 	end
 end
 
+--- El vendedor sospechoso: gabardina, sombrero, gafas de sol y bigote.
+local function dibujarVendedor(m: Muneco)
+	local piel = Color3.fromRGB(235, 195, 160)
+	sombra(m, 0.62)
+	pie(m, 0.37, 0.935, 0.2, 0.06, Color3.fromRGB(40, 35, 35))
+	pie(m, 0.63, 0.935, 0.2, 0.06, Color3.fromRGB(40, 35, 35))
+	pieza(m, 0.5, 0.76, 0.62, 0.34, Color3.fromRGB(150, 115, 70), 0.25, 3)
+	pieza(m, 0.5, 0.76, 0.04, 0.3, Color3.fromRGB(110, 80, 50), 0, 4, 0, { sb = true })
+	for k = 0, 2 do
+		circ(m, 0.44, 0.68 + k * 0.06, 0.035, Color3.fromRGB(240, 200, 70), 5, { sb = true })
+	end
+	pieza(m, 0.5, 0.62, 0.46, 0.08, Color3.fromRGB(130, 95, 60), 0.3, 4) -- cuello subido
+	circ(m, 0.2, 0.77, 0.15, piel, 6)
+	circ(m, 0.8, 0.77, 0.15, piel, 6)
+	circ(m, 0.5, 0.42, 0.72, piel, 5)
+	pieza(m, 0.39, 0.41, 0.2, 0.09, NEGRO, 0.4, 8)
+	pieza(m, 0.61, 0.41, 0.2, 0.09, NEGRO, 0.4, 8)
+	pieza(m, 0.5, 0.41, 0.06, 0.02, NEGRO, 0, 8, 0, { sb = true })
+	circ(m, 0.36, 0.4, 0.05, BLANCO, 9, { sb = true, t = 0.3 })
+	pieza(m, 0.5, 0.52, 0.3, 0.05, Color3.fromRGB(60, 40, 30), 0.5, 8)
+	boca(m, 0.52, 0.575, 0.08, 0.02, 8)
+	pieza(m, 0.5, 0.21, 0.98, 0.06, Color3.fromRGB(70, 55, 45), 0.5, 11)
+	pieza(m, 0.5, 0.13, 0.54, 0.15, Color3.fromRGB(80, 62, 50), 0.25, 10)
+	pieza(m, 0.5, 0.18, 0.55, 0.03, Color3.fromRGB(150, 60, 60), 0, 11, 0, { sb = true })
+end
+
 -- ===================== MONSTRUOS =====================
 -- Todos miran a la izquierda (hacia los héroes). El lienzo es cuadrado (aspecto 1).
 local DIBUJOS: { [string]: (Muneco, Color3) -> () } = {}
@@ -452,6 +478,24 @@ DIBUJOS.golem = function(m, c)
 	boca(m, 0.5, 0.36, 0.14, 0.025, 6, Color3.fromRGB(50, 50, 60))
 end
 
+DIBUJOS.mimico = function(m, c)
+	sombra(m, 0.75)
+	pie(m, 0.3, 0.94, 0.1, 0.08, c:Lerp(NEGRO, 0.3))
+	pie(m, 0.7, 0.94, 0.1, 0.08, c:Lerp(NEGRO, 0.3))
+	pieza(m, 0.5, 0.74, 0.74, 0.34, c, 0.1, 2)
+	pieza(m, 0.5, 0.74, 0.76, 0.05, Color3.fromRGB(240, 200, 70), 0, 3)
+	boca(m, 0.5, 0.56, 0.6, 0.14, 3, Color3.fromRGB(110, 20, 40))
+	pieza(m, 0.44, 0.6, 0.16, 0.05, Color3.fromRGB(240, 110, 140), 0.5, 4, -15, { sb = true }) -- lengua
+	for k = 0, 4 do
+		pieza(m, 0.26 + k * 0.12, 0.51, 0.06, 0.06, BLANCO, 0, 4, 45, { gr = 1 })
+		pieza(m, 0.26 + k * 0.12, 0.61, 0.06, 0.06, BLANCO, 0, 4, 45, { gr = 1 })
+	end
+	ala(m, 0.5, 0.36, 0.78, 0.22, c:Lerp(BLANCO, 0.1), 5, 0, 6, 5, 0) -- la tapa abre y cierra
+	pieza(m, 0.5, 0.42, 0.14, 0.08, Color3.fromRGB(240, 200, 70), 0.2, 6)
+	ojo(m, 0.38, 0.3, 0.12, 0.1, 7, Color3.fromRGB(255, 240, 120))
+	ojo(m, 0.62, 0.3, 0.12, 0.1, 7, Color3.fromRGB(255, 240, 120))
+end
+
 DIBUJOS.reyHongo = function(m, c)
 	sombra(m, 0.8)
 	pie(m, 0.38, 0.95, 0.2, 0.06, Color3.fromRGB(120, 80, 50))
@@ -548,6 +592,9 @@ function Munecos.crear(padre: Instance, tipo: string, id: string, grosor: number
 		local def = Datos.Enemigos[id]
 		local color = def and def.color or Color3.fromRGB(150, 150, 150)
 		dibujar(m, color)
+	elseif tipo == "vendedor" then
+		m = nuevo(padre, 1.3, grosor)
+		dibujarVendedor(m)
 	elseif tipo == "vecino" then
 		m = nuevo(padre, 1.3, grosor)
 		dibujarVecino(m, tonumber(id) or 1)

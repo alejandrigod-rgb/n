@@ -1,5 +1,5 @@
 --!strict
--- Guardado de partida con DataStore (clase, nivel, experiencia, oro y objetos).
+-- Guardado de partida con DataStore (clase, nivel, experiencia, oro, objetos y mejoras).
 -- En Studio hace falta activar: Game Settings → Security → "Enable Studio Access to API Services".
 -- Si el DataStore falla, el juego sigue con datos nuevos (no se pierde la partida en curso).
 
@@ -8,7 +8,7 @@ local Players = game:GetService("Players")
 
 local DatosJugador = {}
 
-export type Perfil = { clase: string?, nivel: number, xp: number, oro: number, objetos: { [string]: number } }
+export type Perfil = { clase: string?, nivel: number, xp: number, oro: number, objetos: { [string]: number }, mejoras: { string }, llaves: { [string]: boolean }, progreso: { [string]: any } }
 
 local almacen: DataStore? = nil
 pcall(function()
@@ -18,7 +18,7 @@ end)
 local perfiles: { [Player]: Perfil } = {}
 
 local function nuevo(): Perfil
-	return { clase = nil, nivel = 1, xp = 0, oro = 20, objetos = { pocion = 3, eter = 1 } }
+	return { clase = nil, nivel = 1, xp = 0, oro = 20, objetos = { pocion = 3, eter = 1 }, mejoras = {}, llaves = {}, progreso = { setas = {}, palancas = {}, racha = 0 } }
 end
 
 function DatosJugador.cargar(jugador: Player): Perfil
@@ -33,6 +33,12 @@ function DatosJugador.cargar(jugador: Player): Perfil
 			perfil.xp = datos.xp or 0
 			perfil.oro = datos.oro or 20
 			perfil.objetos = datos.objetos or perfil.objetos
+			perfil.mejoras = type(datos.mejoras) == "table" and datos.mejoras or {}
+			perfil.llaves = type(datos.llaves) == "table" and datos.llaves or {}
+			if type(datos.progreso) == "table" then
+				perfil.progreso.setas = datos.progreso.setas or {}
+				perfil.progreso.palancas = datos.progreso.palancas or {}
+			end
 		end
 	end
 	perfiles[jugador] = perfil
