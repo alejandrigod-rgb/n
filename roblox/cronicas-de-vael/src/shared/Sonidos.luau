@@ -9,11 +9,11 @@
 local Sonidos = {}
 
 Sonidos.IDS = {
-	efectos = "", -- vael-efectos.ogg (todos los efectos en un solo archivo)
-	ciudad = "", -- vael-musica-ciudad.ogg (ciudad y menú)
-	aventura = "", -- vael-musica-aventura.ogg (pradera, pantano, bosque)
-	combate = "", -- vael-musica-combate.ogg
-	jefe = "", -- vael-musica-jefe.ogg (ruinas, cueva y Rey Hongo)
+	efectos = "rbxassetid://78425404662822", -- vael-efectos.ogg (todos los efectos en un solo archivo)
+	ciudad = "rbxassetid://125024038150085", -- vael-musica-ciudad.ogg (ciudad y menú)
+	aventura = "rbxassetid://84249680099635", -- vael-musica-aventura.ogg (pradera, pantano, bosque)
+	combate = "rbxassetid://123965169837547", -- vael-musica-combate.ogg
+	jefe = "rbxassetid://72517976367422", -- vael-musica-jefe.ogg (ruinas, cueva y Rey Hongo)
 }
 
 -- dónde empieza cada efecto dentro de vael-efectos.ogg (segundos) y cuánto dura
