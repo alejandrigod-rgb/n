@@ -4,6 +4,14 @@ Juego original: un mundo de fantasía con combates por turnos en equipo. Tu grup
 
 ## Qué tiene
 - **Menú de inicio** (script propio, `src/client/Menu.client.luau`) con Jugar, Mi personaje, Cómo se juega, Ajustes (volumen) y Créditos. **Menú de pausa** durante la partida: botón «Menú» arriba a la derecha o tecla **M** (Continuar, Mi personaje, Ajustes, Cómo se juega, Volver al inicio).
+- **Cuadro de errores y versión** (`src/client/Diagnostico.client.luau`): abajo a la derecha sale la versión (por ejemplo "v0.7"); si algo falla, un cuadro rojo abajo a la izquierda enseña el error (en Studio, también los del servidor). Con una captura basta para arreglarlo.
+- **Mapa y objetivos** (`src/client/Mapa.client.luau`): tira de mapa arriba con las zonas, tu posición, candados en los caminos cerrados y una estrella en el objetivo; debajo, «qué hacer ahora» con una flecha. Mapa grande con **Tab** o el botón «Mapa».
+- **Aldea de Brezo** (nueva, a la izquierda de la ciudad): aquí se empieza. Tu casa, la abuela Rosa (cuenta la historia y da pistas), el granjero Tomás y el **Huerto invadido** (primera guarida, muy fácil).
+- **Interiores:** taberna (con clientes) y **posada** (camas y la posadera Lola, que te deja dormir).
+- **Emboscadas:** andando por las zonas salvajes, a veces saltan monstruos y atacan primero. **Carro asaltado:** un comerciante pide ayuda y paga si lo defiendes.
+- **Cámara del combate:** botón «Cámara» o tecla C (lateral, desde arriba, cerca), girar con Q/E o arrastrando con el botón derecho, acercar con la rueda.
+- **Animaciones del personaje:** se inclina al correr y mueve los brazos, se estira al saltar, encoge las piernas al caer y se aplasta al aterrizar. Lleva **mochila**.
+- **Más charla:** los vecinos se paran a hablar entre ellos, los monstruos sueltan frases y los héroes celebran al ganar.
 - **Crea a tu héroe** (`src/client/Editor.luau`): piel, pelo (7 peinados) y su color, ojos (5 estilos) y su color, color de la ropa, gorro (7: el de tu clase, de lana, vaquero, corona de cartón, gorra, chistera…), accesorio gracioso (gafas, bigote, tirita, parche, pato en la cabeza, pajarita…) y nombre del héroe (pasa por el filtro de texto de Roblox). Se abre al elegir clase y se cambia cuando quieras desde el menú.
 - **Estilo cartulina recortada** (propio): colores apagados, textura de cartón (material Cardboard), sin neón, sin resplandores ni degradados, contornos marrón oscuro, letra de rotulador y chinchetas en los paneles.
 - **Estilo 2D de recortes** (personajes y mundo propios):
@@ -99,6 +107,8 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 | … → **Audio** | ModuleScript | `src/client/Audio.luau` |
 | … → **Editor** | ModuleScript | `src/client/Editor.luau` |
 | … → **Menu** | LocalScript | `src/client/Menu.client.luau` |
+| … → **Mapa** | LocalScript | `src/client/Mapa.client.luau` |
+| … → **Diagnostico** | LocalScript | `src/client/Diagnostico.client.luau` |
 | ServerScriptService → VaelServidor → **Eventos** | ModuleScript | `src/server/Eventos.luau` |
 | ReplicatedStorage → Vael → **Sonidos** | ModuleScript | `src/shared/Sonidos.luau` |
 

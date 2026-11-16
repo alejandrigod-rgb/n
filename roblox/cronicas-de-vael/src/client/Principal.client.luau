@@ -93,7 +93,7 @@ local function enMenu(): boolean
 end
 
 -- ===================== HUD =====================
-local hud = Ui.panel({ Position = UDim2.fromOffset(18, 18), Size = UDim2.fromOffset(410, 176), Parent = gui, Visible = false })
+local hud = Ui.panel({ Position = UDim2.fromOffset(18, 64), Size = UDim2.fromOffset(410, 176), Parent = gui, Visible = false })
 local hudRetrato: CanvasGroup? = nil
 local hudClase: string? = nil
 local hudNivel = Ui.texto({ Position = UDim2.fromOffset(18, 124), Size = UDim2.fromOffset(96, 30), Text = "", TextColor3 = C.oro, Parent = hud, ZIndex = 3 })
@@ -108,7 +108,7 @@ Ui.icono("moneda", hud, UDim2.fromOffset(126, 136), UDim2.fromOffset(24, 24))
 local hudInfo = Ui.texto({ Position = UDim2.fromOffset(156, 136), Size = UDim2.new(1, -172, 0, 24), Text = "", TextColor3 = C.oro, TextXAlignment = Enum.TextXAlignment.Left, Parent = hud })
 
 -- mochila: mejoras (como en los roguelikes, se ven todas) y objetos clave
-local mochila = Ui.crear("Frame", { Position = UDim2.fromOffset(18, 202), Size = UDim2.fromOffset(410, 40), BackgroundTransparency = 1, Parent = gui, Visible = false })
+local mochila = Ui.crear("Frame", { Position = UDim2.fromOffset(18, 248), Size = UDim2.fromOffset(410, 40), BackgroundTransparency = 1, Parent = gui, Visible = false })
 Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), Parent = mochila })
 local consejo = Ui.panel({ Size = UDim2.fromOffset(260, 74), Parent = gui, Visible = false, ZIndex = 60 })
 local consejoTexto = Ui.texto({ Position = UDim2.fromOffset(12, 8), Size = UDim2.new(1, -24, 1, -16), Text = "", TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left, Parent = consejo, ZIndex = 61 })
@@ -944,7 +944,7 @@ remoto("BatallaFin").OnClientEvent:Connect(function(r: any)
 			Munecos.caer(mio, false)
 		end
 		franjasCine(false)
-		Ui.tween(hud, { Position = UDim2.fromOffset(18, 18) }, 0.5, Enum.EasingStyle.Back)
+		Ui.tween(hud, { Position = UDim2.fromOffset(18, 64) }, 0.5, Enum.EasingStyle.Back)
 		for id, f in fichasTira do
 			f:Destroy()
 			fichasTira[id] = nil
