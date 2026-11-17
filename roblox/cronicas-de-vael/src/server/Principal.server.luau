@@ -113,6 +113,8 @@ local function notificar(j: Player, texto: string)
 end
 
 local pista: (any) -> string
+local SECRETOS: { [string]: any } = {}
+local TOTAL_SECRETOS = 0
 
 -- ===================== DIÁLOGOS =====================
 -- dialogo(j, { titulo, texto, quien = { tipo, id }, opciones = { { texto, accion = function() return "respuesta" end } } })
@@ -311,6 +313,22 @@ Combate.alVencerJefe = function(j: Player)
 			return "«Pues le ganas otra vez, cielo. La cueva sigue ahí.»"
 		end } },
 	})
+end
+
+-- ===================== SECRETOS (easter eggs) =====================
+-- Cada uno da 5 de oro la primera vez; encontrarlos todos regala la Corona de cartón.
+SECRETOS = {
+	gato = { accion = "Acariciar", titulo = "¿Un gato morado?", quien = { "vecino", "4040" }, texto = "Un gato morado con pañuelo rojo te mira, hace «miau» y suena su cascabel. Juraría que no es de este mundo… Cuando parpadeas, ya no está.", respuesta = "¿Hola…?" },
+	puerta = { accion = "Llamar", titulo = "La puerta del NO", quien = { "enemigo", "fantasma" }, texto = "Llamas. Silencio. Luego, una voz desde dentro: «…todavía no.» Y unos ojos amarillos se cierran despacio.", respuesta = "Me voy, me voy" },
+	olla = { accion = "Remover", titulo = "La olla del Gran Guiso", quien = { "vecino", "1955" }, texto = "Remueves la olla vacía. Suena a eco… y huele a setas tristes. Sin el Cucharón no hay fiesta.", respuesta = "Lo recuperaré" },
+	puertecita = { accion = "Llamar", titulo = "Una puertecita", quien = { "vecino", "999" }, texto = "Una vocecita grita: «¡NO HAY NADIE!» …y alguien desliza unas monedas por debajo de la puerta para que te vayas.", respuesta = "Gracias, nadie" },
+	pato = { accion = "Apretar", titulo = "Un pato de goma", quien = { "vecino", "42" }, texto = "¡CUAC! Un pato de goma en mitad del pantano. Alguien lo perdió en la bañera… hace unos 300 años.", respuesta = "Cuac" },
+	piedra = { accion = "Escuchar", titulo = "Una piedra con cara", quien = { "enemigo", "golem" }, texto = "La piedra susurra: «Aquí estuvo AEZ». Nadie en Vael sabe qué significa.", respuesta = "Qué misterio" },
+	bordeOeste = { accion = "Mirar", titulo = "El fin del cartón", quien = { "vecino", "1" }, texto = "Más allá solo hay mesa, unas tijeras y una mancha de pegamento. Mejor no saltes.", respuesta = "Vuelvo" },
+	bordeEste = { accion = "Mirar", titulo = "Se acabó el papel", quien = { "vecino", "2" }, texto = "Aquí el dibujante se quedó sin papel. Dejó una nota: «Continuará… cuando compre más cartulina».", respuesta = "Esperaré" },
+}
+for _ in SECRETOS do
+	TOTAL_SECRETOS += 1
 end
 
 -- ===================== MUNDO Y GUARIDAS =====================
@@ -767,6 +785,44 @@ for _, d in mundo:GetDescendants() do
 				},
 			})
 		end)
+	elseif nombre == "secreto" then
+		local id = p:GetAttribute("Secreto") :: string
+		local d = SECRETOS[id]
+		if d then
+			aviso(p, d.accion, "¿?", function(j)
+				local perfil = DatosJugador.obtener(j) :: any
+				local pr = perfil.progreso
+				pr.secretos = pr.secretos or {}
+				local nuevo = not pr.secretos[id]
+				local texto = d.texto
+				if id == "olla" and pr.final then
+					texto = "La olla huele a Gran Guiso del bueno. Alguien ha dejado un cuenco para ti… y te cura del todo."
+					Combate.curarDelTodo(j)
+				end
+				dialogo(j, { titulo = d.titulo, texto = texto, quien = d.quien, opciones = { { texto = d.respuesta or "Vale…" } } })
+				if nuevo then
+					pr.secretos[id] = true
+					local n = 0
+					for _ in pr.secretos do
+						n += 1
+					end
+					perfil.oro += 5
+					remoto("Sonido"):FireClient(j, "mejora")
+					notificar(j, "¡Secreto encontrado! " .. n .. "/" .. TOTAL_SECRETOS .. " · +5 de oro")
+					if n >= TOTAL_SECRETOS then
+						task.delay(4, function()
+							if j.Parent then
+								Combate.darMejora(j, "corona")
+								notificar(j, "¡Todos los secretos! Te ganas la Corona de cartón")
+								enviarEstado(j)
+							end
+						end)
+					end
+					DatosJugador.guardar(j)
+					enviarEstado(j)
+				end
+			end, 7)
+		end
 	elseif nombre == "cofreMercado" or nombre == "cofreCallejon" then
 		aviso(p, "Abrir", "Cofre", function(j)
 			local perfil = DatosJugador.obtener(j) :: any

@@ -311,6 +311,8 @@ local balanceos: { Balanceo } = {}
 local nubes: { { m: Model, v: number, y0: number, f: number? } } = {}
 local flotan: { { m: Model, base: CFrame, v: number, fase: number } } = {}
 local humos: { { p: BasePart, base: CFrame, fase: number } } = {}
+local ojosLista: { { m: Model, prox: number, abiertos: boolean } } = {}
+local parpadean: { { p: BasePart, prox: number } } = {}
 local giran: { { m: Model, base: CFrame, v: number } } = {}
 local nieblas: { { p: BasePart, base: CFrame, v: number } } = {}
 local chorros: { { p: BasePart, base: CFrame } } = {}
@@ -329,7 +331,23 @@ local function escanear(mundo: Instance)
 			end
 		end
 	end
-	for _, d in mundo:GetChildren() do
+	-- lo de las calles y los interiores va dentro de carpetas "Trozo": se miran también
+	local lista = mundo:GetChildren()
+	for _, c in mundo:GetChildren() do
+		if c:IsA("Folder") and c.Name == "Trozo" then
+			for _, h in c:GetChildren() do
+				table.insert(lista, h)
+			end
+		end
+	end
+	for _, d in lista do
+		if d:IsA("Model") and d:GetAttribute("Ojos") and not vistos[d] then
+			vistos[d] = true
+			table.insert(ojosLista, { m = d, prox = os.clock() + math.random() * 5, abiertos = true })
+		elseif d:IsA("BasePart") and d:GetAttribute("Parpadea") and not vistos[d] then
+			vistos[d] = true
+			table.insert(parpadean, { p = d, prox = os.clock() + math.random() * 3 })
+		end
 		if not vistos[d] then
 			if d:IsA("Model") and d:GetAttribute("Nube") then
 				vistos[d] = true
@@ -960,6 +978,27 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 	for _, f in flotan do
 		f.m:PivotTo(f.base + Vector3.new(0, math.sin(tiempo * f.v + f.fase) * 1.2, 0))
 	end
+	-- ojos en la oscuridad: se cierran y se abren de vez en cuando (a veces desaparecen un rato)
+	local reloj = os.clock()
+	for _, o in ojosLista do
+		if reloj > o.prox and o.m.Parent then
+			o.abiertos = not o.abiertos
+			o.prox = reloj + (o.abiertos and math.random(2, 6) or (math.random() < 0.3 and 4 or 0.15))
+			for _, p in o.m:GetChildren() do
+				if p:IsA("BasePart") then
+					p.Transparency = o.abiertos and 0 or 1
+				end
+			end
+		end
+	end
+	-- luces que fallan (farolas del callejón y ventanas)
+	for _, l in parpadean do
+		if reloj > l.prox and l.p.Parent then
+			local apagada = l.p.Transparency < 0.5 and math.random() < 0.5
+			l.p.Transparency = apagada and 0.85 or 0
+			l.prox = reloj + (apagada and math.random() * 0.25 or math.random() * 2.5 + 0.1)
+		end
+	end
 	for _, h in humos do
 		if h.p.Parent then
 			local fase = (tiempo * 0.25 + h.fase) % 1
@@ -1027,6 +1066,87 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 				for _, a in b.alas do
 					a.Size = UDim2.fromScale(0.45, 0.2 + math.abs(math.sin(t * 14)) * 0.6)
 				end
+			end
+		end
+	end
+end)
+
+-- ===================== AMBIENTE POR ZONA =====================
+-- Cada sitio tiene su luz: el Callejón se oscurece (con viñeta), el Pantano se pone verdoso, la Cueva fría,
+-- y la taberna y la posada cálidas. Todo es local (solo lo ve este jugador) y con fundido suave.
+local Lighting = game:GetService("Lighting")
+local cc = Instance.new("ColorCorrectionEffect")
+cc.Name = "VaelAmbiente"
+cc.Parent = Lighting
+local guiAmbiente = Instance.new("ScreenGui")
+guiAmbiente.Name = "VaelAmbiente"
+guiAmbiente.IgnoreGuiInset = true
+guiAmbiente.ResetOnSpawn = false
+guiAmbiente.DisplayOrder = -5
+guiAmbiente.AutoLocalize = false
+guiAmbiente.Parent = jugador:WaitForChild("PlayerGui")
+-- viñeta: cuatro bordes oscuros que se difuminan hacia el centro
+local bordes: { Frame } = {}
+for _, d in { { 0, 0, 1, 0.32, 90 }, { 0, 0.68, 1, 0.32, -90 }, { 0, 0, 0.24, 1, 0 }, { 0.76, 0, 0.24, 1, 180 } } do
+	local f = Instance.new("Frame")
+	f.Position = UDim2.fromScale(d[1], d[2])
+	f.Size = UDim2.fromScale(d[3], d[4])
+	f.BackgroundColor3 = Color3.fromRGB(12, 8, 20)
+	f.BorderSizePixel = 0
+	f.BackgroundTransparency = 1
+	f.Parent = guiAmbiente
+	local g = Instance.new("UIGradient")
+	g.Rotation = d[5]
+	g.Transparency = NumberSequence.new(0, 1)
+	g.Parent = f
+	table.insert(bordes, f)
+end
+
+type Ambiente = { brillo: number, contraste: number, saturacion: number, tinte: Color3, vineta: number }
+local AMBIENTES: { [string]: Ambiente } = {
+	normal = { brillo = 0, contraste = 0, saturacion = 0, tinte = Color3.new(1, 1, 1), vineta = 1 },
+	callejon = { brillo = -0.14, contraste = 0.08, saturacion = -0.3, tinte = Color3.fromRGB(170, 180, 235), vineta = 0.15 },
+	pantano = { brillo = -0.03, contraste = 0, saturacion = -0.12, tinte = Color3.fromRGB(215, 235, 205), vineta = 0.65 },
+	bosque = { brillo = -0.04, contraste = 0.02, saturacion = 0, tinte = Color3.fromRGB(220, 238, 215), vineta = 0.7 },
+	ruinas = { brillo = 0, contraste = 0, saturacion = -0.12, tinte = Color3.fromRGB(240, 230, 215), vineta = 0.8 },
+	cueva = { brillo = -0.1, contraste = 0.06, saturacion = -0.15, tinte = Color3.fromRGB(200, 190, 225), vineta = 0.35 },
+	taberna = { brillo = 0, contraste = 0.02, saturacion = 0.05, tinte = Color3.fromRGB(255, 225, 190), vineta = 0.55 },
+	posada = { brillo = -0.02, contraste = 0, saturacion = 0, tinte = Color3.fromRGB(255, 232, 205), vineta = 0.6 },
+}
+local function ambienteDe(p: Vector3): string
+	if p.Y > 650 then
+		return "callejon"
+	elseif p.Y > 450 then
+		return "normal" -- Calle del Mercado: alegre
+	elseif p.Y > 300 then
+		return "posada"
+	elseif p.Y > 150 then
+		return "taberna"
+	elseif p.X > 462 then
+		return "cueva"
+	elseif p.X > 362 then
+		return "ruinas"
+	elseif p.X > 262 then
+		return "bosque"
+	elseif p.X > 165 then
+		return "pantano"
+	end
+	return "normal"
+end
+local ambienteActual = ""
+task.spawn(function()
+	while true do
+		task.wait(0.4)
+		local ch = jugador.Character
+		local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local nombre = raiz and ambienteDe(raiz.Position) or "normal"
+		if nombre ~= ambienteActual then
+			ambienteActual = nombre
+			local a = AMBIENTES[nombre]
+			local info = TweenInfo.new(1.4, Enum.EasingStyle.Sine)
+			TweenService:Create(cc, info, { Brightness = a.brillo, Contrast = a.contraste, Saturation = a.saturacion, TintColor = a.tinte }):Play()
+			for _, b in bordes do
+				TweenService:Create(b, info, { BackgroundTransparency = a.vineta }):Play()
 			end
 		end
 	end

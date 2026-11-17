@@ -172,11 +172,12 @@ local function pino(x: number, z: number, escala: number, color: Color3?)
 	tri(x, 7.8 * s, z + 0.5, 4.6 * s, 4.2 * s, c:Lerp(Color3.new(1, 1, 1), 0.12))
 end
 
-local function farola(x: number, z: number)
+local function farola(x: number, z: number): Part
 	plano(x, 4.5, z, 0.6, 9, Color3.fromRGB(50, 50, 60))
 	plano(x, 9.2, z + 0.2, 1.8, 0.5, Color3.fromRGB(50, 50, 60))
 	local luz = disco(x, 9.9, z + 0.3, 1.5, Color3.fromRGB(255, 225, 120))
 	luz.Material = Enum.Material.Neon
+	return luz
 end
 
 local function casa(x: number, z: number, w: number, h: number, pared: Color3, techo: Color3, cartel: string?, rng: Random)
@@ -1104,7 +1105,8 @@ local function calles(rng: Random)
 	end
 	aAltura(Y, function()
 		for x = -140, 30, 28 do
-			farola(x, -11.5)
+			-- en el callejón las farolas fallan (el cliente las hace parpadear)
+			farola(x, -11.5):SetAttribute("Parpadea", true)
 		end
 	end)
 	for _, x in { -118, -70, -20, 15 } do
@@ -1438,6 +1440,241 @@ local function fondoVivo(rng: Random)
 	end
 end
 
+
+-- ===================== DETALLES (fondos de las calles e interiores) Y SECRETOS =====================
+
+--- Par de ojos que miran desde la oscuridad (el cliente los hace parpadear y aparecer de vez en cuando).
+local function ojos(x: number, y: number, z: number, color: Color3?)
+	local m = Instance.new("Model")
+	m.Name = "Ojos"
+	m:SetAttribute("Ojos", true)
+	m.Parent = raiz
+	for _, dx in { -0.55, 0.55 } do
+		disco(x + dx, y, z, 0.55, color or Color3.fromRGB(250, 230, 90), false, m)
+	end
+end
+
+--- Gato morado con pañuelo rojo y cascabel (un invitado de otro mundo).
+local function gatoMorado(x: number, y: number, z: number)
+	local morado = Color3.fromRGB(125, 85, 170)
+	disco(x, y + 1.1, z, 2.2, morado)
+	disco(x + 0.2, y + 2.6, z + 0.2, 1.9, morado)
+	tri(x - 0.4, y + 3.2, z + 0.1, 0.8, 0.9, morado)
+	tri(x + 0.8, y + 3.2, z + 0.1, 0.8, 0.9, morado)
+	tri(x - 0.4, y + 3.25, z + 0.15, 0.4, 0.5, Color3.fromRGB(240, 150, 170), false)
+	tri(x + 0.8, y + 3.25, z + 0.15, 0.4, 0.5, Color3.fromRGB(240, 150, 170), false)
+	disco(x - 0.2, y + 2.7, z + 0.5, 0.45, Color3.fromRGB(250, 220, 90), false)
+	disco(x + 0.6, y + 2.7, z + 0.5, 0.45, Color3.fromRGB(250, 220, 90), false)
+	plano(x + 0.2, y + 1.8, z + 0.5, 1.8, 0.45, Color3.fromRGB(205, 50, 50), false)
+	disco(x + 0.2, y + 1.45, z + 0.6, 0.45, Color3.fromRGB(240, 200, 60), true)
+	plano(x - 1.2, y + 0.7, z - 0.1, 1.8, 0.4, morado, true, nil, 30)
+end
+
+local function extras(rng: Random)
+	-- ---------- CALLEJÓN DEL GATO (Y = 700): oscuro, con cosas detrás ----------
+	aAltura(700, function()
+		-- luna grande con una nube delante
+		disco(-60, 62, -68, 22, Color3.fromRGB(240, 236, 210))
+		disco(-55, 66, -67.6, 3, Color3.fromRGB(220, 215, 190), false)
+		disco(-64, 58, -67.6, 2, Color3.fromRGB(220, 215, 190), false)
+		nube(-48, 56, -66, 1.2, 0.3)
+		-- edificios altos y oscuros al fondo, con ventanas (algunas fallan)
+		local x = -170
+		while x < 60 do
+			local w = rng:NextNumber(14, 20)
+			local h = rng:NextNumber(28, 44)
+			plano(x, h / 2, -34, w, h, rng:NextNumber() < 0.5 and Color3.fromRGB(62, 56, 82) or Color3.fromRGB(74, 66, 92))
+			for fila = 0, math.floor(h / 7) - 1 do
+				for col = -1, 1 do
+					if rng:NextNumber() < 0.35 then
+						local v = plano(x + col * w * 0.28, 6 + fila * 7, -33.6, 2, 2.6, Color3.fromRGB(255, 215, 120), false)
+						if rng:NextNumber() < 0.3 then
+							v:SetAttribute("Parpadea", true)
+						end
+					else
+						plano(x + col * w * 0.28, 6 + fila * 7, -33.6, 2, 2.6, Color3.fromRGB(40, 36, 55), false)
+					end
+				end
+			end
+			-- depósito de agua o chimenea en el tejado
+			if rng:NextNumber() < 0.5 then
+				plano(x + w * 0.2, h + 2.5, -34.4, 4, 5, Color3.fromRGB(90, 80, 75))
+				tri(x + w * 0.2, h + 5, -34.2, 5, 2, Color3.fromRGB(70, 60, 60))
+			else
+				plano(x - w * 0.25, h + 2, -34.4, 1.6, 4, Color3.fromRGB(80, 70, 70))
+			end
+			x += w + rng:NextNumber(1, 4)
+		end
+		-- cables entre los edificios
+		for k = 0, 5 do
+			plano(-150 + k * 36, 24 + (k % 2) * 3, -30, 38, 0.25, NEGRO, false, nil, (k % 2 == 0) and 4 or -4)
+		end
+		-- los huecos entre las casas: oscuridad, ojos que miran y tendederos
+		for _, gx in { -105, -65, -25, 12 } do
+			plano(gx, 9, -25, 22, 18, Color3.fromRGB(30, 26, 40), false)
+			ojos(gx + rng:NextNumber(-4, 4), rng:NextNumber(2.5, 7), -24.4)
+			plano(gx, 11, -21.5, 20, 0.2, NEGRO, false)
+			for k = -3, 3 do
+				if rng:NextNumber() < 0.7 then
+					plano(gx + k * 2.6, 10, -21.3, 1.8, 2.2, COLORES_FLOR[rng:NextInteger(1, #COLORES_FLOR)]:Lerp(NEGRO, 0.3), false)
+				end
+			end
+		end
+		-- carteles de "se busca" pegados en las paredes
+		for _, px in { -111, -71, -31, 8 } do
+			letrero(px, 6, -18, 3.6, 4.4, "SE BUSCA\nREY HONGO", Color3.fromRGB(215, 200, 160), Color3.fromRGB(60, 40, 30))
+		end
+		-- charcos, cajas, una rata y niebla oscura a ras de suelo
+		for _, cx in { -130, -88, -52, -10, 26 } do
+			local c = plano(cx, 0.07, -2.5, 5, 0.1, Color3.fromRGB(60, 70, 110), false)
+			c.Size = Vector3.new(rng:NextNumber(3, 6), 0.1, 2.4)
+			c.Transparency = 0.25
+		end
+		for _, cx in { -96, -58, 22 } do
+			plano(cx, 1.2, -10.8, 2.6, 2.4, Color3.fromRGB(130, 95, 60))
+			plano(cx + 1.6, 0.8, -10.6, 1.8, 1.6, Color3.fromRGB(150, 110, 70))
+		end
+		disco(-33, 0.6, -9.2, 1.2, Color3.fromRGB(110, 105, 110))
+		plano(-34.2, 0.4, -9.3, 1.4, 0.15, Color3.fromRGB(200, 150, 160), false, nil, -15)
+		local niebla = plano(-55, 1.3, -12, 220, 2.6, Color3.fromRGB(50, 45, 70), false)
+		niebla.Transparency = 0.55
+		niebla:SetAttribute("Niebla", 0.5)
+		-- secretos del callejón: el gato morado sobre una caja y una puerta que mejor no abrir
+		gatoMorado(-96, 2.4, -10.2)
+		punto("secreto", Vector3.new(-96, 2.8, -9), { Secreto = "gato" })
+		plano(0, 3.5, -18.2, 3.6, 7, Color3.fromRGB(40, 32, 38))
+		disco(1, 3.5, -17.9, 0.4, Color3.fromRGB(150, 140, 120), false)
+		letrero(0, 7.8, -17.9, 4, 1, "NO", Color3.fromRGB(120, 40, 40))
+		punto("secreto", Vector3.new(0, 2.8, -10), { Secreto = "puerta" })
+	end)
+
+	-- ---------- CALLE DEL MERCADO (Y = 500): más tiendas detrás, banderines y farolillos ----------
+	aAltura(500, function()
+		local paredes = { Color3.fromRGB(240, 210, 170), Color3.fromRGB(200, 225, 240), Color3.fromRGB(245, 200, 190), Color3.fromRGB(210, 235, 195), Color3.fromRGB(250, 230, 160) }
+		local techos = { Color3.fromRGB(190, 80, 65), Color3.fromRGB(80, 110, 165), Color3.fromRGB(145, 85, 135), Color3.fromRGB(90, 140, 90) }
+		local x = -165
+		while x < 55 do
+			local h = rng:NextNumber(18, 28)
+			plano(x, h / 2, -33, 14, h, paredes[rng:NextInteger(1, #paredes)])
+			tri(x, h - 0.2, -32.8, 16, 6, techos[rng:NextInteger(1, #techos)])
+			for k = -1, 1, 2 do
+				plano(x + k * 3.5, h * 0.7, -32.6, 2, 2.4, Color3.fromRGB(255, 220, 130), false)
+			end
+			-- banderola colgando de la fachada
+			plano(x + 5, h * 0.55, -32.4, 1.6, 4, COLORES_FLOR[rng:NextInteger(1, #COLORES_FLOR)], true)
+			x += rng:NextNumber(15, 19)
+		end
+		-- torre del reloj del mercado y un globo
+		plano(-55, 20, -40, 9, 40, Color3.fromRGB(220, 200, 170))
+		tri(-55, 40, -39.8, 12, 9, Color3.fromRGB(190, 80, 65))
+		disco(-55, 33, -39.5, 6, Color3.fromRGB(250, 245, 230))
+		plano(-55, 33.9, -39.2, 0.35, 2, NEGRO, false)
+		plano(-54.3, 33, -39.2, 1.5, 0.35, NEGRO, false)
+		globo(-100, 58, -80, Color3.fromRGB(240, 190, 70))
+		pajaros(-140, 44, -50, 4, 0.8)
+		-- banderines cruzando la calle y farolillos
+		for bx = -148, 38, 2.2 do
+			tri(bx, 11 + math.sin(bx * 0.18) * 0.6, -10.8, 1.4, -1.6, COLORES_FLOR[(math.floor(bx) % #COLORES_FLOR) + 1], false)
+		end
+		for fx = -136, 30, 12 do
+			disco(fx, 9.6, -10.6, 1.3, Color3.fromRGB(240, 140, 70))
+		end
+		-- cajas de fruta y una carreta
+		for _, cx in { -120, -70, -16, 20 } do
+			plano(cx, 0.9, -11, 2.8, 1.8, Color3.fromRGB(170, 120, 70))
+			for k = -1, 1 do
+				disco(cx + k * 0.8, 2, -10.8, 0.9, ({ Color3.fromRGB(230, 80, 70), Color3.fromRGB(250, 170, 60), Color3.fromRGB(120, 190, 80) })[k + 2], false)
+			end
+		end
+		plano(-34, 2, -11.5, 6, 2.2, Color3.fromRGB(150, 100, 60))
+		disco(-36, 0.9, -11.2, 2, Color3.fromRGB(110, 75, 45))
+		disco(-32, 0.9, -11.2, 2, Color3.fromRGB(110, 75, 45))
+	end)
+
+	-- ---------- TABERNA (Y = 200): trofeo, diana, lámpara, cartel y un gato junto al fuego ----------
+	local T = 200
+	-- trofeo: cabeza de babosa en una tabla
+	plano(-92, T + 13, -11.3, 4, 3.4, Color3.fromRGB(120, 80, 50))
+	disco(-92, T + 13, -11, 2.8, Color3.fromRGB(130, 190, 90))
+	disco(-92.7, T + 13.4, -10.8, 0.6, Color3.new(1, 1, 1), false)
+	disco(-91.3, T + 13.4, -10.8, 0.6, Color3.new(1, 1, 1), false)
+	-- diana con un dardo (y otro fuera, en la pared)
+	for k, d in { 3.2, 2.4, 1.6, 0.8 } do
+		disco(-108, T + 13, -11.3 + k * 0.05, d, k % 2 == 1 and Color3.fromRGB(200, 60, 55) or Color3.fromRGB(240, 230, 210), k == 1)
+	end
+	plano(-107.5, T + 13.3, -10.9, 1.4, 0.2, NEGRO, false, nil, 20)
+	plano(-103.5, T + 11, -11.2, 1.4, 0.2, NEGRO, false, nil, -10)
+	-- cartel de se busca
+	letrero(-116, T + 13.5, -11.2, 4, 4.6, "SE BUSCA\nREY HONGO\n500 oro", Color3.fromRGB(215, 200, 160), Color3.fromRGB(60, 40, 30))
+	-- lámpara de velas que se balancea
+	local lampara = Instance.new("Model")
+	lampara.Name = "Lampara"
+	lampara:SetAttribute("Flota", 0.8)
+	lampara.Parent = raiz
+	plano(-100, T + 22, -6, 0.2, 4, NEGRO, false, lampara)
+	plano(-100, T + 19.8, -6, 7, 0.5, Color3.fromRGB(110, 70, 40), true, lampara)
+	for k = -1, 1 do
+		plano(-100 + k * 2.6, T + 20.6, -5.9, 0.5, 1.2, Color3.fromRGB(245, 240, 220), false, lampara)
+		disco(-100 + k * 2.6, T + 21.5, -5.8, 0.6, Color3.fromRGB(255, 190, 70), false, lampara)
+	end
+	-- jamones colgando y un gato dormido junto a la chimenea
+	for _, hx in { -95, -93.5 } do
+		plano(hx, T + 18.5, -11, 0.15, 2, NEGRO, false)
+		disco(hx, T + 17, -10.9, 1.3, Color3.fromRGB(190, 110, 90))
+	end
+	disco(-79.5, T + 0.6, -9.6, 1.6, Color3.fromRGB(140, 130, 130))
+	disco(-78.6, T + 0.9, -9.5, 1, Color3.fromRGB(140, 130, 130))
+	letrero(-78.4, T + 2.3, -9.4, 1.6, 0.8, "zzz", Color3.fromRGB(240, 230, 210), Color3.fromRGB(80, 70, 70))
+
+	-- ---------- POSADA (Y = 340): cuadro del Gran Guiso, reloj, estantería y velas ----------
+	local P, cx = 340, -20
+	plano(cx - 8, P + 8, -11.4, 6, 4.4, Color3.fromRGB(150, 100, 55))
+	plano(cx - 8, P + 8, -11.2, 5, 3.4, Color3.fromRGB(240, 210, 150), false)
+	disco(cx - 8, P + 7.6, -11, 2.2, Color3.fromRGB(70, 66, 76), false)
+	disco(cx - 8, P + 9.2, -10.9, 1, Color3.fromRGB(250, 248, 240), false)
+	disco(cx + 8, P + 8.5, -11.3, 3, Color3.fromRGB(240, 230, 205))
+	plano(cx + 8, P + 9.1, -11, 0.25, 1.4, NEGRO, false)
+	plano(cx + 8.5, P + 8.5, -11, 1.1, 0.25, NEGRO, false)
+	plano(cx + 14, P + 4, -11.2, 5, 8, Color3.fromRGB(120, 80, 50))
+	for fila = 0, 2 do
+		plano(cx + 14, P + 1.4 + fila * 2.4, -11, 5, 0.3, Color3.fromRGB(90, 60, 40), false)
+		for k = -2, 2 do
+			plano(cx + 14 + k * 0.9, P + 2.3 + fila * 2.4, -10.9, 0.7, 1.5, COLORES_FLOR[(k + fila) % #COLORES_FLOR + 1]:Lerp(NEGRO, 0.2), false)
+		end
+	end
+	for _, vx in { cx - 16, cx - 12 } do
+		plano(vx, P + 4, -7.4, 0.4, 1, Color3.fromRGB(245, 240, 220), false)
+		disco(vx, P + 4.8, -7.3, 0.5, Color3.fromRGB(255, 190, 70), false)
+	end
+	disco(cx + 16.5, P + 2.6, -8.9, 1.4, Color3.fromRGB(240, 150, 60))
+	disco(cx + 17.3, P + 2.9, -8.8, 0.9, Color3.fromRGB(240, 150, 60))
+
+	-- ---------- SECRETOS EN EL MUNDO ----------
+	-- la olla del Gran Guiso de la plaza
+	punto("secreto", Vector3.new(-78, 2.8, -11), { Secreto = "olla" })
+	-- una puertecita en un árbol del Bosque
+	plano(300, 1, -11.6, 1.6, 2, Color3.fromRGB(120, 75, 45))
+	disco(300.5, 1, -11.3, 0.25, Color3.fromRGB(240, 200, 80), false)
+	letrero(300, 2.6, -11.4, 3, 0.8, "No molestar", Color3.fromRGB(150, 95, 55))
+	punto("secreto", Vector3.new(300, 2.8, -9.5), { Secreto = "puertecita" })
+	-- un pato de goma perdido en el Pantano
+	disco(232, 0.9, -10.5, 1.6, Color3.fromRGB(250, 210, 60))
+	disco(232.9, 1.9, -10.4, 1.1, Color3.fromRGB(250, 210, 60))
+	plano(233.7, 1.8, -10.2, 0.8, 0.35, Color3.fromRGB(240, 130, 50), false)
+	punto("secreto", Vector3.new(232, 2.8, -9), { Secreto = "pato" })
+	-- una piedra con cara en las Ruinas
+	disco(395, 1.2, -11, 2.6, Color3.fromRGB(175, 170, 160))
+	disco(394.4, 1.5, -10.7, 0.35, NEGRO, false)
+	disco(395.6, 1.5, -10.7, 0.35, NEGRO, false)
+	plano(395, 0.8, -10.7, 0.9, 0.2, NEGRO, false)
+	punto("secreto", Vector3.new(395, 2.8, -9.5), { Secreto = "piedra" })
+	-- los bordes del mundo (se acaba el cartón)
+	letrero(-438, 4, -11, 8, 2.4, "Fin del cartón", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	punto("secreto", Vector3.new(-438, 2.8, -9), { Secreto = "bordeOeste" })
+	letrero(598, 4, -11, 9, 2.4, "Aquí se acabó el papel", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	punto("secreto", Vector3.new(598, 2.8, -9), { Secreto = "bordeEste" })
+end
+
 function Mundo.construir(): { [BasePart]: any }
 	local zonas: { [BasePart]: any } = {}
 	local existente = workspace:FindFirstChild("MundoVael")
@@ -1503,6 +1740,7 @@ function Mundo.construir(): { [BasePart]: any }
 	taberna()
 	posada()
 	calles(rng)
+	extras(rng)
 
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true

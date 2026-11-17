@@ -97,10 +97,13 @@ if hay(Sonidos.IDS.efectos) then
 	end)
 end
 
+-- sonidos que sí valen en la pantalla de inicio (pasar por encima y pulsar botones)
+local DE_MENU = { click = true, hover = true, pop = true, mejora = true }
+
 --- Suena un efecto por su nombre (ver Sonidos.Efectos). tono cambia la velocidad (1 = normal).
 function Audio.sfx(nombre: string, volumen: number?, tono: number?)
-	-- en la pantalla de inicio solo suena la música (nada de pitiditos, pasos ni clics)
-	if Players.LocalPlayer:GetAttribute("EnMenu") == true then
+	-- en la pantalla de inicio solo suenan la música y los botones (nada de pitiditos, pasos ni charlas)
+	if Players.LocalPlayer:GetAttribute("EnMenu") == true and not DE_MENU[nombre] then
 		return
 	end
 	local tramo = Sonidos.Efectos[nombre]

@@ -13,6 +13,11 @@ Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **
 - **Epílogo animado:** 5 láminas (el Rey Hongo cae, la fiesta con fuegos artificiales, las setas también comen, el brindis y un "FIN… ¿o no?"). Sale la primera vez que ganas al Rey Hongo y luego desde el botón **Epílogo** del menú.
 - **Compañeros** (`Datos.Companeros`): Tomás (guerrero, al limpiar el Huerto), Lucas (arquero, al devolverle la pelota) y Fermín (sanador, al darle las 3 setas). Pelean a tu lado con su propia IA (Fermín cura al más herido). Se elige uno en la mochila (B) o **Ir solo**.
 - **Repetir pelea:** si pisas otra vez una guarida que ya limpiaste, te pregunta "¿Quieres repetir la pelea?" (Sí / No).
+- **Ambiente por zona** (`Escena.luau`, local): el Callejón se oscurece con viñeta y luces que fallan, el Pantano se pone verdoso, el Bosque y la Cueva más fríos, y la taberna y la posada cálidas.
+- **Callejón con miedo de verdad:** edificios altos al fondo con ventanas que parpadean, luna, cables, tendederos, ojos amarillos en los huecos oscuros, carteles de "se busca", charcos, cajas, una rata y niebla oscura.
+- **Más detalle:** el Mercado tiene tiendas detrás, torre del reloj, globo, banderines y farolillos; la taberna, trofeo de babosa, diana, lámpara que se balancea, jamones y un gato junto al fuego; la posada, cuadro del Gran Guiso, reloj, estantería y velas.
+- **8 secretos** (`SECRETOS` en `Principal.server.luau`): el gato morado del Callejón, la puerta del NO, la olla del Gran Guiso, la puertecita del Bosque, el pato de goma del Pantano, la piedra con cara de las Ruinas y los dos bordes del mundo. Cada uno da 5 de oro; todos juntos, la Corona de cartón.
+- **Menú:** solo suenan la música y los botones.
 - **Letra de los diálogos:** Patrick Hand (`Ui.FuenteDialogo`), más fácil de leer que la de rotulador.
 
 ## Teclas
