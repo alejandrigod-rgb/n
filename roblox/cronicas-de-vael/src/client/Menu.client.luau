@@ -227,6 +227,8 @@ local function alternarMochila()
 		sonido("pop")
 		Mochila.alternar(gui, estado, apariencia(), function(id)
 			remoto("UsarObjeto"):FireServer(id)
+		end, function(cid)
+			remoto("ElegirCompanero"):FireServer(cid)
 		end)
 	end
 end
@@ -428,6 +430,13 @@ abrirInicio = function()
 			panelInfo(capa, "Créditos", "Crónicas de Vael\n\nIdea y dirección: tú.\nCódigo, dibujos, música y efectos: hechos a medida para este juego.\n\nGracias por jugar. Y por no comerte las setas del suelo… o sí.")
 		end },
 	}
+	-- después de ganar al Rey Hongo, el epílogo también se puede volver a ver
+	if jugador:GetAttribute("FinalVisto") == true and Portada then
+		table.insert(botones, 3, { "Epílogo", Color3.fromRGB(210, 150, 60), "estrella", function()
+			pcall(Portada.epilogo, gui, Munecos, apariencia(), nil)
+		end })
+		caja.Size = UDim2.fromOffset(320, 460)
+	end
 	for i, b in botones do
 		local boton = Ui.boton({ Size = UDim2.fromOffset(320, 50), Text = b[1], BackgroundColor3 = b[2], Icono = b[3], ZIndex = 102, LayoutOrder = i, Parent = caja }, b[4])
 		boton.Visible = false
@@ -468,6 +477,8 @@ task.spawn(function()
 			Mochila.cerrar()
 			Mochila.alternar(gui, estado, apariencia(), function(id)
 				remoto("UsarObjeto"):FireServer(id)
+			end, function(cid)
+				remoto("ElegirCompanero"):FireServer(cid)
 			end)
 		end
 	end)
@@ -483,6 +494,13 @@ task.spawn(function()
 		end)
 	end)
 	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
+	-- el final de la historia (la primera vez que cae el Rey Hongo)
+	remoto("Epilogo").OnClientEvent:Connect(function()
+		if Portada then
+			cerrarTodo()
+			pcall(Portada.epilogo, gui, Munecos, apariencia(), nil)
+		end
+	end)
 end)
 
 -- crear al héroe: en cuanto tenga clase y no lo haya creado aún (también si ya tenía clase de antes)

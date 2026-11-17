@@ -12,7 +12,7 @@ BASE.modulo("Datos", vael, FUENTES["shared/Datos.luau"])
 BASE.modulo("Sonidos", vael, FUENTES["shared/Sonidos.luau"])
 local remotos = I.new("Folder")
 remotos.Name = "Remotos"
-for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes" } do
+for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero" } do
 	local r = I.new("RemoteEvent")
 	r.Name = n
 	r.Parent = remotos
@@ -148,6 +148,8 @@ informe("tras elegir clase")
 jugador:SetAttribute("Clase", "guerrero")
 estado.clase = "guerrero"
 estado.hp, estado.maxHp, estado.mp, estado.maxMp = 120, 120, 20, 20
+estado.companeros = { tomas = true }
+estado.companero = "tomas"
 remotos.EstadoJugador.OnClientEvent:Fire(estado)
 RT.avanzar(3)
 informe("estado con clase")
@@ -170,6 +172,7 @@ print("¿Mapa cerrado con M?", buscarTexto(pg, "Mapa de Vael") == nil)
 tecla("B")
 print("¿Mochila con B?", buscarTexto(pg, "Objetos clave") ~= nil)
 pulsar("Poción")
+print("¿Compañeros en la mochila?", buscarTexto(pg, "Compañeros") ~= nil)
 tecla("B")
 tecla("P")
 print("¿Pausa con P?", buscarTexto(pg, "Volver al inicio") ~= nil)
@@ -239,11 +242,23 @@ modelo:SetAttribute("EntidadId", "e1")
 modelo:SetAttribute("Vida", 50)
 modelo:SetAttribute("VidaMax", 55)
 modelo.Parent = E.workspace
+local modeloC = I.new("Model")
+local anclaC = I.new("Part")
+anclaC.Name = "Ancla"
+anclaC.Parent = modeloC
+modeloC.PrimaryPart = anclaC
+modeloC:SetAttribute("Companero", "4242")
+modeloC:SetAttribute("CompaneroNombre", "Tomás")
+modeloC:SetAttribute("EntidadId", "c1")
+modeloC:SetAttribute("Vida", 80)
+modeloC:SetAttribute("VidaMax", 90)
+modeloC.Parent = E.workspace
 RT.avanzar(1)
 remotos.BatallaInicio.OnClientEvent:Fire({ centro = E.Vector3.new(110, 0, 0), zona = "Pradera", zonaId = "pradera", carpeta = carpetaB, jefe = false, emboscada = true })
 local aliado = { id = "j1", nombre = "kilonil", lado = "aliado", clase = "guerrero", nivel = 1, hp = 100, maxHp = 120, mp = 20, maxMp = 20, vivo = true, esMio = true, pos = E.Vector3.new(), col = 1, fila = 2, mov = 3, alcance = 1, veneno = false, defensa = false, furia = false }
 local enemigo = { id = "e1", nombre = "Lobo", lado = "enemigo", enemigo = "lobo", nivel = 1, hp = 50, maxHp = 55, mp = 0, maxMp = 0, vivo = true, esMio = false, pos = E.Vector3.new(), col = 2, fila = 2, mov = 4, alcance = 1, veneno = false, defensa = false, furia = false }
-remotos.BatallaEstado.OnClientEvent:Fire({ id = 1, zona = "Pradera", ronda = 1, aliados = { aliado }, enemigos = { enemigo }, orden = { "e1", "j1" }, centro = E.Vector3.new(110, 0, 0), casillas = {} })
+local companero = { id = "c1", nombre = "Tomás", lado = "aliado", clase = "guerrero", vecino = "4242", nivel = 1, hp = 80, maxHp = 90, mp = 20, maxMp = 20, vivo = true, esMio = false, pos = E.Vector3.new(), col = 1, fila = 3, mov = 3, alcance = 1, veneno = false, defensa = false, furia = false }
+remotos.BatallaEstado.OnClientEvent:Fire({ id = 1, zona = "Pradera", ronda = 1, aliados = { aliado, companero }, enemigos = { enemigo }, orden = { "e1", "c1", "j1" }, centro = E.Vector3.new(110, 0, 0), casillas = {} })
 remotos.BatallaTurno.OnClientEvent:Fire({ id = "j1", nombre = "kilonil", tiempo = 20 })
 remotos.PedirAccion.OnClientEvent:Fire({ entidad = "j1", tiempo = 20, habilidades = { { id = "golpeFuerte", nombre = "Golpe fuerte", descripcion = "", coste = 5, objetivo = "enemigo", tipo = "dano", area = "uno", alcance = 1, bloqueada = false, nivelMinimo = 1, sinMana = false } }, objetos = { { id = "pocion", nombre = "Poción", cantidad = 2, descripcion = "" } }, puedeMover = true, alcanzables = { { 1, 1 }, { 1, 3 } }, alcance = 1, col = 1, fila = 2 })
 RT.avanzar(2)
@@ -258,4 +273,14 @@ modelo:SetAttribute("Caido", true)
 remotos.BatallaFin.OnClientEvent:Fire({ victoria = true, xp = 10, oro = 5, subio = true, nivel = 2, cofre = true })
 RT.avanzar(5)
 informe("combate")
+-- epílogo (al ganar al Rey Hongo por primera vez)
+remotos.Epilogo.OnClientEvent:Fire()
+RT.avanzar(2)
+print("¿Epílogo?", buscarTexto(pg, "Siguiente") ~= nil)
+for _ = 1, 12 do
+	if boton("Siguiente") then pulsar("Siguiente") end
+end
+RT.avanzar(2)
+print("¿Epílogo cerrado?", boton("Siguiente") == nil)
+informe("epílogo")
 print("FIN")

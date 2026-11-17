@@ -10,6 +10,9 @@ Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **
 - **Portada:** teatrillo de papel cuyo telón se abre; detrás, el valle animado (sol, nubes, montañas, el castillo-seta del Rey Hongo con el Cucharón de bandera, casas con humo, molino, globo, pájaros, banderines y la olla del Gran Guiso "¡APLAZADA!").
 - **En el mundo:** la olla gigante fría en la plaza, el castillo-seta al fondo de la Cueva, la abuela y los vecinos hablan del Cucharón, y al ganar al Rey Hongo hay final.
 - **Fondo vivo** (`fondoVivo` en `Mundo.luau`): barrio alto y castillo del alcalde detrás de la muralla, campos y vacas, granjas con humo, globos, pájaros, árboles muertos y cabaña en el pantano, filas de pinos, columnas y cabeza de estatua en las ruinas. El cliente anima los atributos `Nube`, `Gira`, `Flota` y `Humo`.
+- **Epílogo animado:** 5 láminas (el Rey Hongo cae, la fiesta con fuegos artificiales, las setas también comen, el brindis y un "FIN… ¿o no?"). Sale la primera vez que ganas al Rey Hongo y luego desde el botón **Epílogo** del menú.
+- **Compañeros** (`Datos.Companeros`): Tomás (guerrero, al limpiar el Huerto), Lucas (arquero, al devolverle la pelota) y Fermín (sanador, al darle las 3 setas). Pelean a tu lado con su propia IA (Fermín cura al más herido). Se elige uno en la mochila (B) o **Ir solo**.
+- **Repetir pelea:** si pisas otra vez una guarida que ya limpiaste, te pregunta "¿Quieres repetir la pelea?" (Sí / No).
 - **Letra de los diálogos:** Patrick Hand (`Ui.FuenteDialogo`), más fácil de leer que la de rotulador.
 
 ## Teclas

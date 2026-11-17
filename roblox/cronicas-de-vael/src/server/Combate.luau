@@ -27,6 +27,7 @@ export type Entidad = {
 	jugador: Player?,
 	claseId: string?,
 	enemigoId: string?,
+	companeroId: string?,
 	nivel: number,
 	max: Datos.Stats,
 	hp: number,
@@ -62,6 +63,7 @@ export type Batalla = {
 	carpeta: Folder,
 	emboscada: boolean,
 	alGanar: ((Player) -> ())?,
+	victoria: boolean?,
 }
 
 local Remotos: Folder
@@ -327,6 +329,30 @@ local function crearModelo(def: Datos.Enemigo, cf: CFrame, entidadId: string): M
 	return m
 end
 
+--- Ancla del compañero: el cliente le pone encima el muñeco del vecino (atributo "Companero" = su semilla).
+local function crearModeloCompanero(cid: string, cf: CFrame, entidadId: string, vidaMax: number): Model
+	local def = Datos.Companeros[cid]
+	local m = Instance.new("Model")
+	m.Name = def.nombre
+	local ancla = Instance.new("Part")
+	ancla.Name = "Ancla"
+	ancla.Size = Vector3.new(3, 3, 0.5)
+	ancla.CFrame = cf * CFrame.new(0, 1.5, 0)
+	ancla.Transparency = 1
+	ancla.Anchored = true
+	ancla.CanCollide = false
+	ancla.CanQuery = false
+	ancla.CanTouch = false
+	ancla.Parent = m
+	m.PrimaryPart = ancla
+	m:SetAttribute("Companero", def.vecino)
+	m:SetAttribute("CompaneroNombre", def.nombre)
+	m:SetAttribute("EntidadId", entidadId)
+	m:SetAttribute("VidaMax", vidaMax)
+	m.Parent = workspace
+	return m
+end
+
 local function anclaDe(e: Entidad): BasePart?
 	if e.modelo then
 		return e.modelo.PrimaryPart
@@ -435,6 +461,7 @@ local function resumen(e: Entidad, paraJugador: Player?): any
 		lado = e.lado,
 		clase = e.claseId,
 		enemigo = e.enemigoId,
+		vecino = e.companeroId and Datos.Companeros[e.companeroId].vecino or nil,
 		nivel = e.nivel,
 		hp = e.hp,
 		maxHp = e.max.hp,
@@ -497,7 +524,7 @@ end
 
 local function decir(b: Batalla, e: Entidad, prob: number)
 	if e.vivo and rng:NextNumber() < prob then
-		local def = e.enemigoId and Datos.Enemigos[e.enemigoId]
+		local def: any = e.enemigoId and Datos.Enemigos[e.enemigoId] or e.companeroId and Datos.Companeros[e.companeroId]
 		local frases = def and def.frases
 		if frases and #frases > 0 then
 			aTodos(b, "BatallaEvento", { texto = "", actor = e.id, golpes = {}, dice = { id = e.id, texto = frases[rng:NextInteger(1, #frases)] } })
@@ -1022,6 +1049,14 @@ local function turnoEnemigo(b: Batalla, e: Entidad)
 	if def and #def.habilidades > 0 and rng:NextNumber() < def.probHabilidad then
 		hid = def.habilidades[rng:NextInteger(1, #def.habilidades)]
 	end
+	-- los compañeros usan su habilidad de ataque a veces (si les llega el maná)
+	local cdef = e.companeroId and Datos.Companeros[e.companeroId]
+	if cdef and cdef.habilidad ~= "curar" and rng:NextNumber() < 0.4 then
+		local hc = Datos.Habilidades[cdef.habilidad]
+		if hc and e.mp >= hc.coste then
+			hid = cdef.habilidad
+		end
+	end
 	local h = hid and Datos.Habilidades[hid]
 	local area = h and (h.area or "uno") or "uno"
 	local rango = area == "todos" and 99 or area == "alrededor" and 1 or area == "alrededor2" and 2 or alcanceDe(e, h)
@@ -1071,6 +1106,47 @@ local function turnoEnemigo(b: Batalla, e: Entidad)
 	else
 		ejecutar(b, e, { tipo = "atacar", objetivo = objetivo.id })
 	end
+end
+
+--- Turno de un compañero: el sanador cura al más herido si hace falta; si no, pelea como un monstruo listo.
+local function turnoCompanero(b: Batalla, e: Entidad)
+	local cdef = e.companeroId and Datos.Companeros[e.companeroId]
+	if cdef and cdef.habilidad == "curar" then
+		local h = Datos.Habilidades.curar
+		local peor: Entidad? = nil
+		for _, a in companeros(b, e) do
+			if a.hp < a.max.hp * 0.55 and (not peor or a.hp / a.max.hp < peor.hp / peor.max.hp) then
+				peor = a
+			end
+		end
+		if peor and e.mp >= h.coste then
+			local herido = peor :: Entidad
+			aTodos(b, "BatallaTurno", { id = e.id, nombre = e.nombre, tiempo = 0 })
+			task.wait(0.3)
+			local rango = alcanceDe(e, h)
+			if distancia(e, herido.col, herido.fila) > rango and e.mov > 0 then
+				local mapa = alcanzables(b, e)
+				local mejorK, mejorD = nil, math.huge
+				for k, n in mapa do
+					local d = math.abs(n.c - herido.col) + math.abs(n.f - herido.fila)
+					if d < mejorD then
+						mejorK, mejorD = k, d
+					end
+				end
+				if mejorK then
+					recorrer(b, e, camino(mapa, mapaCompleto(b, e), mejorK))
+					if not e.vivo then
+						return
+					end
+				end
+			end
+			if distancia(e, herido.col, herido.fila) <= rango then
+				ejecutar(b, e, { tipo = "habilidad", id = "curar", objetivo = herido.id })
+				return
+			end
+		end
+	end
+	turnoEnemigo(b, e)
 end
 
 -- Veneno, curación por turno, aura y duración de las mejoras al empezar el turno de cada uno.
@@ -1312,6 +1388,7 @@ end
 
 local function terminar(b: Batalla, victoria: boolean)
 	b.terminada = true
+	b.victoria = victoria
 	if b.anillo then
 		b.anillo:Destroy()
 	end
@@ -1394,9 +1471,11 @@ local function terminar(b: Batalla, victoria: boolean)
 			end
 		end
 	end
-	for _, e in b.enemigos do
-		if e.modelo then
-			e.modelo:Destroy()
+	for _, lista in { b.enemigos, b.aliados } do
+		for _, e in lista do
+			if e.modelo then
+				e.modelo:Destroy()
+			end
 		end
 	end
 	b.carpeta:Destroy()
@@ -1481,6 +1560,39 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 	end
 	if #b.aliados == 0 then
 		return nil
+	end
+	-- cada héroe trae a su compañero (si no ha elegido ir solo)
+	for _, heroe in table.clone(b.aliados) do
+		local j = heroe.jugador :: Player
+		local perfil = DatosJugador.obtener(j) :: any
+		local cid = perfil and perfil.progreso.companero
+		if cid and Datos.Companeros[cid] and perfil.progreso.companeros and perfil.progreso.companeros[cid] and #b.aliados < Datos.MAX_EQUIPO + 2 then
+			local clase = Datos.Clases[Datos.Companeros[cid].clase]
+			local stats = Datos.statsCompanero(cid, perfil.nivel)
+			local c, f = casillaLibreEn(b, { 1, 2, 3 })
+			local e: Entidad = {
+				id = "c" .. j.UserId,
+				nombre = Datos.Companeros[cid].nombre,
+				lado = "aliado",
+				claseId = Datos.Companeros[cid].clase,
+				companeroId = cid,
+				nivel = perfil.nivel,
+				max = stats,
+				hp = stats.hp,
+				mp = stats.mp,
+				estados = { veneno = 0, defensa = 0, furia = 0, defendiendo = false, revivido = false },
+				vivo = true,
+				col = c,
+				fila = f,
+				mov = clase.mov,
+				alcance = clase.alcance,
+				vuela = false,
+				mods = {},
+			}
+			e.modelo = crearModeloCompanero(cid, CFrame.new(posCasilla(b, c, f)), e.id, stats.hp)
+			actualizarVidaModelo(e)
+			table.insert(b.aliados, e)
+		end
 	end
 	-- enemigos: un grupo al azar de la zona, más fuertes si hay más jugadores
 	local grupo = zona.grupos[rng:NextInteger(1, #zona.grupos)]
@@ -1587,8 +1699,10 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 				if e.vivo then
 					inicioTurno(b, e)
 					if e.vivo then
-						if e.lado == "aliado" then
+						if e.jugador then
 							turnoJugador(b, e)
+						elseif e.companeroId then
+							turnoCompanero(b, e)
 						else
 							turnoEnemigo(b, e)
 						end

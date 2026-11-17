@@ -27,7 +27,7 @@ function Mochila.cerrar()
 end
 
 --- Abre la mochila (o la cierra si ya está abierta). usar(id) pide al servidor usar un objeto.
-function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string) -> ())
+function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string) -> (), elegirCompanero: ((string) -> ())?)
 	if Mochila.estaAbierta() then
 		Mochila.cerrar()
 		return
@@ -75,14 +75,19 @@ function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string)
 	local detTitulo = Ui.texto({ Position = UDim2.fromOffset(16, 8), Size = UDim2.new(1, -200, 0, 30), Text = "Elige una casilla", TextColor3 = C.tinta, Contorno = false, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 122, Parent = detalle })
 	local detTexto = Ui.texto({ Position = UDim2.fromOffset(16, 40), Size = UDim2.new(1, -200, 0, 56), Text = "", TextScaled = false, TextSize = 19, TextWrapped = true, TextColor3 = Color3.fromRGB(90, 75, 65), Contorno = false, TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, ZIndex = 122, Parent = detalle })
 	local botonUsar: TextButton? = nil
-	local function elegir(titulo: string, texto: string, idUsable: string?)
+	local function elegir(titulo: string, texto: string, idUsable: string?, extra: { texto: string, alPulsar: () -> () }?)
 		detTitulo.Text = Ui.t(titulo)
 		detTexto.Text = Ui.t(texto)
 		if botonUsar then
 			botonUsar:Destroy()
 			botonUsar = nil
 		end
-		if idUsable then
+		if extra then
+			botonUsar = Ui.boton({ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0), Size = UDim2.fromOffset(160, 50), Text = extra.texto, Icono = "estrella", BackgroundColor3 = Color3.fromRGB(100, 160, 90), ZIndex = 123, Parent = detalle }, function()
+				extra.alPulsar()
+				Mochila.cerrar()
+			end)
+		elseif idUsable then
 			botonUsar = Ui.boton({ AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -16, 0.5, 0), Size = UDim2.fromOffset(160, 50), Text = "Usar", Icono = "corazon", BackgroundColor3 = Color3.fromRGB(100, 160, 90), ZIndex = 123, Parent = detalle }, function()
 				usar(idUsable)
 				Mochila.cerrar()
@@ -127,6 +132,45 @@ function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string)
 			Ui.tween(escala, { Scale = 1 }, 0.12)
 		end)
 		b.Activated:Connect(alPulsar)
+	end
+
+	-- compañeros: quién pelea contigo (o ir solo)
+	local equipo = seccion("Compañeros")
+	local actual = e.companero
+	local function tarjetaCompanero(cid: string?, nombre: string, semilla: string?, tengo: boolean, alPulsar: () -> ())
+		local elegido = (cid or "solo") == (actual or "solo") and tengo
+		local b = Ui.crear("TextButton", { Text = "", AutoButtonColor = false, BackgroundColor3 = tengo and Color3.fromRGB(245, 236, 214) or Color3.fromRGB(120, 100, 85), BorderSizePixel = 0, ZIndex = 122, Parent = equipo })
+		Ui.esquinas(b, 10)
+		Ui.borde(b, elegido and Color3.fromRGB(110, 190, 110) or Color3.fromRGB(150, 110, 70), elegido and 4 or 3)
+		local lienzo = Ui.crear("Frame", { Position = UDim2.fromOffset(8, 2), Size = UDim2.fromOffset(50, 62), BackgroundTransparency = 1, ZIndex = 123, Parent = b })
+		if semilla and tengo then
+			Munecos.crear(lienzo, "vecino", semilla, 2)
+		else
+			Ui.texto({ Size = UDim2.fromScale(1, 1), Text = semilla and "¿?" or "—", TextColor3 = tengo and C.tinta or C.suave, ZIndex = 124, Parent = lienzo })
+		end
+		if elegido then
+			Ui.icono("estrella", b, UDim2.fromOffset(44, 2), UDim2.fromOffset(20, 20), 125)
+		end
+		b.Activated:Connect(alPulsar)
+	end
+	tarjetaCompanero(nil, "Ir solo", nil, true, function()
+		elegir("Ir solo", "Peleas tú solo (o con tus amigos de Roblox). Más difícil, pero toda la gloria es tuya.", nil, elegirCompanero and { texto = "Ir solo", alPulsar = function()
+			(elegirCompanero :: any)("solo")
+		end } or nil)
+	end)
+	for _, cid in Datos.OrdenCompaneros do
+		local def = Datos.Companeros[cid]
+		local tengo = e.companeros ~= nil and e.companeros[cid] == true
+		tarjetaCompanero(cid, def.nombre, def.vecino, tengo, function()
+			if tengo then
+				local cl = Datos.Clases[def.clase]
+				elegir(def.nombre .. (cl and (" · " .. Ui.t(cl.nombre)) or ""), def.descripcion, nil, elegirCompanero and { texto = "Llevar", alPulsar = function()
+					(elegirCompanero :: any)(cid)
+				end } or nil)
+			else
+				elegir("¿?", Ui.t("Aún no se ha unido.") .. " " .. Ui.t(def.como))
+			end
+		end)
 	end
 
 	local consumibles = seccion("Objetos")

@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -44,12 +44,36 @@ end
 
 Combate.iniciar(Remotos)
 
+--- Compañeros que ya te tocan por lo que llevas hecho (para partidas de antes de que existieran).
+local function asegurarCompaneros(perfil: any)
+	local pr = perfil.progreso
+	pr.companeros = pr.companeros or {}
+	if (pr.vencidas and pr.vencidas.huerto) or perfil.llaves.cuerda or perfil.nivel >= 3 then
+		pr.companeros.tomas = true
+	end
+	if pr.pelotaEntregada then
+		pr.companeros.lucas = true
+	end
+	if perfil.llaves.llave then
+		pr.companeros.fermin = true
+	end
+	if pr.companero == nil then
+		for _, cid in Datos.OrdenCompaneros do
+			if pr.companeros[cid] then
+				pr.companero = cid
+			end
+		end
+	end
+end
+
 --- Manda al cliente su estado (para el HUD, las barreras y los secretos).
 local function enviarEstado(j: Player)
 	local perfil = DatosJugador.obtener(j)
 	if not perfil then
 		return
 	end
+	asegurarCompaneros(perfil)
+	j:SetAttribute("FinalVisto", perfil.progreso.final == true)
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
 	-- los clientes dibujan el muñeco 2D de cada jugador según su clase
 	j:SetAttribute("Creado", perfil.creado)
@@ -78,6 +102,8 @@ local function enviarEstado(j: Player)
 		ajustes = (perfil :: any).ajustes,
 		creado = perfil.creado,
 		nombreHeroe = perfil.nombreHeroe,
+		companeros = perfil.progreso.companeros,
+		companero = perfil.progreso.companero,
 	})
 end
 Combate.alCambiarJugador = enviarEstado
@@ -103,6 +129,61 @@ local function dialogo(j: Player, d: any)
 	pendientes[j] = { id = siguienteDialogo, opciones = d.opciones }
 	remoto("Dialogo"):FireClient(j, { id = siguienteDialogo, titulo = d.titulo, texto = d.texto, quien = d.quien, opciones = textos })
 end
+
+--- Un vecino se une a tu equipo (y pasa a ser tu compañero si ibas sin nadie o con uno anterior).
+local function reclutar(j: Player, cid: string)
+	local perfil = DatosJugador.obtener(j) :: any
+	local def = Datos.Companeros[cid]
+	if not perfil or not def then
+		return
+	end
+	local pr = perfil.progreso
+	pr.companeros = pr.companeros or {}
+	if pr.companeros[cid] then
+		return
+	end
+	pr.companeros[cid] = true
+	pr.companero = cid
+	DatosJugador.guardar(j)
+	task.delay(0.8, function()
+		if not j.Parent then
+			return
+		end
+		local textos = {
+			tomas = "¡Me has salvado las coles! Mira, yo me apunto: si vas a por el Rey Hongo, mi horca va contigo.",
+			lucas = "¡Quiero ir contigo! Tengo tirachinas y no me da miedo nada. Bueno, los gatos del callejón un poco.",
+			fermin = "Hace años que no salgo de casa… pero alguien tendrá que curarte. Iré contigo, joven.",
+		}
+		dialogo(j, {
+			titulo = def.nombre .. " se une",
+			texto = textos[cid] or def.descripcion,
+			quien = { "vecino", def.vecino },
+			opciones = { { texto = "¡Bienvenido al equipo!" }, { texto = "Prefiero ir solo", accion = function()
+				pr.companero = "solo"
+				return "Puedes llevarlo cuando quieras desde la mochila (B)."
+			end } },
+		})
+	end)
+end
+
+remoto("ElegirCompanero").OnServerEvent:Connect(function(j, cid)
+	local perfil = DatosJugador.obtener(j) :: any
+	if not perfil or type(cid) ~= "string" or Combate.enBatalla(j) then
+		return
+	end
+	local pr = perfil.progreso
+	if cid == "solo" then
+		pr.companero = "solo"
+		notificar(j, "Irás solo a las peleas")
+	elseif Datos.Companeros[cid] and pr.companeros and pr.companeros[cid] then
+		pr.companero = cid
+		notificar(j, Datos.Companeros[cid].nombre .. " irá contigo")
+	else
+		return
+	end
+	DatosJugador.guardar(j)
+	enviarEstado(j)
+end)
 
 remoto("ElegirOpcion").OnServerEvent:Connect(function(j, id, indice)
 	local p = pendientes[j]
@@ -213,6 +294,15 @@ end)
 
 -- final de la historia: al ganar al Rey Hongo se recupera el Cucharón de Vael
 Combate.alVencerJefe = function(j: Player)
+	local perfil = DatosJugador.obtener(j) :: any
+	if perfil and not perfil.progreso.final then
+		-- la primera vez: el epílogo (el cliente lo cuenta como el prólogo)
+		perfil.progreso.final = true
+		DatosJugador.guardar(j)
+		j:SetAttribute("FinalVisto", true)
+		remoto("Epilogo"):FireClient(j)
+		return
+	end
 	dialogo(j, {
 		titulo = "Abuela Rosa",
 		texto = "¡Has recuperado el Cucharón de Vael! Esta noche hay Gran Guiso… y este año, sin setas. El Rey Hongo está invitado, eso sí.",
@@ -233,39 +323,104 @@ local function jugadorDe(parte: BasePart): Player?
 	return modelo and Players:GetPlayerFromCharacter(modelo) or nil
 end
 
+local function empezarEn(disco: BasePart, zona: any, j: Player)
+	if ocupada[disco] or Combate.enBatalla(j) then
+		return
+	end
+	-- el equipo: quien lo pisa y los jugadores cercanos que no estén luchando
+	local equipo = { j }
+	for _, otro in Players:GetPlayers() do
+		if otro ~= j and #equipo < Datos.MAX_EQUIPO and not Combate.enBatalla(otro) then
+			local p = DatosJugador.obtener(otro)
+			local ch = otro.Character
+			if p and p.clase and ch and ch.PrimaryPart and (ch.PrimaryPart.Position - disco.Position).Magnitude < 45 then
+				table.insert(equipo, otro)
+			end
+		end
+	end
+	ocupada[disco] = true
+	disco:SetAttribute("Ocupada", true)
+	local b = Combate.empezar(zona, disco.Position - Vector3.new(0, disco.Position.Y, 0), equipo)
+	if not b then
+		ocupada[disco] = false
+		disco:SetAttribute("Ocupada", false)
+	end
+end
+
+-- si ya ganaste en esa guarida, antes de repetir la pelea se pregunta (así no se repite sin querer)
+local noPreguntar: { [Player]: number } = {}
+Players.PlayerRemoving:Connect(function(j)
+	noPreguntar[j] = nil
+end)
 for disco, zona in zonas do
 	disco.Touched:Connect(function(toca)
 		local j = jugadorDe(toca)
 		if not j or ocupada[disco] or os.clock() < (enfriamiento[disco] or 0) or Combate.enBatalla(j) then
 			return
 		end
-		local perfil = DatosJugador.obtener(j)
+		local perfil = DatosJugador.obtener(j) :: any
 		if not perfil or not perfil.clase then
 			notificar(j, "Elige tu clase primero")
 			return
 		end
-		-- el equipo: quien lo pisa y los jugadores cercanos que no estén luchando
-		local equipo = { j }
-		for _, otro in Players:GetPlayers() do
-			if otro ~= j and #equipo < Datos.MAX_EQUIPO and not Combate.enBatalla(otro) then
-				local p = DatosJugador.obtener(otro)
-				local ch = otro.Character
-				if p and p.clase and ch and ch.PrimaryPart and (ch.PrimaryPart.Position - disco.Position).Magnitude < 45 then
-					table.insert(equipo, otro)
-				end
+		local vencidas = perfil.progreso.vencidas
+		if vencidas and vencidas[zona.id] then
+			if os.clock() < (noPreguntar[j] or 0) or j:GetAttribute("Preguntando") then
+				return
 			end
+			j:SetAttribute("Preguntando", true)
+			noPreguntar[j] = os.clock() + 8
+			local primero = zona.grupos[1] and zona.grupos[1][1] or "babosa"
+			dialogo(j, {
+				titulo = zona.nombre,
+				texto = "Ya limpiaste esta guarida. ¿Quieres repetir la pelea?",
+				quien = { "enemigo", primero },
+				opciones = {
+					{ texto = "Sí", accion = function()
+						j:SetAttribute("Preguntando", false)
+						empezarEn(disco, zona, j)
+						return nil
+					end },
+					{ texto = "No", accion = function()
+						j:SetAttribute("Preguntando", false)
+						noPreguntar[j] = os.clock() + 10
+						return nil
+					end },
+				},
+			})
+			-- por si cierra el diálogo sin elegir
+			task.delay(20, function()
+				if j.Parent then
+					j:SetAttribute("Preguntando", false)
+				end
+			end)
+			return
 		end
-		ocupada[disco] = true
-		disco:SetAttribute("Ocupada", true)
-		local b = Combate.empezar(zona, disco.Position - Vector3.new(0, disco.Position.Y, 0), equipo)
-		if not b then
-			ocupada[disco] = false
-			disco:SetAttribute("Ocupada", false)
-		end
+		empezarEn(disco, zona, j)
 	end)
 end
 
 Combate.alTerminar = function(b)
+	if b.victoria then
+		for _, e in b.aliados do
+			local j = e.jugador
+			local perfil = j and DatosJugador.obtener(j) :: any
+			if j and perfil then
+				local pr = perfil.progreso
+				pr.vencidas = pr.vencidas or {}
+				local primera = not pr.vencidas[b.zona.id]
+				pr.vencidas[b.zona.id] = true
+				-- Tomás se une al echar a las babosas de su huerto
+				if primera and b.zona.id == "huerto" then
+					task.delay(3, function()
+						reclutar(j, "tomas")
+					end)
+				end
+				-- ganar en tu guarida evita que te pregunte justo al acabar (sigues encima del círculo)
+				noPreguntar[j] = os.clock() + 6
+			end
+		end
+	end
 	for disco, zona in zonas do
 		if zona == b.zona and ocupada[disco] then
 			ocupada[disco] = false
@@ -406,6 +561,7 @@ local function ermitano(j: Player)
 			quien = { "vecino", "60606" },
 			opciones = { { texto = "¡Gracias!", accion = function()
 				darLlave(j, "llave")
+				reclutar(j, "fermin")
 				return nil
 			end } },
 		})
@@ -577,6 +733,7 @@ for _, d in mundo:GetDescendants() do
 						pr.pelotaEntregada = true
 						perfil.oro += 40
 						Combate.darMejora(j, "chocolate")
+						reclutar(j, "lucas")
 						return nil
 					end } },
 				})

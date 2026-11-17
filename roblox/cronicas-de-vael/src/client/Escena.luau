@@ -248,11 +248,46 @@ local function montarEnemigo(modelo: Model)
 	TweenService:Create(escala, TweenInfo.new(0.45, Enum.EasingStyle.Back), { Scale = 1 }):Play()
 end
 
+--- Compañero (vecino que pelea contigo): el servidor pone un ancla con el atributo "Companero" (su semilla).
+local function montarCompanero(modelo: Model)
+	local semilla = modelo:GetAttribute("Companero") :: string?
+	local id = modelo:GetAttribute("EntidadId") :: string?
+	local ancla = modelo:WaitForChild("Ancla", 5) :: BasePart?
+	if not semilla or not id or not ancla then
+		return
+	end
+	local b = billboard(ancla, 4.2, 5.4, 1.2)
+	local m = Munecos.crear(b, "vecino", semilla, 3)
+	m.mirar = 1
+	munecoDeModelo[modelo] = m
+	modelo.Destroying:Connect(function()
+		munecoDeModelo[modelo] = nil
+	end)
+	porEntidad[id] = m
+	anclaDe[id] = ancla
+	local relleno = nombreFlotante(ancla, (modelo:GetAttribute("CompaneroNombre") :: string?) or "?", Color3.fromRGB(110, 190, 110), 4.4, true)
+	local function vida()
+		local v = (modelo:GetAttribute("Vida") :: number?) or 1
+		local mx = (modelo:GetAttribute("VidaMax") :: number?) or 1
+		if relleno then
+			TweenService:Create(relleno, TweenInfo.new(0.3), { Size = UDim2.fromScale(math.clamp(v / math.max(1, mx), 0, 1), 1) }):Play()
+		end
+	end
+	vida()
+	modelo:GetAttributeChangedSignal("Vida"):Connect(vida)
+	local escala = Instance.new("UIScale")
+	escala.Scale = 0
+	escala.Parent = m.raiz
+	TweenService:Create(escala, TweenInfo.new(0.45, Enum.EasingStyle.Back), { Scale = 1 }):Play()
+end
+
 workspace.ChildAdded:Connect(function(h)
 	if h:IsA("Model") then
 		task.defer(function()
 			if h:GetAttribute("EnemigoId") then
 				montarEnemigo(h)
+			elseif h:GetAttribute("Companero") then
+				montarCompanero(h)
 			end
 		end)
 	end

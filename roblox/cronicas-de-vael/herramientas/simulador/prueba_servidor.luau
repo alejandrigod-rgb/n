@@ -86,7 +86,15 @@ informe("compras")
 -- un combate de principio a fin (el jugador elige: mover, atacar…)
 local Combate = E.require(carpeta.Combate)
 local Datos = E.require(vael.Datos)
+-- con compañero (Fermín, el que cura) para probar su IA
+local DJ = E.require(carpeta.DatosJugador)
+local pf = DJ.obtener(j)
+pf.progreso.companeros = { tomas = true, fermin = true }
+remotos.ElegirCompanero.OnServerEvent:Fire(j, "fermin")
+RT.avanzar(0.5)
+print("compañero elegido:", pf.progreso.companero)
 local b = Combate.empezar(Datos.Zonas[2], E.Vector3.new(110, 0, -10), { j }, { emboscada = true })
+print("aliados en combate:", b and #b.aliados)
 print("combate:", b ~= nil)
 for paso = 1, 40 do
 	RT.avanzar(1)
@@ -96,6 +104,13 @@ end
 RT.avanzar(5)
 informe("combate")
 remotos.ElegirMejora.OnServerEvent:Fire(j, "calcetin")
+print("zonas ganadas:", pf.progreso.vencidas and pf.progreso.vencidas[Datos.Zonas[2].id])
+-- final: la primera vez manda el epílogo, la segunda un diálogo
+Combate.alVencerJefe(j)
+Combate.alVencerJefe(j)
+RT.avanzar(1)
+print("final visto:", pf.progreso.final, j:GetAttribute("FinalVisto"))
+informe("compañeros y final")
 -- eventos aleatorios y emboscadas
 RT.avanzar(200, 0.5)
 informe("eventos")

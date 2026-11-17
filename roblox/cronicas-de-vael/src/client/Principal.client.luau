@@ -626,7 +626,7 @@ local function tarjeta(e: any)
 	if not t then
 		local marco = Ui.panel({ Size = UDim2.new(1, 0, 0, 66), Parent = equipo })
 		local cl = e.clase and Datos.Clases[e.clase]
-		retrato(marco, "clase", e.clase or "guerrero", UDim2.fromOffset(10, 7), UDim2.fromOffset(52, 52), Color3.fromRGB(236, 222, 190), 2, aparienciaDe(jugadorDeEntidad(e.id)))
+		retrato(marco, e.vecino and "vecino" or "clase", e.vecino or e.clase or "guerrero", UDim2.fromOffset(10, 7), UDim2.fromOffset(52, 52), Color3.fromRGB(236, 222, 190), 2, aparienciaDe(jugadorDeEntidad(e.id)))
 		local nombre = Ui.texto({ Position = UDim2.fromOffset(72, 6), Size = UDim2.new(1, -84, 0, 22), Text = e.nombre, TextXAlignment = Enum.TextXAlignment.Left, Parent = marco })
 		local vida = Ui.barra(marco, UDim2.fromOffset(72, 34), UDim2.new(0.6, -76, 0, 20), C.vida, true)
 		local mana = Ui.barra(marco, UDim2.new(0.6, 4, 0, 34), UDim2.new(0.4, -16, 0, 20), C.mana, true)
@@ -646,7 +646,7 @@ local function ficha(e: any): Frame
 		local cl = e.clase and Datos.Clases[e.clase]
 		f = Ui.crear("Frame", { Size = UDim2.fromOffset(60, 60), BackgroundTransparency = 1, Parent = tira })
 		local fondo = e.lado == "aliado" and (cl and cl.color:Lerp(Color3.new(1, 1, 1), 0.45) or C.borde) or Color3.fromRGB(240, 170, 170)
-		retrato(f, e.lado == "aliado" and "clase" or "enemigo", e.lado == "aliado" and (e.clase or "guerrero") or (e.enemigo or "babosa"), UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), fondo, nil, e.lado == "aliado" and aparienciaDe(jugadorDeEntidad(e.id)) or nil)
+		retrato(f, e.vecino and "vecino" or e.lado == "aliado" and "clase" or "enemigo", e.vecino or e.lado == "aliado" and (e.clase or "guerrero") or (e.enemigo or "babosa"), UDim2.fromScale(0, 0), UDim2.fromScale(1, 1), fondo, nil, e.lado == "aliado" and aparienciaDe(jugadorDeEntidad(e.id)) or nil)
 		Ui.crear("UIScale", { Parent = f })
 		fichasTira[e.id] = f
 	end

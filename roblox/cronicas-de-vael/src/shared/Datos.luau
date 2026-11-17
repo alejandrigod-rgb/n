@@ -206,6 +206,27 @@ function Datos.validarApariencia(t: any): { [string]: any }
 end
 
 Datos.MAX_EQUIPO = 4
+
+-- ===================== COMPAÑEROS =====================
+-- Vecinos que se unen a tu aventura y pelean a tu lado (los maneja el juego). Se llevan de uno en uno, o ninguno
+-- ("ir solo"). Se eligen en la mochila. Cada uno se consigue en un momento de la historia.
+export type Companero = { id: string, nombre: string, vecino: string, clase: string, habilidad: string, frases: { string }, descripcion: string, como: string }
+Datos.Companeros = {
+	tomas = { id = "tomas", nombre = "Tomás", vecino = "4242", clase = "guerrero", habilidad = "golpeFuerte", frases = { "¡Fuera de mi huerto!", "¡Esta horca no es de adorno!", "¡Por mis coles!" }, descripcion = "Granjero con horca. Aguanta en primera fila y empuja.", como = "Echa a las babosas del Huerto invadido." },
+	lucas = { id = "lucas", nombre = "Lucas", vecino = "5", clase = "arquero", habilidad = "disparoCerte", frases = { "¡Tirachinas en mano!", "¿Le he dado? ¡Le he dado!", "¡Esto se lo cuento a mi madre!" }, descripcion = "Niño con tirachinas. Dispara desde lejos.", como = "Devuélvele la pelota a Lucas." },
+	fermin = { id = "fermin", nombre = "Fermín", vecino = "60606", clase = "sanador", habilidad = "curar", frases = { "Las setas buenas curan.", "Respira hondo, joven.", "¡Ay, mi espalda!" }, descripcion = "Ermitaño. Cura al equipo y pega con su bastón.", como = "Llévale las 3 setas brillantes a Fermín." },
+}
+Datos.OrdenCompaneros = { "tomas", "lucas", "fermin" }
+
+--- Estadísticas de un compañero: las de su clase a tu nivel, algo más flojas que un héroe.
+function Datos.statsCompanero(cid: string, nivel: number): Stats
+	local def = Datos.Companeros[cid]
+	local s = table.clone(Datos.statsDe(def.clase, nivel, {}))
+	s.hp = math.floor(s.hp * 0.8)
+	s.atk = math.floor(s.atk * 0.85)
+	s.mag = math.floor(s.mag * 0.85)
+	return s
+end
 Datos.TIEMPO_TURNO = 20 -- segundos para elegir acción
 
 -- ============ CAMPO DE BATALLA CON CASILLAS ============
