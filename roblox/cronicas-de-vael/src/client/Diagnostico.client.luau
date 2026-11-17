@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ScriptContext = game:GetService("ScriptContext")
 
-local VERSION = "v1.2 · 17-nov"
+local VERSION = "v1.3 · 17-nov"
 
 local jugador = Players.LocalPlayer
 

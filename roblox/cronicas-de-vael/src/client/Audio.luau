@@ -99,6 +99,10 @@ end
 
 --- Suena un efecto por su nombre (ver Sonidos.Efectos). tono cambia la velocidad (1 = normal).
 function Audio.sfx(nombre: string, volumen: number?, tono: number?)
+	-- en la pantalla de inicio solo suena la música (nada de pitiditos, pasos ni clics)
+	if Players.LocalPlayer:GetAttribute("EnMenu") == true then
+		return
+	end
 	local tramo = Sonidos.Efectos[nombre]
 	if not plantilla or not tramo or not (plantilla :: Sound).IsLoaded then
 		return

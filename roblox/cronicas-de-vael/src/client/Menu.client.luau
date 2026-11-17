@@ -383,6 +383,8 @@ abrirInicio = function()
 			controles:Enable()
 		end
 		jugador:SetAttribute("EnMenu", false)
+		-- al empezar la partida, ya sí suenan los efectos
+		sonido("mejora")
 		refrescarBarra()
 		Ui.tween(fundido, { BackgroundTransparency = 1 }, 0.6)
 	end
@@ -398,7 +400,6 @@ abrirInicio = function()
 		end
 	end
 	local function jugar()
-		sonido("mejora")
 		-- la primera vez, antes de jugar se cuenta la historia (se puede saltar)
 		if not tienePartida then
 			historia(function()
