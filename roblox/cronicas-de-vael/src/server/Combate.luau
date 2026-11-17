@@ -1378,6 +1378,13 @@ local function terminar(b: Batalla, victoria: boolean)
 					pcall(b.alGanar :: any, j)
 				end)
 			end
+			if victoria and b.jefe and Combate.alVencerJefe then
+				task.delay(6, function()
+					if j.Parent then
+						pcall(Combate.alVencerJefe :: any, j)
+					end
+				end)
+			end
 			if mejora then
 				task.delay(2.6, function()
 					if j.Parent then

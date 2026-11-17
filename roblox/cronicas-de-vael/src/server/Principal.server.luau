@@ -131,7 +131,7 @@ pista = function(perfil: any): string
 	elseif not perfil.llaves.farol then
 		return "La llave abre las Ruinas. Tira de las 3 palancas (¡una está arriba!) y abre el cofre de la cripta: dentro hay un farol."
 	end
-	return "¡Ya lo tienes todo! Entra en la Cueva y dale su merecido al Rey Hongo."
+	return "¡Ya lo tienes todo! Entra en la Cueva, dale su merecido al Rey Hongo y recupera el Cucharón."
 end
 
 local function darLlave(j: Player, llave: string)
@@ -197,7 +197,7 @@ remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
 			if j.Parent then
 				dialogo(j, {
 					titulo = "Abuela Rosa",
-					texto = "¡Por fin despiertas! El Rey Hongo ha llenado Vael de monstruos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",
+					texto = "¡Por fin despiertas! El Rey Hongo se ha llevado el Cucharón y sus esporas tienen a todos los bichos rabiosos. Empieza echando las babosas del huerto de Tomás y luego ve a la ciudad. Y llévate la mochila, que hace frío.",
 					quien = { "vecino", "1955" },
 					opciones = { { texto = "¡Allá voy!" }, { texto = "¿Puedo dormir cinco minutos más?", accion = function()
 						return "«¡NO!»"
@@ -210,6 +210,18 @@ remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
 	enviarEstado(j)
 	notificar(j, "¡Qué buena pinta!")
 end)
+
+-- final de la historia: al ganar al Rey Hongo se recupera el Cucharón de Vael
+Combate.alVencerJefe = function(j: Player)
+	dialogo(j, {
+		titulo = "Abuela Rosa",
+		texto = "¡Has recuperado el Cucharón de Vael! Esta noche hay Gran Guiso… y este año, sin setas. El Rey Hongo está invitado, eso sí.",
+		quien = { "vecino", "1955" },
+		opciones = { { texto = "¡A comer!" }, { texto = "¿Y si me pide revancha?", accion = function()
+			return "«Pues le ganas otra vez, cielo. La cueva sigue ahí.»"
+		end } },
+	})
+end
 
 -- ===================== MUNDO Y GUARIDAS =====================
 local zonas = Mundo.construir()
@@ -638,7 +650,7 @@ for _, d in mundo:GetDescendants() do
 				texto = pista(perfil),
 				quien = { "vecino", "1955" },
 				opciones = { { texto = "¡Gracias, abuela!" }, { texto = "Cuéntame lo del Rey Hongo", accion = function()
-					return "«Vive en la cueva del final del camino. Dicen que su corona es de verdad… y que huele fatal.»"
+					return "«Vive en la cueva del final del camino. Lleva nuestro Cucharón de corona… y huele fatal.»"
 				end } },
 			})
 		end)

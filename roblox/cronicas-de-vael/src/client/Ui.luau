@@ -24,6 +24,8 @@ Ui.Colores = {
 -- letra de rotulador (como escrita a mano sobre cartulina)
 Ui.Fuente = Enum.Font.PermanentMarker
 Ui.FuenteTexto = Enum.Font.PermanentMarker
+-- letra de los diálogos y bocadillos: de cuento, a mano pero muy fácil de leer
+Ui.FuenteDialogo = Enum.Font.PatrickHand
 
 local CARTON = Color3.fromRGB(150, 138, 122)
 --- Apaga un color (estilo cartulina, nada chillón).

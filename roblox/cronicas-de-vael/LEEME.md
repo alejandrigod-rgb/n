@@ -2,6 +2,16 @@
 
 Juego original: un mundo de fantasía con combates por turnos en equipo. Tu grupo (tú y hasta 3 amigos) contra grupos de enemigos.
 
+## La historia
+
+Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **Cucharón de Vael**. El ingrediente secreto son setas… y a las setas nadie les preguntó. Este año el **Rey Hongo** se hartó: robó el Cucharón y se lo puso de corona. Sin él, el guiso se pudre y sus esporas ponen rabiosos a los bichos del valle: por eso hay peleas por todas partes. Tú eres el nuevo de la Aldea de Brezo, y Vael no tiene a nadie más.
+
+- **Prólogo animado** (`src/client/Portada.luau`): libro de cuentos de 6 láminas dibujadas y animadas. Sale al empezar una partida nueva (se puede saltar) y desde el botón **La historia** del menú.
+- **Portada:** teatrillo de papel cuyo telón se abre; detrás, el valle animado (sol, nubes, montañas, el castillo-seta del Rey Hongo con el Cucharón de bandera, casas con humo, molino, globo, pájaros, banderines y la olla del Gran Guiso "¡APLAZADA!").
+- **En el mundo:** la olla gigante fría en la plaza, el castillo-seta al fondo de la Cueva, la abuela y los vecinos hablan del Cucharón, y al ganar al Rey Hongo hay final.
+- **Fondo vivo** (`fondoVivo` en `Mundo.luau`): barrio alto y castillo del alcalde detrás de la muralla, campos y vacas, granjas con humo, globos, pájaros, árboles muertos y cabaña en el pantano, filas de pinos, columnas y cabeza de estatua en las ruinas. El cliente anima los atributos `Nube`, `Gira`, `Flota` y `Humo`.
+- **Letra de los diálogos:** Patrick Hand (`Ui.FuenteDialogo`), más fácil de leer que la de rotulador.
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|
@@ -130,6 +140,7 @@ En Studio, crea estas carpetas y scripts con el mismo nombre y pega el código d
 | … → **Editor** | ModuleScript | `src/client/Editor.luau` |
 | … → **Menu** | LocalScript | `src/client/Menu.client.luau` |
 | … → **MapaVael** | ModuleScript | `src/client/MapaVael.luau` |
+| … → **Portada** | ModuleScript | `src/client/Portada.luau` |
 | … → **Mochila** | ModuleScript | `src/client/Mochila.luau` |
 | … → **Interaccion** | ModuleScript | `src/client/Interaccion.luau` |
 | … → **Idioma** | ModuleScript | `src/client/Idioma.luau` |

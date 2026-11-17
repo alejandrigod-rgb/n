@@ -273,7 +273,9 @@ end
 -- ===================== VIDA DEL MAPA =====================
 type Balanceo = { m: Model, base: CFrame, x: number }
 local balanceos: { Balanceo } = {}
-local nubes: { { m: Model, v: number } } = {}
+local nubes: { { m: Model, v: number, y0: number, f: number? } } = {}
+local flotan: { { m: Model, base: CFrame, v: number, fase: number } } = {}
+local humos: { { p: BasePart, base: CFrame, fase: number } } = {}
 local giran: { { m: Model, base: CFrame, v: number } } = {}
 local nieblas: { { p: BasePart, base: CFrame, v: number } } = {}
 local chorros: { { p: BasePart, base: CFrame } } = {}
@@ -296,7 +298,20 @@ local function escanear(mundo: Instance)
 		if not vistos[d] then
 			if d:IsA("Model") and d:GetAttribute("Nube") then
 				vistos[d] = true
-				table.insert(nubes, { m = d, v = d:GetAttribute("Nube") :: number })
+				table.insert(nubes, { m = d, v = d:GetAttribute("Nube") :: number, y0 = d:GetPivot().Position.Y, f = d:GetAttribute("Flota") :: number? })
+			elseif d:IsA("Model") and d:GetAttribute("Flota") then
+				vistos[d] = true
+				table.insert(flotan, { m = d, base = d:GetPivot(), v = d:GetAttribute("Flota") :: number, fase = math.random() * 6 })
+			elseif d:IsA("Model") and d:GetAttribute("Humo") then
+				vistos[d] = true
+				local partes = d:GetChildren()
+				local origen: CFrame? = nil
+				for k, p in partes do
+					if p:IsA("BasePart") then
+						origen = origen or p.CFrame
+						table.insert(humos, { p = p, base = origen :: CFrame, fase = (k - 1) / #partes })
+					end
+				end
 			elseif d:IsA("Model") and d:GetAttribute("Gira") then
 				vistos[d] = true
 				table.insert(giran, { m = d, base = d:GetPivot(), v = d:GetAttribute("Gira") :: number })
@@ -383,7 +398,7 @@ local function burbuja(pa: Paseante, texto: string)
 	t.Position = UDim2.fromOffset(8, 5)
 	t.BackgroundTransparency = 1
 	t.Text = texto
-	t.Font = Enum.Font.FredokaOne
+	t.Font = Enum.Font.PatrickHand
 	t.TextScaled = true
 	t.TextWrapped = true
 	t.TextColor3 = NEGRO
@@ -484,6 +499,10 @@ local CONVERSACIONES = {
 	{ "El ermitaño busca setas que brillan.", "¿Y para qué?", "Para leer de noche, supongo." },
 	{ "¡Buenos días!", "Son las dos de la tarde.", "Pues buenos días igual." },
 	{ "Me ha mordido un mímico.", "¿Un qué?", "Un cofre con dientes. No preguntes." },
+	{ "¿Este año no hay Gran Guiso?", "Sin el Cucharón, no.", "Pues yo ya había traído pan." },
+	{ "Dicen que el Rey Hongo lleva el Cucharón de corona.", "¿Y le queda bien?", "Fatal. Pero no se lo digas." },
+	{ "Mi perro le ladra a las setas desde lo del Cucharón.", "Hace bien.", "Ayer le ladró a una tortilla." },
+	{ "¿Has visto la olla gigante de la plaza?", "Fría como mi suegra.", "¡Que te oye!" },
 }
 
 local enConversacion: { [any]: boolean } = {}
@@ -667,7 +686,7 @@ function Escena.decir(id: string, texto: string)
 	t.Position = UDim2.fromOffset(8, 5)
 	t.BackgroundTransparency = 1
 	t.Text = texto
-	t.Font = Enum.Font.FredokaOne
+	t.Font = Enum.Font.PatrickHand
 	t.TextScaled = true
 	t.TextColor3 = NEGRO
 	t.Parent = f
@@ -900,7 +919,18 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 		if nx > 820 then
 			nx = -320
 		end
-		n.m:PivotTo(CFrame.new(nx, piv.Position.Y, piv.Position.Z))
+		local ny = n.f and n.y0 + math.sin(tiempo * n.f) * 1.5 or piv.Position.Y
+		n.m:PivotTo(CFrame.new(nx, ny, piv.Position.Z))
+	end
+	for _, f in flotan do
+		f.m:PivotTo(f.base + Vector3.new(0, math.sin(tiempo * f.v + f.fase) * 1.2, 0))
+	end
+	for _, h in humos do
+		if h.p.Parent then
+			local fase = (tiempo * 0.25 + h.fase) % 1
+			h.p.CFrame = h.base + Vector3.new(fase * 2.5, fase * 9, 0)
+			h.p.Transparency = 0.15 + fase * 0.85
+		end
 	end
 	for _, g in giran do
 		g.m:PivotTo(g.base * CFrame.Angles(0, 0, -tiempo * g.v))

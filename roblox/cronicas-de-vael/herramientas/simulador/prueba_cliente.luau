@@ -132,6 +132,13 @@ informe("estado sin clase")
 print("¿Botón Nueva partida?", boton("Nueva partida") ~= nil)
 pulsar("Nueva partida")
 RT.avanzar(2)
+-- el prólogo (6 láminas): se pasa entero para probar todos los dibujos
+print("¿Prólogo?", buscarTexto(pg, "Siguiente") ~= nil)
+for _ = 1, 14 do
+	if boton("Siguiente") then pulsar("Siguiente") end
+end
+RT.avanzar(2)
+print("¿Prólogo cerrado?", boton("Siguiente") == nil)
 informe("tras pulsar Jugar")
 print("¿Selector de clase?", buscarTexto(pg, "Elige tu clase") ~= nil)
 pulsar("¡Elegir!")

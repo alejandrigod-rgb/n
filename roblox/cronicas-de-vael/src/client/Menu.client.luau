@@ -24,6 +24,14 @@ paso("datos")
 local Ui = require(script.Parent:WaitForChild("Ui"))
 paso("ui")
 local C = Ui.Colores
+-- la portada solo necesita Ui: se carga ya (si fallara, el menú sale igual con un fondo liso)
+local okPortada, Portada = pcall(function()
+	return require(script.Parent:WaitForChild("Portada", 10) :: ModuleScript)
+end)
+if not okPortada then
+	warn("Menú: no se pudo cargar Portada: " .. tostring(Portada))
+	Portada = nil
+end
 
 local gui = Ui.crear("ScreenGui", { Name = "VaelMenu", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 20, ZIndexBehavior = Enum.ZIndexBehavior.Sibling, Parent = jugador:WaitForChild("PlayerGui") })
 paso("gui")
@@ -306,7 +314,10 @@ abrirInicio = function()
 	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 100, Parent = gui })
 	inicio = capa
 	refrescarBarra()
-	Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(60, 48, 40), BackgroundTransparency = 0.35, BorderSizePixel = 0, ZIndex = 100, Parent = capa })
+	local conFondo = Portada and pcall(Portada.fondo, capa, Munecos)
+	if not conFondo then
+		Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(60, 48, 40), BackgroundTransparency = 0.35, BorderSizePixel = 0, ZIndex = 100, Parent = capa })
+	end
 	local cartel = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 30), Size = UDim2.fromOffset(760, 150), BackgroundColor3 = Color3.fromRGB(205, 175, 130), Parent = capa, ZIndex = 101 })
 	cartel.Rotation = -2
 	Ui.texto({ Position = UDim2.fromOffset(20, 14), Size = UDim2.new(1, -40, 0, 90), Text = "Crónicas de Vael", TextColor3 = Color3.fromRGB(250, 236, 200), ZIndex = 102, Parent = cartel })
@@ -356,10 +367,10 @@ abrirInicio = function()
 			end
 		end)
 	end)
-	local caja = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 205), Size = UDim2.fromOffset(320, 330), BackgroundTransparency = 1, ZIndex = 101, Parent = capa })
+	local caja = Ui.crear("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, 200), Size = UDim2.fromOffset(320, 400), BackgroundTransparency = 1, ZIndex = 101, Parent = capa })
 	Ui.crear("UIListLayout", { Padding = UDim.new(0, 10), HorizontalAlignment = Enum.HorizontalAlignment.Center, SortOrder = Enum.SortOrder.LayoutOrder, Parent = caja })
-	local function jugar()
-		sonido("mejora")
+	local tienePartida = jugador:GetAttribute("Clase") ~= nil
+	local function entrar()
 		Ui.tween(fundido, { BackgroundTransparency = 0 }, 0.35).Completed:Wait()
 		capa:Destroy()
 		inicio = nil
@@ -373,7 +384,28 @@ abrirInicio = function()
 		refrescarBarra()
 		Ui.tween(fundido, { BackgroundTransparency = 1 }, 0.6)
 	end
-	local tienePartida = jugador:GetAttribute("Clase") ~= nil
+	local function historia(despues: (() -> ())?)
+		if Portada then
+			local ok = pcall(Portada.prologo, gui, Munecos, apariencia(), despues)
+			if ok then
+				return
+			end
+		end
+		if despues then
+			despues()
+		end
+	end
+	local function jugar()
+		sonido("mejora")
+		-- la primera vez, antes de jugar se cuenta la historia (se puede saltar)
+		if not tienePartida then
+			historia(function()
+				task.spawn(entrar)
+			end)
+		else
+			entrar()
+		end
+	end
 	local botones = {
 		{ tienePartida and "Continuar" or "Nueva partida", Color3.fromRGB(100, 160, 90), "estrella", jugar },
 		{ "Mi personaje", Color3.fromRGB(190, 120, 80), "corazon", function()
@@ -382,6 +414,9 @@ abrirInicio = function()
 			else
 				panelInfo(capa, "Mi personaje", "Primero empieza la partida y elige tu clase. Después podrás crear a tu héroe (y cambiarlo cuando quieras desde la pausa).")
 			end
+		end },
+		{ "La historia", Color3.fromRGB(200, 90, 70), "magia", function()
+			historia(nil)
 		end },
 		{ "Configuración", Color3.fromRGB(80, 120, 170), "escudo", function()
 			panelAjustes(capa)
@@ -394,7 +429,7 @@ abrirInicio = function()
 		end },
 	}
 	for i, b in botones do
-		local boton = Ui.boton({ Size = UDim2.fromOffset(320, 54), Text = b[1], BackgroundColor3 = b[2], Icono = b[3], ZIndex = 102, LayoutOrder = i, Parent = caja }, b[4])
+		local boton = Ui.boton({ Size = UDim2.fromOffset(320, 50), Text = b[1], BackgroundColor3 = b[2], Icono = b[3], ZIndex = 102, LayoutOrder = i, Parent = caja }, b[4])
 		boton.Visible = false
 		Ui.aparecer(boton, 0.2 + i * 0.08)
 	end

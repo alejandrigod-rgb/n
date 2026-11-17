@@ -1224,6 +1224,220 @@ local function taberna()
 end
 
 --- Construye (o encuentra) el mundo. Devuelve las partes de zona: [parte] = datos de la zona.
+-- ===================== FONDO VIVO (lo que se ve detrás: que no parezca un decorado vacío) =====================
+-- Todo va de z = -30 hacia atrás, así que no estorba al camino. Lo que se mueve lo anima el cliente:
+-- "Nube" (se desplaza), "Gira" (rueda), "Flota" (sube y baja) y "Humo" (bocanadas que suben y se deshacen).
+
+--- Columna de humo de una chimenea.
+local function humo(x: number, y: number, z: number)
+	local m = Instance.new("Model")
+	m.Name = "Humo"
+	m:SetAttribute("Humo", y)
+	m.Parent = raiz
+	for k = 0, 3 do
+		local p = disco(x + k * 0.6, y + k * 2, z, 2.2 + k * 0.6, Color3.fromRGB(225, 222, 215), false, m)
+		p.Transparency = 0.2 + k * 0.15
+	end
+end
+
+--- Casa lejana (más sencilla): sale por encima de la muralla o de las colinas.
+local function casaLejana(x: number, z: number, w: number, h: number, pared: Color3, techo: Color3, chimenea: boolean?)
+	plano(x, h / 2, z, w, h, pared)
+	tri(x, h - 0.2, z + 0.1, w + 2, h * 0.45, techo)
+	for k = 0, 1 do
+		plano(x - w * 0.22 + k * w * 0.44, h * 0.68, z + 0.3, 1.8, 2, Color3.fromRGB(255, 220, 130), false)
+	end
+	if chimenea then
+		plano(x + w * 0.28, h + h * 0.3, z - 0.4, 1.4, 3, Color3.fromRGB(140, 90, 70))
+		humo(x + w * 0.28, h + h * 0.3 + 3, z - 0.2)
+	end
+end
+
+local function pajaros(x: number, y: number, z: number, n: number, velocidad: number)
+	local m = Instance.new("Model")
+	m.Name = "Pajaros"
+	m:SetAttribute("Nube", velocidad)
+	m.Parent = raiz
+	for k = 1, n do
+		local px, py = x + k * 3.2, y + (k % 2) * 1.6
+		plano(px - 0.6, py, z, 1.5, 0.3, NEGRO, false, m, 25)
+		plano(px + 0.6, py, z, 1.5, 0.3, NEGRO, false, m, -25)
+	end
+end
+
+local function globo(x: number, y: number, z: number, color: Color3)
+	local m = Instance.new("Model")
+	m.Name = "Globo"
+	m:SetAttribute("Nube", 0.5)
+	m:SetAttribute("Flota", 0.6)
+	m.Parent = raiz
+	disco(x, y, z, 11, color, true, m)
+	plano(x, y, z + 0.3, 1.6, 10.6, Color3.fromRGB(250, 235, 200), false, m)
+	plano(x, y - 7.5, z, 0.2, 4, NEGRO, false, m, 18)
+	plano(x, y - 7.5, z, 0.2, 4, NEGRO, false, m, -18)
+	plano(x, y - 9.8, z, 3, 2, Color3.fromRGB(150, 100, 60), true, m)
+end
+
+local function vaca(x: number, z: number)
+	plano(x, 2.2, z, 4.4, 2.4, Color3.fromRGB(250, 248, 240))
+	disco(x - 0.8, 2.6, z + 0.3, 1.2, NEGRO, false)
+	disco(x + 1.1, 1.9, z + 0.3, 0.9, NEGRO, false)
+	plano(x + 2.6, 2.9, z + 0.2, 1.6, 1.4, Color3.fromRGB(250, 248, 240))
+	plano(x + 3.1, 2.6, z + 0.4, 0.8, 0.7, Color3.fromRGB(240, 170, 170), false)
+	for _, dx in { -1.6, -0.6, 0.9, 1.7 } do
+		plano(x + dx, 0.6, z - 0.1, 0.5, 1.4, Color3.fromRGB(250, 248, 240))
+	end
+end
+
+local function fondoVivo(rng: Random)
+	local paredes = { Color3.fromRGB(240, 222, 190), Color3.fromRGB(205, 220, 235), Color3.fromRGB(235, 200, 190), Color3.fromRGB(215, 230, 195) }
+	local techos = { Color3.fromRGB(185, 80, 65), Color3.fromRGB(80, 110, 160), Color3.fromRGB(140, 85, 130), Color3.fromRGB(90, 135, 90) }
+
+	-- ---- ALDEA DE BREZO: campos de cultivo, almiares, granjas y un molino de agua ----
+	for k = 0, 5 do
+		local col = k % 2 == 0 and Color3.fromRGB(205, 185, 95) or Color3.fromRGB(130, 170, 80)
+		local p = plano(-325, 2 + k * 1.6, -46 - k * 2, 240, 1.6, col, false)
+		p.Size = Vector3.new(240, 1.6, 0.4)
+	end
+	for _, x in { -430, -395, -350, -300, -255, -225 } do
+		disco(x + rng:NextNumber(-6, 6), 4, -38, 4.5, Color3.fromRGB(225, 190, 90))
+		plano(x, 2, -37.8, 4.6, 2.2, Color3.fromRGB(225, 190, 90), false)
+	end
+	casaLejana(-405, -55, 12, 9, paredes[1], techos[1], true)
+	casaLejana(-310, -58, 10, 8, paredes[3], techos[4], true)
+	plano(-260, 9, -52, 6, 18, Color3.fromRGB(150, 110, 75)) -- depósito de agua
+	disco(-260, 19, -51.6, 9, Color3.fromRGB(120, 150, 170))
+	for _, x in { -380, -345, -270 } do
+		vaca(x, -33)
+	end
+	pajaros(-420, 42, -60, 4, 0.9)
+
+	-- ---- CIUDAD DE VAEL: barrio alto, castillo del alcalde, el Gran Guiso y un globo ----
+	for x = -188, 30, 15 do
+		local h = rng:NextNumber(17, 25)
+		casaLejana(x + rng:NextNumber(-3, 3), -33 - rng:NextNumber(0, 3), rng:NextNumber(10, 14), h, paredes[rng:NextInteger(1, #paredes)], techos[rng:NextInteger(1, #techos)], rng:NextNumber() < 0.6)
+	end
+	-- colina con el castillo
+	disco(-110, -18, -60, 110, Color3.fromRGB(120, 190, 100))
+	plano(-110, 40, -58, 34, 18, Color3.fromRGB(200, 190, 175))
+	for k = -1, 1 do
+		local tx = -110 + k * 17
+		plano(tx, 44, -57.5, 7, 28, Color3.fromRGB(210, 200, 185))
+		tri(tx, 58, -57.3, 10, 9, Color3.fromRGB(70, 90, 150))
+		plano(tx + 1.6, 69, -57.2, 3, 2, Color3.fromRGB(230, 190, 70), false)
+		plano(tx, 67.5, -57.2, 0.3, 5, NEGRO, false)
+		plano(tx, 48, -57, 2, 3, Color3.fromRGB(255, 220, 130), false)
+	end
+	for k = 0, 7 do
+		plano(-126 + k * 4.5, 50, -57.6, 2.4, 2.4, Color3.fromRGB(200, 190, 175))
+	end
+	plano(-110, 36, -57, 6, 8, Color3.fromRGB(120, 75, 45))
+	-- guirnalda de banderines entre las torres
+	for x = -126, -94, 1.8 do
+		tri(x, 56 - math.sin((x + 126) / 32 * math.pi) * 3, -57, 1.3, -1.6, COLORES_FLOR[(math.floor(x) % #COLORES_FLOR) + 1], false)
+	end
+	-- el Gran Guiso: la olla gigante de la fiesta, fría (sin el Cucharón no hay guiso)
+	local gx = -78
+	disco(gx, 6.5, -24.5, 11, Color3.fromRGB(60, 58, 66))
+	plano(gx, 11, -24.2, 13, 1.2, Color3.fromRGB(85, 82, 92))
+	plano(gx - 4, 1, -24.6, 1, 3, Color3.fromRGB(60, 58, 66))
+	plano(gx + 4, 1, -24.6, 1, 3, Color3.fromRGB(60, 58, 66))
+	for k = -2, 2 do
+		plano(gx + k * 1.6, 0.7, -24.2, 1.2, 1.4, Color3.fromRGB(110, 75, 50), false, nil, k * 20)
+	end
+	plano(gx + 5.5, 15, -24.4, 0.4, 8, Color3.fromRGB(110, 75, 50)) -- el gancho vacío del Cucharón
+	plano(gx + 4.6, 18.8, -24.4, 2.2, 0.4, Color3.fromRGB(110, 75, 50))
+	letrero(gx, 15.5, -23.8, 9, 3, "Fiesta del Gran Guiso\n¡APLAZADA!", Color3.fromRGB(190, 80, 60), Color3.fromRGB(255, 240, 200))
+	globo(-150, 52, -80, Color3.fromRGB(220, 110, 90))
+	globo(-20, 62, -95, Color3.fromRGB(110, 150, 210))
+	pajaros(-60, 46, -62, 5, 1.2)
+
+	-- ---- PRADERA: granjas, vacas y otro molino lejano ----
+	casaLejana(60, -42, 11, 8, paredes[2], techos[1], true)
+	casaLejana(140, -45, 10, 8, paredes[4], techos[2], true)
+	for _, x in { 95, 110, 125 } do
+		vaca(x + rng:NextNumber(-3, 3), -34)
+	end
+	plano(150, 8, -50, 6, 16, Color3.fromRGB(235, 225, 205))
+	tri(150, 16, -49.8, 8, 5, Color3.fromRGB(150, 80, 60))
+	local aspas = Instance.new("Model")
+	aspas.Name = "Aspas"
+	aspas:SetAttribute("Gira", 0.5)
+	aspas.Parent = raiz
+	for k = 0, 3 do
+		local a = math.rad(k * 90)
+		plano(150 + math.cos(a) * 3.6, 13 + math.sin(a) * 3.6, -49.2, 7, 1.3, Color3.fromRGB(230, 220, 190), true, aspas, k * 90)
+	end
+	aspas.WorldPivot = CFrame.new(150, 13, -49)
+
+	-- ---- PANTANO: árboles muertos, la cabaña de la bruja en zancos y niebla ----
+	for _, x in { 172, 190, 214, 236, 255 } do
+		plano(x, 7, -36, 1.2, 14, Color3.fromRGB(80, 75, 70))
+		plano(x + 2, 11, -36, 4, 0.6, Color3.fromRGB(80, 75, 70), false, nil, 35)
+		plano(x - 1.6, 9, -36, 3, 0.5, Color3.fromRGB(80, 75, 70), false, nil, -40)
+	end
+	plano(226, 14, -50, 12, 8, Color3.fromRGB(110, 120, 90))
+	tri(226, 17.8, -49.8, 14, 6, Color3.fromRGB(80, 70, 90))
+	for _, dx in { -4, 4 } do
+		plano(226 + dx, 5, -50.4, 0.8, 10, Color3.fromRGB(90, 70, 55))
+	end
+	plano(226, 14, -49.6, 2, 2, Color3.fromRGB(170, 230, 120), false)
+	humo(229, 21, -50)
+	local niebla = plano(214, 3, -31, 100, 5, Color3.fromRGB(220, 230, 225), false)
+	niebla.Transparency = 0.55
+	niebla:SetAttribute("Niebla", 0.8)
+
+	-- ---- BOSQUE: dos filas de pinos oscuros ----
+	for x = 264, 360, 7 do
+		pino(x + rng:NextNumber(-2, 2), -34, rng:NextNumber(1.3, 1.8), Color3.fromRGB(40, 95, 65))
+	end
+	for x = 268, 360, 9 do
+		pino(x + rng:NextNumber(-2, 2), -46, rng:NextNumber(1.8, 2.3), Color3.fromRGB(35, 80, 60))
+	end
+	pajaros(280, 40, -56, 3, 0.7)
+
+	-- ---- RUINAS: columnas rotas, un arco y una cabeza de estatua medio enterrada ----
+	for _, x in { 370, 384, 398, 448 } do
+		local h = rng:NextNumber(6, 14)
+		plano(x, h / 2, -36, 3, h, Color3.fromRGB(200, 195, 180))
+		plano(x, h + 0.4, -35.8, 4, 0.8, Color3.fromRGB(185, 180, 165))
+	end
+	plano(420, 9, -44, 3, 18, Color3.fromRGB(190, 185, 170))
+	plano(436, 9, -44, 3, 18, Color3.fromRGB(190, 185, 170))
+	plano(428, 19, -44, 22, 3, Color3.fromRGB(190, 185, 170))
+	disco(405, 3, -48, 14, Color3.fromRGB(185, 180, 168))
+	plano(401, 5, -47.4, 2.4, 0.6, NEGRO, false)
+	plano(409, 5, -47.4, 2.4, 0.6, NEGRO, false)
+	plano(405, 1.6, -47.4, 4, 0.5, NEGRO, false)
+
+	-- ---- CUEVA: el castillo del Rey Hongo (una seta gigante) con el Cucharón de bandera ----
+	disco(560, -10, -70, 120, Color3.fromRGB(110, 100, 110))
+	plano(560, 40, -66, 14, 34, Color3.fromRGB(235, 225, 200))
+	local copa = Instance.new("Model")
+	copa.Name = "SetaReal"
+	copa:SetAttribute("Flota", 0.4)
+	copa.Parent = raiz
+	disco(560, 60, -65, 50, Color3.fromRGB(200, 60, 60), true, copa)
+	for _, d in { { -12, 66, 7 }, { 8, 70, 6 }, { 15, 60, 5 }, { -4, 76, 4 }, { -16, 58, 4 } } do
+		disco(560 + d[1], d[2], -64.6, d[3], Color3.fromRGB(250, 240, 230), false, copa)
+	end
+	plano(560, 30, -65.6, 5, 8, Color3.fromRGB(110, 75, 50))
+	plano(556, 44, -65.6, 3, 3, Color3.fromRGB(180, 240, 140), false)
+	plano(564, 44, -65.6, 3, 3, Color3.fromRGB(180, 240, 140), false)
+	-- la bandera: el Cucharón robado, colgado en lo alto
+	plano(560, 92, -65, 0.5, 14, NEGRO, false, copa)
+	plano(563.5, 96, -65, 7, 1.2, Color3.fromRGB(190, 140, 80), true, copa, -20)
+	disco(567.5, 94.5, -65, 4, Color3.fromRGB(190, 140, 80), true, copa)
+	-- esporas que flotan alrededor
+	for k = 1, 8 do
+		local m = Instance.new("Model")
+		m.Name = "Espora"
+		m:SetAttribute("Flota", rng:NextNumber(0.6, 1.4))
+		m.Parent = raiz
+		disco(520 + rng:NextNumber(0, 80), rng:NextNumber(20, 70), -60, rng:NextNumber(1, 2), Color3.fromRGB(190, 230, 140), false, m)
+	end
+end
+
 function Mundo.construir(): { [BasePart]: any }
 	local zonas: { [BasePart]: any } = {}
 	local existente = workspace:FindFirstChild("MundoVael")
@@ -1282,6 +1496,7 @@ function Mundo.construir(): { [BasePart]: any }
 	bosque(rng)
 	ruinas(rng)
 	cueva(rng)
+	fondoVivo(rng)
 	pastoPorTodas(rng)
 	exploracion(rng)
 	aldea(rng)
