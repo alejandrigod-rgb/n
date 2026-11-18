@@ -64,6 +64,7 @@ export type Batalla = {
 	emboscada: boolean,
 	alGanar: ((Player) -> ())?,
 	victoria: boolean?,
+	jefeId: string?,
 }
 
 local Remotos: Folder
@@ -700,7 +701,7 @@ end
 
 --- Empuja (n > 0) o atrae (n < 0) al objetivo. Si choca, golpe extra.
 local function empujar(b: Batalla, actor: Entidad, objetivo: Entidad, n: number, golpes: { Golpe }, textos: { string })
-	if not objetivo.vivo or n == 0 or objetivo.enemigoId == "reyHongo" and n > 0 and actor.lado == "aliado" and rng:NextNumber() < 0.5 then
+	if not objetivo.vivo or n == 0 or objetivo.enemigoId ~= nil and Datos.Enemigos[objetivo.enemigoId] ~= nil and Datos.Enemigos[objetivo.enemigoId].jefe == true and n > 0 and actor.lado == "aliado" and rng:NextNumber() < 0.5 then
 		return
 	end
 	local dc, df = objetivo.col - actor.col, objetivo.fila - actor.fila
@@ -989,7 +990,7 @@ local function ejecutar(b: Batalla, actor: Entidad, accion: Accion)
 			texto = actor.nombre .. " grita «¡corred!» y el equipo escapa"
 			b.huida = true
 		else
-			texto = b.jefe and "¡No se puede huir del Rey Hongo!" or (actor.nombre .. " intenta huir… y se tropieza")
+			texto = b.jefe and "¡No se puede huir de un jefe!" or (actor.nombre .. " intenta huir… y se tropieza")
 		end
 	end
 
@@ -1527,7 +1528,7 @@ local function terminar(b: Batalla, victoria: boolean)
 			if victoria and b.jefe and Combate.alVencerJefe then
 				task.delay(6, function()
 					if j.Parent then
-						pcall(Combate.alVencerJefe :: any, j)
+						pcall(Combate.alVencerJefe :: any, j, b.jefeId)
 					end
 				end)
 			end
@@ -1620,7 +1621,11 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 	}
 	sembrarCasillas(b)
 	for i, j in jugadores do
-		if i <= Datos.MAX_EQUIPO then
+		local pj = DatosJugador.obtener(j) :: any
+		if pj and pj.progreso and pj.progreso.barba then
+			-- tres años después, sin afeitar ni bañar: así no se puede pelear
+			notificar(j, "¡Con esa barba no ves ni la espada! Primero el barbero y un baño.")
+		elseif i <= Datos.MAX_EQUIPO then
 			local e = entidadJugador(b, j)
 			if e then
 				table.insert(b.aliados, e)
@@ -1668,8 +1673,9 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 	local escala = 1 + 0.45 * (#b.aliados - 1)
 	for i, eid in grupo do
 		local def = Datos.Enemigos[eid]
-		if eid == "reyHongo" then
+		if def.jefe then
 			b.jefe = true
+			b.jefeId = eid
 		end
 		local c, f = casillaLibreEn(b, { R.columnas - 2, R.columnas - 1, R.columnas })
 		local stats = table.clone(def.stats)
@@ -1719,7 +1725,10 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 	prompt:SetAttribute("UnirseBatalla", b.id)
 	prompt.Parent = anillo
 	prompt.Triggered:Connect(function(j)
-		if not batallaDe[j] and not table.find(b.pendientes, j) and #b.aliados + #b.pendientes < Datos.MAX_EQUIPO then
+		local pj = DatosJugador.obtener(j) :: any
+		if pj and pj.progreso and pj.progreso.barba then
+			notificar(j, "¡Con esa barba no ves ni la espada! Primero el barbero y un baño.")
+		elseif not batallaDe[j] and not table.find(b.pendientes, j) and #b.aliados + #b.pendientes < Datos.MAX_EQUIPO then
 			local perfil = DatosJugador.obtener(j)
 			if perfil and perfil.clase then
 				table.insert(b.pendientes, j)

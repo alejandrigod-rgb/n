@@ -773,6 +773,346 @@ local EPILOGO: { Lamina } = {
 	},
 }
 
+-- ---------- SUBEPÍLOGO: TRES AÑOS DESPUÉS (abre la historia 2) ----------
+local SUBEPILOGO: { Lamina } = {
+	{
+		texto = "Pasaron tres años. Vael comía Gran Guiso cada otoño… y el héroe, de tanto guiso, engordó un poquito.",
+		cielo = Color3.fromRGB(235, 205, 160),
+		dibujar = function(l, M, pasos, apariencia)
+			suelo(l, Color3.fromRGB(110, 178, 85), 5)
+			local rotulo = Ui.crear("TextLabel", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.2), Size = UDim2.fromScale(0.7, 0.2), BackgroundTransparency = 1, Text = "TRES AÑOS DESPUÉS", Font = Enum.Font.Bangers, TextScaled = true, TextColor3 = Color3.fromRGB(250, 235, 200), ZIndex = 40, Parent = l })
+			Ui.crear("UIStroke", { Thickness = 4, Color = TINTA, Parent = rotulo })
+			-- hojas de calendario que salen volando
+			local hojas = {}
+			for k = 1, 6 do
+				local h = caja(l, { AnchorPoint = Vector2.new(0.5, 0.5), Size = UDim2.fromScale(0.07, 0.09), SizeConstraint = Enum.SizeConstraint.RelativeYY, BackgroundColor3 = Color3.fromRGB(250, 248, 240), ZIndex = 30 })
+				Ui.borde(h, TINTA, 2)
+				caja(h, { Size = UDim2.fromScale(1, 0.25), BackgroundColor3 = Color3.fromRGB(200, 70, 60), ZIndex = 31 })
+				hojas[k] = h
+			end
+			local _, fh = muneco(l, M, "clase", "guerrero", 0.5, 0.88, 0.5, 20, apariencia)
+			table.insert(pasos, function(t)
+				for k, h in hojas do
+					local fase = (t * 0.5 + k / 6) % 1
+					h.Position = UDim2.fromScale(0.2 + fase * 0.7, 0.5 - math.sin(fase * math.pi) * 0.3)
+					h.Rotation = fase * 360
+				end
+				-- el héroe, más redondito, respira hondo
+				fh.Size = UDim2.fromScale(0.5 * 0.8 * (1.08 + math.sin(t * 2) * 0.03), 0.5)
+			end)
+		end,
+	},
+	{
+		texto = "El Rey Hongo se hizo cocinero. Su especialidad: guiso de calabaza, sin una sola seta.",
+		cielo = Color3.fromRGB(240, 200, 150),
+		dibujar = function(l, M, pasos)
+			suelo(l, Color3.fromRGB(150, 110, 75), 5)
+			olla(l, 0.62, 0.9, 0.34, Color3.fromRGB(70, 66, 76), 10)
+			local _, fr = muneco(l, M, "enemigo", "reyHongo", 0.3, 0.9, 0.55, 20)
+			local cu = cucharon(l, 0.48, 0.45, 0.3, 30, -30)
+			local vapor = {}
+			for k = 1, 4 do
+				vapor[k] = redondo(l, 0.62, 0.5, 0.06, Color3.fromRGB(250, 248, 240), 9)
+			end
+			table.insert(pasos, function(t)
+				cu.Rotation = -30 + math.sin(t * 3) * 25
+				fr.Rotation = math.sin(t * 3) * 4
+				for k, v in vapor do
+					local fase = (t * 0.3 + k / 4) % 1
+					v.Position = UDim2.fromScale(0.6 + k * 0.01, 0.6 - fase * 0.45)
+					v.BackgroundTransparency = fase
+				end
+			end)
+		end,
+	},
+	{
+		texto = "Pero una noche de invierno, algo enorme bajó de los Picos Nevados…",
+		cielo = Color3.fromRGB(40, 50, 85),
+		dibujar = function(l, M, pasos)
+			suelo(l, Color3.fromRGB(225, 232, 242), 5)
+			for k, x in { 0.12, 0.85 } do
+				casita(l, x, 0.8, 0.28, Color3.fromRGB(200, 200, 215), k == 1 and Color3.fromRGB(120, 60, 60) or Color3.fromRGB(60, 80, 120), 10)
+			end
+			-- la sombra gigante con ojos que brillan
+			local sombra = caja(l, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 0.8), Size = UDim2.fromScale(0.55, 0.75), SizeConstraint = Enum.SizeConstraint.RelativeYY, BackgroundColor3 = Color3.fromRGB(15, 18, 30), ZIndex = 8 })
+			Ui.crear("UICorner", { CornerRadius = UDim.new(0.4, 0), Parent = sombra })
+			local ojosY = {}
+			for _, ox in { 0.38, 0.62 } do
+				table.insert(ojosY, redondo(sombra, ox, 0.22, 0.08, Color3.fromRGB(255, 220, 90), 9))
+			end
+			local copos = {}
+			for k = 1, 20 do
+				copos[k] = redondo(l, 0, 0, 0.015, Color3.fromRGB(250, 250, 255), 35)
+			end
+			table.insert(pasos, function(t)
+				sombra.Position = UDim2.fromScale(0.5, 0.8 + math.abs(math.sin(t * 1.5)) * -0.02)
+				local cerrados = (t % 3) < 0.15
+				for _, o in ojosY do
+					o.Size = UDim2.fromScale(0.08, cerrados and 0.01 or 0.08)
+				end
+				for k, c in copos do
+					c.Position = UDim2.fromScale((k * 0.137 + math.sin(t + k) * 0.02) % 1, (t * 0.1 + k * 0.071) % 1)
+				end
+			end)
+		end,
+	},
+	{
+		texto = "A la mañana siguiente, ¡la Olla del Gran Guiso había desaparecido! Solo quedaban unas huellas… gigantes y peludas.",
+		cielo = Color3.fromRGB(200, 215, 230),
+		dibujar = function(l, M, pasos)
+			suelo(l, Color3.fromRGB(230, 236, 244), 5)
+			for k = 0, 4 do
+				local h = redondo(l, 0.15 + k * 0.17, 0.88 - (k % 2) * 0.05, 0.08, Color3.fromRGB(150, 165, 190), 10)
+				h.Size = UDim2.fromScale(0.1, 0.06)
+			end
+			local vecinos = {}
+			for k, d in { { 0.2, "12" }, { 0.4, "4242" }, { 0.65, "1955" }, { 0.82, "5" } } do
+				local m, f = muneco(l, M, "vecino", d[2], d[1], 0.86, 0.3, 20)
+				if m then
+					M.espejo(m, d[1] > 0.5)
+				end
+				table.insert(vecinos, { f = f, x = d[1], k = k })
+			end
+			task.delay(0.6, function()
+				if l.Parent then
+					onomatopeya(l, "¡¿LA OLLA?!", 0.5, 0.25, Color3.fromRGB(240, 110, 90), 40)
+				end
+			end)
+			table.insert(pasos, function(t)
+				for _, v in vecinos do
+					v.f.Position = UDim2.fromScale(v.x + math.sin(t * 25 + v.k) * 0.003, 0.86)
+				end
+			end)
+		end,
+	},
+	{
+		texto = "Vael necesita a su héroe otra vez. Abrígate bien. CONTINUARÁ: «La Olla Congelada».",
+		cielo = Color3.fromRGB(150, 180, 215),
+		dibujar = function(l, M, pasos, apariencia)
+			for _, m in { { 0.25, 0.9 }, { 0.6, 1.1 }, { 0.9, 0.8 } } do
+				rombo(l, m[1], 0.95, m[2] * 0.6, Color3.fromRGB(170, 185, 215), 4, 3)
+				rombo(l, m[1], 0.95 - m[2] * 0.6 * 0.707 + m[2] * 0.6 * 0.3 * 0.707, m[2] * 0.6 * 0.3, Color3.fromRGB(248, 250, 255), 5)
+			end
+			suelo(l, Color3.fromRGB(235, 240, 248), 6)
+			local heroe, fh = muneco(l, M, "clase", "guerrero", 0.3, 0.9, 0.5, 20, apariencia)
+			if heroe then
+				heroe.mirar = 1
+			end
+			local bufanda = caja(l, { AnchorPoint = Vector2.new(0, 0.5), Position = UDim2.fromScale(0.3, 0.55), Size = UDim2.fromScale(0.12, 0.03), BackgroundColor3 = Color3.fromRGB(200, 60, 60), ZIndex = 25 })
+			Ui.borde(bufanda, TINTA, 2)
+			table.insert(pasos, function(t)
+				bufanda.Rotation = math.sin(t * 6) * 12 - 8
+				fh.Position = UDim2.fromScale(0.3, 0.9)
+			end)
+		end,
+	},
+}
+
+-- ---------- FINAL DE LA HISTORIA 2 (al ganar al Yeti Tragón) ----------
+local EPILOGO2: { Lamina } = {
+	{
+		texto = "El Yeti Tragón cayó en la nieve con un ¡PUF! gigante… y se echó a llorar.",
+		cielo = Color3.fromRGB(150, 185, 220),
+		dibujar = function(l, M, pasos)
+			suelo(l, Color3.fromRGB(235, 240, 248), 5)
+			local yeti = muneco(l, M, "enemigo", "yeti", 0.5, 0.92, 0.7, 20)
+			if yeti then
+				task.delay(0.3, function()
+					M.caer(yeti, true)
+				end)
+			end
+			local lagrimas = {}
+			for k = 1, 4 do
+				lagrimas[k] = redondo(l, 0.5, 0.5, 0.025, Color3.fromRGB(150, 200, 240), 30, 2)
+			end
+			task.delay(0.4, function()
+				if l.Parent then
+					onomatopeya(l, "¡PUF!", 0.5, 0.25, Color3.fromRGB(240, 248, 255), 40)
+				end
+			end)
+			table.insert(pasos, function(t)
+				for k, g in lagrimas do
+					local fase = (t * 0.6 + k / 4) % 1
+					g.Position = UDim2.fromScale(0.42 + (k % 2) * 0.16 + (k % 2 == 0 and fase or -fase) * 0.05, 0.55 + fase * 0.3)
+					g.BackgroundTransparency = fase
+				end
+			end)
+		end,
+	},
+	{
+		texto = "Resulta que nadie le había invitado nunca a una fiesta. Llevaba cien años comiendo solo en su cueva.",
+		cielo = Color3.fromRGB(60, 70, 110),
+		dibujar = function(l, M, pasos)
+			suelo(l, Color3.fromRGB(200, 210, 230), 5)
+			local _, fy = muneco(l, M, "enemigo", "yeti", 0.5, 0.92, 0.55, 20)
+			local cuenco = caja(l, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 0.9), Size = UDim2.fromScale(0.08, 0.04), SizeConstraint = Enum.SizeConstraint.RelativeYY, BackgroundColor3 = Color3.fromRGB(240, 235, 225), ZIndex = 30 })
+			Ui.crear("UICorner", { CornerRadius = UDim.new(0.4, 0), Parent = cuenco })
+			Ui.borde(cuenco, TINTA, 2)
+			local copos = {}
+			for k = 1, 14 do
+				copos[k] = redondo(l, 0, 0, 0.015, Color3.fromRGB(250, 250, 255), 35)
+			end
+			table.insert(pasos, function(t)
+				fy.Rotation = math.sin(t * 0.8) * 3
+				for k, c in copos do
+					c.Position = UDim2.fromScale((k * 0.173 + math.sin(t + k) * 0.02) % 1, (t * 0.08 + k * 0.09) % 1)
+				end
+			end)
+		end,
+	},
+	{
+		texto = "Así que Vael hizo lo de siempre: le invitó a cenar.",
+		cielo = Color3.fromRGB(240, 200, 150),
+		dibujar = function(l, M, pasos, apariencia)
+			suelo(l, Color3.fromRGB(150, 110, 75), 5)
+			local mesa = caja(l, { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(0.5, 0.68), Size = UDim2.fromScale(0.9, 0.06), BackgroundColor3 = Color3.fromRGB(170, 115, 70), ZIndex = 30 })
+			Ui.borde(mesa, TINTA, 3)
+			local comensales = {}
+			for k, d in { { 0.14, "enemigo", "yeti", 0.5 }, { 0.36, "enemigo", "reyHongo", 0.36 }, { 0.56, "clase", "guerrero", 0.32 }, { 0.72, "vecino", "1955", 0.28 }, { 0.88, "vecino", "5", 0.24 } } do
+				local _, f = muneco(l, M, d[2], d[3], d[1], 0.72, d[4], 20, d[2] == "clase" and apariencia or nil)
+				table.insert(comensales, { f = f, x = d[1], k = k })
+			end
+			olla(l, 0.5, 0.69, 0.14, Color3.fromRGB(70, 66, 76), 31)
+			task.delay(0.8, function()
+				if l.Parent then
+					onomatopeya(l, "¡A COMER!", 0.5, 0.2, Color3.fromRGB(250, 220, 90), 40)
+				end
+			end)
+			table.insert(pasos, function(t)
+				for _, c in comensales do
+					c.f.Position = UDim2.fromScale(c.x, 0.72 - math.abs(math.sin(t * 5 + c.k * 1.3)) * 0.015)
+				end
+			end)
+		end,
+	},
+	{
+		texto = "Ahora el Yeti trae hielo para los refrescos, el Rey Hongo cocina… y tú tienes un buen montón de amigos raros. FIN (por ahora).",
+		cielo = Color3.fromRGB(55, 60, 100),
+		dibujar = function(l, M, pasos)
+			local fuegos = {}
+			for k = 1, 3 do
+				local chispas = {}
+				for n = 1, 8 do
+					chispas[n] = redondo(l, 0, 0, 0.025, COLORES_BANDERIN[(k + n) % #COLORES_BANDERIN + 1], 6)
+				end
+				fuegos[k] = { chispas = chispas, x = 0.2 + k * 0.25, y = 0.25, fase = k * 0.7 }
+			end
+			suelo(l, Color3.fromRGB(90, 140, 75), 10)
+			banderines(l, 0.05, 0.95, 0.1, 0.08, 30, pasos)
+			local grupo = {}
+			for k, d in { { 0.2, "enemigo", "yeti", 0.5 }, { 0.45, "enemigo", "reyHongo", 0.36 }, { 0.68, "vecino", "4242", 0.3 }, { 0.85, "vecino", "60606", 0.3 } } do
+				local _, f = muneco(l, M, d[2], d[3], d[1], 0.9, d[4], 20)
+				table.insert(grupo, { f = f, x = d[1], k = k })
+			end
+			table.insert(pasos, function(t)
+				for _, fu in fuegos do
+					local fase = ((t + fu.fase) % 2.2) / 2.2
+					for n, c in fu.chispas do
+						local a = n / #fu.chispas * math.pi * 2
+						c.Position = UDim2.fromScale(fu.x + math.cos(a) * fase * 0.12, fu.y + math.sin(a) * fase * 0.12)
+						c.BackgroundTransparency = fase
+					end
+				end
+				for _, g in grupo do
+					g.f.Position = UDim2.fromScale(g.x, 0.9 - math.abs(math.sin(t * 4 + g.k)) * 0.05)
+				end
+			end)
+		end,
+	},
+}
+
+--- Animación de victoria a pantalla completa: el héroe salta y aparece con el objeto recuperado
+--- ("cucharon" o "olla"). Se puede saltar con un clic. Dura unos 5 segundos.
+function Portada.victoria(gui: ScreenGui, Munecos: any?, apariencia: any?, objeto: string, alTerminar: (() -> ())?)
+	local capa = caja(gui, { Name = "Victoria", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 30, 25), BackgroundTransparency = 1, ZIndex = 340 })
+	Ui.tween(capa, { BackgroundTransparency = 0 }, 0.3)
+	local pasos: { Anim } = {}
+	-- rayos de sol detrás
+	local rayos = {}
+	for k = 0, 9 do
+		local r = caja(capa, { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.45), Size = UDim2.fromScale(2.2, 0.08), SizeConstraint = Enum.SizeConstraint.RelativeYY, BackgroundColor3 = k % 2 == 0 and Color3.fromRGB(250, 200, 90) or Color3.fromRGB(240, 150, 70), BackgroundTransparency = 0.2, ZIndex = 341 })
+		table.insert(rayos, { f = r, base = k * 18 })
+	end
+	local circulo = redondo(capa, 0.5, 0.45, 0.55, Color3.fromRGB(255, 225, 140), 342, 4)
+	circulo.Size = UDim2.fromScale(0, 0)
+	Ui.tween(circulo, { Size = UDim2.fromScale(0.55, 0.55) }, 0.6, Enum.EasingStyle.Back)
+	-- el héroe salta
+	local fh = caja(capa, { AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.fromScale(0.5, 1.3), Size = UDim2.fromScale(0.36, 0.45), SizeConstraint = Enum.SizeConstraint.RelativeYY, BackgroundTransparency = 1, ZIndex = 345 })
+	local heroe = Munecos and Munecos.crear(fh, "clase", "guerrero", 4, apariencia) or nil
+	if heroe then
+		heroe.mirar = 1
+	end
+	task.delay(0.3, function()
+		Ui.tween(fh, { Position = UDim2.fromScale(0.5, 0.5) }, 0.55, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		task.wait(0.55)
+		Ui.tween(fh, { Position = UDim2.fromScale(0.5, 0.78) }, 0.4, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out)
+	end)
+	-- el objeto aparece sobre su cabeza, en alto
+	local premio: Frame
+	if objeto == "olla" then
+		premio = olla(capa, 0.5, 0.36, 0.2, Color3.fromRGB(70, 66, 76), 346)
+	else
+		premio = cucharon(capa, 0.5, 0.25, 0.26, 346, 0)
+	end
+	premio.Visible = false
+	task.delay(0.8, function()
+		if capa.Parent then
+			premio.Visible = true
+			local esc = Ui.crear("UIScale", { Scale = 0, Parent = premio })
+			Ui.tween(esc, { Scale = 1.15 }, 0.5, Enum.EasingStyle.Back)
+		end
+	end)
+	task.delay(1.1, function()
+		if capa.Parent then
+			local texto = objeto == "olla" and "¡LA OLLA ES NUESTRA!" or "¡EL CUCHARÓN ES TUYO!"
+			local t = onomatopeya(capa, texto, 0.5, 0.88, Color3.fromRGB(255, 235, 140), 350)
+			t.Size = UDim2.fromScale(0.8, 0.14)
+			t.Rotation = -3
+		end
+	end)
+	-- confeti
+	local confeti = {}
+	for k = 1, 30 do
+		confeti[k] = { f = rombo(capa, 0, 0, 0.022, COLORES_BANDERIN[k % #COLORES_BANDERIN + 1], 348), x = (k * 0.137) % 1, v = 0.12 + (k % 5) * 0.03, fase = k * 0.31 }
+	end
+	table.insert(pasos, function(t)
+		for _, r in rayos do
+			r.f.Rotation = r.base + t * 20
+		end
+		for _, c in confeti do
+			c.f.Position = UDim2.fromScale(c.x + math.sin(t * 2 + c.fase) * 0.03, ((t - 0.8) * c.v + c.fase * 0.1) % 1.1 - 0.05)
+			c.f.Rotation = t * 200 + c.fase * 50
+			c.f.Visible = t > 0.8
+		end
+		if premio.Visible then
+			premio.Position = UDim2.fromScale(0.5, (objeto == "olla" and 0.36 or 0.25) + math.sin(t * 3) * 0.015)
+		end
+	end)
+	animar(capa, pasos)
+	local hecho = false
+	local function terminar()
+		if hecho then
+			return
+		end
+		hecho = true
+		Ui.tween(capa, { BackgroundTransparency = 1 }, 0.4)
+		for _, d in capa:GetDescendants() do
+			if d:IsA("GuiObject") then
+				Ui.tween(d, { BackgroundTransparency = 1 }, 0.35)
+			end
+		end
+		task.delay(0.45, function()
+			capa:Destroy()
+			if alTerminar then
+				alTerminar()
+			end
+		end)
+	end
+	local boton = Ui.crear("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", ZIndex = 360, Parent = capa })
+	boton.Activated:Connect(terminar)
+	task.delay(5, terminar)
+end
+
 --- Libro de cuentos animado. Se pasa de lámina con un clic, con "Siguiente" o con Espacio; "Saltar" lo termina.
 local function libro(gui: ScreenGui, LAMINAS: { Lamina }, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
 	local capa = caja(gui, { Name = "Prologo", Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(38, 30, 26), ZIndex = 350 })
@@ -896,6 +1236,30 @@ end
 
 function Portada.epilogo(gui: ScreenGui, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
 	libro(gui, EPILOGO, Munecos, apariencia, alTerminar)
+end
+
+function Portada.subepilogo(gui: ScreenGui, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
+	libro(gui, SUBEPILOGO, Munecos, apariencia, alTerminar)
+end
+
+function Portada.epilogo2(gui: ScreenGui, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
+	libro(gui, EPILOGO2, Munecos, apariencia, alTerminar)
+end
+
+--- Todo el final de la historia 1: victoria → epílogo → tres años después.
+function Portada.finalHistoria1(gui: ScreenGui, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
+	Portada.victoria(gui, Munecos, apariencia, "cucharon", function()
+		Portada.epilogo(gui, Munecos, apariencia, function()
+			Portada.subepilogo(gui, Munecos, apariencia, alTerminar)
+		end)
+	end)
+end
+
+--- Final de la historia 2: victoria con la Olla → epílogo del Yeti.
+function Portada.finalHistoria2(gui: ScreenGui, Munecos: any?, apariencia: any?, alTerminar: (() -> ())?)
+	Portada.victoria(gui, Munecos, apariencia, "olla", function()
+		Portada.epilogo2(gui, Munecos, apariencia, alTerminar)
+	end)
 end
 
 return Portada

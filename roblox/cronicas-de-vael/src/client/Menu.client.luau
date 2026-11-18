@@ -434,9 +434,17 @@ abrirInicio = function()
 	-- después de ganar al Rey Hongo, el epílogo también se puede volver a ver
 	if jugador:GetAttribute("FinalVisto") == true and Portada then
 		table.insert(botones, 3, { "Epílogo", Color3.fromRGB(210, 150, 60), "estrella", function()
-			pcall(Portada.epilogo, gui, Munecos, apariencia(), nil)
+			pcall(Portada.epilogo, gui, Munecos, apariencia(), function()
+				pcall(Portada.subepilogo, gui, Munecos, apariencia(), nil)
+			end)
 		end })
 		caja.Size = UDim2.fromOffset(320, 460)
+	end
+	if jugador:GetAttribute("Final2Visto") == true and Portada then
+		table.insert(botones, 4, { "Final 2", Color3.fromRGB(110, 160, 210), "estrella", function()
+			pcall(Portada.epilogo2, gui, Munecos, apariencia(), nil)
+		end })
+		caja.Size = UDim2.fromOffset(320, 520)
 	end
 	for i, b in botones do
 		local boton = Ui.boton({ Size = UDim2.fromOffset(320, 50), Text = b[1], BackgroundColor3 = b[2], Icono = b[3], ZIndex = 102, LayoutOrder = i, Parent = caja }, b[4])
@@ -496,10 +504,25 @@ task.spawn(function()
 	end)
 	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
 	-- el final de la historia (la primera vez que cae el Rey Hongo)
+	-- victoria en pantalla grande → epílogo → tres años después → te despiertas (con barba) en casa
 	remoto("Epilogo").OnClientEvent:Connect(function()
+		local function despertar()
+			remoto("Despertar"):FireServer()
+		end
 		if Portada then
 			cerrarTodo()
-			pcall(Portada.epilogo, gui, Munecos, apariencia(), nil)
+			local ok = pcall(Portada.finalHistoria1, gui, Munecos, apariencia(), despertar)
+			if not ok then
+				despertar()
+			end
+		else
+			despertar()
+		end
+	end)
+	remoto("Final2").OnClientEvent:Connect(function()
+		if Portada then
+			cerrarTodo()
+			pcall(Portada.finalHistoria2, gui, Munecos, apariencia(), nil)
 		end
 	end)
 end)

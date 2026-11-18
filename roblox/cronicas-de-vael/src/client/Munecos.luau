@@ -311,6 +311,14 @@ local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
 	end
 	cuerpoBase(m, piel, ropa, Color3.fromRGB(70, 50, 40))
 	cara(m, piel, a.ojos, A.coloresOjos[a.colorOjos])
+	-- tres años después: barba enmarañada (hasta que pasa por el barbero)
+	if ap and ap.barba then
+		pieza(m, 0.5, 0.57, 0.4, 0.17, cPelo:Lerp(Color3.fromRGB(110, 90, 70), 0.3), 0.5, 9)
+		pieza(m, 0.42, 0.52, 0.14, 0.05, cPelo:Lerp(Color3.fromRGB(110, 90, 70), 0.3), 0.5, 10, -12)
+		pieza(m, 0.58, 0.52, 0.14, 0.05, cPelo:Lerp(Color3.fromRGB(110, 90, 70), 0.3), 0.5, 10, 12)
+		pieza(m, 0.5, 0.56, 0.09, 0.02, Color3.fromRGB(120, 30, 40), 0.5, 11, 0, { sb = true })
+		pieza(m, 0.66, 0.62, 0.05, 0.05, Color3.fromRGB(120, 180, 90), 0.5, 11, 0, { sb = true }) -- una hoja enredada
+	end
 	if clase == "sanador" then
 		pieza(m, 0.5, 0.74, 0.05, 0.12, COLOR_CLASE.sanador:Lerp(Color3.fromRGB(200, 60, 60), 0.6), 0, 5, 0, { sb = true })
 		pieza(m, 0.5, 0.725, 0.15, 0.035, COLOR_CLASE.sanador:Lerp(Color3.fromRGB(200, 60, 60), 0.6), 0, 5, 0, { sb = true })
@@ -675,6 +683,66 @@ DIBUJOS.reyHongo = function(m, c)
 		pieza(m, 0.5 + k * 0.06, 0.785, 0.03, 0.03, BLANCO, 0, 7, 0, { sb = true })
 	end
 end
+
+-- ---------- Picos Nevados (historia 2) ----------
+DIBUJOS.pinguino = function(m, c)
+	sombra(m, 0.55)
+	pie(m, 0.42, 0.95, 0.14, 0.05, Color3.fromRGB(240, 160, 60))
+	pie(m, 0.58, 0.95, 0.14, 0.05, Color3.fromRGB(240, 160, 60))
+	ala(m, 0.24, 0.62, 0.1, 0.28, c, 2, 15, 18, 6, 0)
+	ala(m, 0.76, 0.62, 0.1, 0.28, c, 2, -15, 18, 6, 1)
+	pieza(m, 0.5, 0.6, 0.5, 0.66, c, 0.5, 3)
+	pieza(m, 0.5, 0.66, 0.34, 0.5, BLANCO, 0.5, 4)
+	-- antifaz de bandido
+	pieza(m, 0.5, 0.42, 0.42, 0.08, Color3.fromRGB(40, 35, 45), 0.4, 5)
+	ojo(m, 0.43, 0.42, 0.09, 0.07, 6)
+	ojo(m, 0.57, 0.42, 0.09, 0.07, 6)
+	pieza(m, 0.44, 0.5, 0.1, 0.05, Color3.fromRGB(240, 160, 60), 0.3, 6, -10)
+	pieza(m, 0.66, 0.4, 0.14, 0.035, Color3.fromRGB(200, 60, 60), 0.4, 6, -25) -- cinta del antifaz
+end
+
+DIBUJOS.munecoNieve = function(m, c)
+	sombra(m, 0.7)
+	pieza(m, 0.5, 0.77, 0.66, 0.4, c, 0.5, 2)
+	pieza(m, 0.5, 0.47, 0.5, 0.32, c, 0.5, 3)
+	pieza(m, 0.5, 0.22, 0.36, 0.24, c, 0.5, 4)
+	ala(m, 0.17, 0.46, 0.22, 0.03, Color3.fromRGB(110, 75, 45), 2, 25, 15, 4, 0)
+	ala(m, 0.83, 0.46, 0.22, 0.03, Color3.fromRGB(110, 75, 45), 2, -25, 15, 4, 1)
+	for k = 0, 2 do
+		circ(m, 0.5, 0.42 + k * 0.08, 0.04, Color3.fromRGB(50, 45, 55), 5, { sb = true })
+	end
+	pieza(m, 0.5, 0.33, 0.44, 0.06, Color3.fromRGB(200, 60, 60), 0.3, 6) -- bufanda
+	pieza(m, 0.6, 0.39, 0.08, 0.14, Color3.fromRGB(200, 60, 60), 0.3, 6, 10)
+	ojo(m, 0.44, 0.19, 0.07, 0.06, 7, Color3.fromRGB(50, 45, 55), Color3.fromRGB(50, 45, 55))
+	ojo(m, 0.56, 0.19, 0.07, 0.06, 7, Color3.fromRGB(50, 45, 55), Color3.fromRGB(50, 45, 55))
+	pieza(m, 0.38, 0.25, 0.16, 0.04, Color3.fromRGB(240, 140, 50), 0.4, 7, 8) -- zanahoria
+	boca(m, 0.52, 0.29, 0.1, 0.02, 7, Color3.fromRGB(50, 45, 55))
+	pieza(m, 0.5, 0.09, 0.3, 0.05, Color3.fromRGB(50, 45, 55), 0.1, 8) -- sombrero
+	pieza(m, 0.5, 0.04, 0.2, 0.08, Color3.fromRGB(50, 45, 55), 0.1, 8)
+end
+
+DIBUJOS.yeti = function(m, c)
+	sombra(m, 0.85)
+	pie(m, 0.36, 0.95, 0.22, 0.07, c:Lerp(NEGRO, 0.15))
+	pie(m, 0.64, 0.95, 0.22, 0.07, c:Lerp(NEGRO, 0.15))
+	ala(m, 0.13, 0.6, 0.22, 0.4, c, 2, 12, 10, 2.5, 0)
+	ala(m, 0.87, 0.6, 0.22, 0.4, c, 2, -12, 10, 2.5, 1.5)
+	pieza(m, 0.5, 0.62, 0.72, 0.62, c, 0.4, 3)
+	pieza(m, 0.5, 0.68, 0.42, 0.4, Color3.fromRGB(190, 210, 230), 0.45, 4) -- barriga
+	-- babero de cocinero (le encanta comer)
+	pieza(m, 0.5, 0.58, 0.3, 0.2, BLANCO, 0.2, 5)
+	pieza(m, 0.5, 0.26, 0.56, 0.38, c, 0.45, 6)
+	pieza(m, 0.5, 0.31, 0.34, 0.2, Color3.fromRGB(150, 180, 210), 0.45, 7) -- cara
+	pieza(m, 0.5, 0.06, 0.3, 0.1, BLANCO, 0.5, 8) -- gorro de cocinero
+	pieza(m, 0.5, 0.11, 0.24, 0.06, BLANCO, 0.1, 8)
+	ojo(m, 0.43, 0.27, 0.08, 0.07, 9)
+	ojo(m, 0.57, 0.27, 0.08, 0.07, 9)
+	boca(m, 0.5, 0.37, 0.18, 0.05, 9, Color3.fromRGB(80, 30, 40))
+	pieza(m, 0.46, 0.355, 0.03, 0.04, BLANCO, 0, 10, 0, { sb = true })
+	pieza(m, 0.54, 0.355, 0.03, 0.04, BLANCO, 0, 10, 0, { sb = true })
+end
+DIBUJOS.loboBlanco = DIBUJOS.lobo
+DIBUJOS.espiritu = DIBUJOS.fantasma
 
 -- ===================== CREAR =====================
 local function nuevo(padre: Instance, aspecto: number, grosor: number?): Muneco

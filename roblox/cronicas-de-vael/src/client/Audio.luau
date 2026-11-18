@@ -162,7 +162,7 @@ RunService.Heartbeat:Connect(function()
 	local p = raiz.Position
 	if p.Y > 150 or p.X < 45 then
 		Audio.musica("ciudad")
-	elseif p.X < 362 then
+	elseif p.X < 362 or (p.X > 606 and p.X < 712) then
 		Audio.musica("aventura")
 	else
 		Audio.musica("jefe")

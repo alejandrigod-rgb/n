@@ -84,7 +84,7 @@ Datos.Clases = {
 Datos.OrdenClases = { "guerrero", "maga", "arquero", "sanador" }
 
 -- ============ ENEMIGOS ============
-export type Enemigo = { id: string, nombre: string, color: Color3, tamano: number, forma: string, stats: Stats, xp: number, oro: number, habilidades: { string }, probHabilidad: number, mov: number?, alcance: number?, vuela: boolean?, frases: { string }? }
+export type Enemigo = { id: string, nombre: string, color: Color3, tamano: number, forma: string, stats: Stats, xp: number, oro: number, habilidades: { string }, probHabilidad: number, mov: number?, alcance: number?, vuela: boolean?, frases: { string }?, jefe: boolean? }
 
 Datos.Enemigos = {
 	-- pradera
@@ -107,7 +107,13 @@ Datos.Enemigos = {
 	-- de los paraderos
 	mimico = { mov = 2, alcance = 1, frases = { "¡Sorpresa!", "¿Buscabas oro? Busca esto." }, id = "mimico", nombre = "Cofre mímico", color = Color3.fromRGB(170, 110, 60), tamano = 3.6, forma = "mimico", stats = { hp = 70, mp = 0, atk = 15, def = 8, mag = 2, spd = 9 }, xp = 30, oro = 60, habilidades = { "mordisco" }, probHabilidad = 0.5 },
 	-- jefe
-	reyHongo = { mov = 2, alcance = 2, frases = { "¡Arrodillaos ante el Rey!", "¡Mis esporas son reales!", "¡Esta cueva es mía!" }, id = "reyHongo", nombre = "Rey Hongo", color = Color3.fromRGB(210, 60, 55), tamano = 9, forma = "reyHongo", stats = { hp = 420, mp = 0, atk = 22, def = 12, mag = 18, spd = 7 }, xp = 160, oro = 120, habilidades = { "esporas", "golpeRey" }, probHabilidad = 0.45 },
+	-- historia 2: Picos Nevados
+	pinguino = { mov = 4, alcance = 1, frases = { "¡La bolsa o el pez!", "Mi antifaz es de verdad." }, id = "pinguino", nombre = "Pingüino bandido", color = Color3.fromRGB(55, 60, 80), tamano = 3.2, forma = "pinguino", stats = { hp = 80, mp = 0, atk = 18, def = 9, mag = 4, spd = 15 }, xp = 32, oro = 16, habilidades = { "picadura" }, probHabilidad = 0.3 },
+	munecoNieve = { mov = 2, alcance = 3, frases = { "¡Bola va!", "No me derrito, me relajo." }, id = "munecoNieve", nombre = "Muñeco de nieve", color = Color3.fromRGB(240, 245, 250), tamano = 4.4, forma = "munecoNieve", stats = { hp = 110, mp = 0, atk = 17, def = 12, mag = 10, spd = 6 }, xp = 36, oro = 18, habilidades = {}, probHabilidad = 0 },
+	loboBlanco = { mov = 4, alcance = 1, frases = { "¡Auuuu… qué frío!", "Huelo a héroe congelado." }, id = "loboBlanco", nombre = "Lobo de la ventisca", color = Color3.fromRGB(220, 230, 240), tamano = 4.4, forma = "lobo", stats = { hp = 100, mp = 0, atk = 22, def = 10, mag = 4, spd = 16 }, xp = 40, oro = 20, habilidades = { "mordisco" }, probHabilidad = 0.4 },
+	espiritu = { mov = 3, alcance = 2, vuela = true, frases = { "Brrrr…", "Soy un soplo de aire. Un soplo MALO." }, id = "espiritu", nombre = "Espíritu de escarcha", color = Color3.fromRGB(170, 215, 245), tamano = 3.8, forma = "fantasma", stats = { hp = 85, mp = 0, atk = 10, def = 8, mag = 24, spd = 13 }, xp = 40, oro = 20, habilidades = { "hechizoOscuro" }, probHabilidad = 0.45 },
+	yeti = { mov = 2, alcance = 2, jefe = true, frases = { "¡TENGO HAMBREEE!", "¡Esa olla es MÍA!", "¡Nadie me invita nunca!" }, id = "yeti", nombre = "Yeti Tragón", color = Color3.fromRGB(225, 235, 245), tamano = 9, forma = "yeti", stats = { hp = 700, mp = 0, atk = 30, def = 16, mag = 22, spd = 9 }, xp = 320, oro = 250, habilidades = { "golpeRey", "terremoto" }, probHabilidad = 0.45 },
+	reyHongo = { mov = 2, alcance = 2, jefe = true, frases = { "¡Arrodillaos ante el Rey!", "¡Mis esporas son reales!", "¡Esta cueva es mía!" }, id = "reyHongo", nombre = "Rey Hongo", color = Color3.fromRGB(210, 60, 55), tamano = 9, forma = "reyHongo", stats = { hp = 420, mp = 0, atk = 22, def = 12, mag = 18, spd = 7 }, xp = 160, oro = 120, habilidades = { "esporas", "golpeRey" }, probHabilidad = 0.45 },
 } :: { [string]: Enemigo }
 
 -- ============ OBJETOS ============
@@ -126,6 +132,9 @@ Datos.Zonas = {
 	{ id = "bosque", nombre = "Bosque Susurrante", nivel = 3, color = Color3.fromRGB(70, 140, 80), grupos = { { "duende", "lobo" }, { "arana", "duende" }, { "tronco" }, { "lobo", "lobo", "arana" }, { "duende", "duende" } } },
 	{ id = "ruinas", nombre = "Ruinas de Ceniza", nivel = 5, color = Color3.fromRGB(170, 150, 130), grupos = { { "esqueleto", "murcielago" }, { "golem" }, { "fantasma", "esqueleto" }, { "esqueleto", "esqueleto", "murcielago" } } },
 	{ id = "cueva", nombre = "Cueva del Rey Hongo", nivel = 7, color = Color3.fromRGB(210, 70, 60), grupos = { { "reyHongo", "hongo", "hongo" } } },
+	-- historia 2 (tres años después)
+	{ id = "picos", nombre = "Picos Nevados", nivel = 8, color = Color3.fromRGB(200, 225, 245), grupos = { { "pinguino", "pinguino" }, { "munecoNieve", "loboBlanco" }, { "espiritu", "pinguino" }, { "loboBlanco", "loboBlanco" }, { "munecoNieve", "espiritu", "pinguino" } } },
+	{ id = "cumbre", nombre = "Cumbre del Yeti", nivel = 10, color = Color3.fromRGB(150, 190, 230), grupos = { { "yeti", "munecoNieve", "pinguino" } } },
 }
 
 -- ============ FÓRMULAS ============
@@ -135,8 +144,10 @@ Datos.Llaves = {
 	hacha = { nombre = "Hacha", descripcion = "Corta las zarzas del Bosque.", icono = "espada", color = Color3.fromRGB(200, 200, 215) },
 	llave = { nombre = "Llave de piedra", descripcion = "Abre la puerta de las Ruinas.", icono = "estrella", color = Color3.fromRGB(170, 160, 150) },
 	farol = { nombre = "Farol", descripcion = "Ilumina la Cueva del Rey Hongo.", icono = "estrella", color = Color3.fromRGB(255, 220, 90) },
+	botas = { nombre = "Botas de nieve", descripcion = "Para cruzar la nieve hacia los Picos Nevados.", icono = "huir", color = Color3.fromRGB(150, 110, 80) },
+	pico = { nombre = "Pico de hielo", descripcion = "Rompe el muro de hielo de la Cumbre.", icono = "espada", color = Color3.fromRGB(160, 210, 240) },
 }
-Datos.OrdenLlaves = { "cuerda", "hacha", "llave", "farol" }
+Datos.OrdenLlaves = { "cuerda", "hacha", "llave", "farol", "botas", "pico" }
 
 -- ============ ESTILO DE CARTULINA ============
 -- Todos los colores pasan por aquí: se apagan un poco hacia un gris cálido de cartón (nada de colores chillones).

@@ -514,7 +514,7 @@ do
 	local mercader = crearPaseante("vecino", "424242", -26, -9.9, -26, -26, 4.4, 5.7, 0, { "¡Pociones frescas!", "¡Éter para tu maná!", "Pasa, pasa, mira sin compromiso." })
 	mercader.espera = math.huge
 	-- monstruos que asoman junto a cada guarida
-	local guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+	local guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540, picos = 662, cumbre = 772 }
 	for _, zona in Datos.Zonas do
 		local gx = guaridas[zona.id]
 		if gx then
@@ -522,7 +522,7 @@ do
 			local n = 0
 			for _, grupo in zona.grupos do
 				for _, eid in grupo do
-					if not vistos[eid] and n < 3 and eid ~= "reyHongo" then
+					if not vistos[eid] and n < 3 and not Datos.Enemigos[eid].jefe then
 						vistos[eid] = true
 						n += 1
 						local t = Datos.Enemigos[eid].tamano * 0.85
@@ -537,6 +537,17 @@ do
 	-- el Rey Hongo vigila en la entrada de su cueva
 	local rey = crearPaseante("enemigo", "reyHongo", 548, -12.2, 548, 548, 9, 9, 0, { "¡¿Quién osa entrar en mi cueva?!", "¡Grrr… hongos, atacad!" })
 	rey.espera = math.huge
+	-- tres años después, el Rey Hongo es el cocinero de la fiesta
+	local function reyArrepentido()
+		if jugador:GetAttribute("FinalVisto") == true then
+			rey.frases = { "¡Guiso de calabaza! Sin setas, prometido.", "Psst, héroe. Ven, que tengo algo para ti.", "Echo de menos mi corona… pero no la cueva." }
+		end
+	end
+	reyArrepentido()
+	jugador:GetAttributeChangedSignal("FinalVisto"):Connect(reyArrepentido)
+	-- el Yeti Tragón vigila la entrada de su cueva en la Cumbre
+	local yeti = crearPaseante("enemigo", "yeti", 782, -15.5, 782, 782, 10, 10, 0, { "¡TENGO HAMBREEE!", "¡Esa olla es mía!", "¿Alguien ha dicho cena?" })
+	yeti.espera = math.huge
 	-- mariposas en la pradera y luciérnagas en el pantano y la cueva (decoración pequeña)
 end
 
@@ -1112,6 +1123,7 @@ local AMBIENTES: { [string]: Ambiente } = {
 	cueva = { brillo = -0.1, contraste = 0.06, saturacion = -0.15, tinte = Color3.fromRGB(200, 190, 225), vineta = 0.35 },
 	taberna = { brillo = 0, contraste = 0.02, saturacion = 0.05, tinte = Color3.fromRGB(255, 225, 190), vineta = 0.55 },
 	posada = { brillo = -0.02, contraste = 0, saturacion = 0, tinte = Color3.fromRGB(255, 232, 205), vineta = 0.6 },
+	nieve = { brillo = 0.04, contraste = -0.02, saturacion = -0.15, tinte = Color3.fromRGB(220, 232, 255), vineta = 0.75 },
 }
 local function ambienteDe(p: Vector3): string
 	if p.Y > 650 then
@@ -1122,6 +1134,8 @@ local function ambienteDe(p: Vector3): string
 		return "posada"
 	elseif p.Y > 150 then
 		return "taberna"
+	elseif p.X > 606 then
+		return "nieve"
 	elseif p.X > 462 then
 		return "cueva"
 	elseif p.X > 362 then

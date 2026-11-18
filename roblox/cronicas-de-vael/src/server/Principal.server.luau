@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -74,11 +74,15 @@ local function enviarEstado(j: Player)
 	end
 	asegurarCompaneros(perfil)
 	j:SetAttribute("FinalVisto", perfil.progreso.final == true)
+	j:SetAttribute("Final2Visto", perfil.progreso.final2 == true)
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
 	-- los clientes dibujan el muñeco 2D de cada jugador según su clase
 	j:SetAttribute("Creado", perfil.creado)
 	j:SetAttribute("Clase", perfil.clase)
-	j:SetAttribute("Apariencia", HttpService:JSONEncode(perfil.apariencia))
+	-- tras los tres años, el héroe tiene barba hasta que pase por el barbero (se dibuja en el muñeco)
+	local ap = table.clone(perfil.apariencia)
+	ap.barba = perfil.progreso.barba == true
+	j:SetAttribute("Apariencia", HttpService:JSONEncode(ap))
 	j:SetAttribute("NombreHeroe", perfil.nombreHeroe ~= "" and perfil.nombreHeroe or j.DisplayName)
 	local _, sinergias = Datos.efectosDe(perfil.mejoras)
 	remoto("EstadoJugador"):FireClient(j, {
@@ -102,6 +106,11 @@ local function enviarEstado(j: Player)
 		ajustes = (perfil :: any).ajustes,
 		creado = perfil.creado,
 		nombreHeroe = perfil.nombreHeroe,
+		final = perfil.progreso.final == true,
+		final2 = perfil.progreso.final2 == true,
+		barba = perfil.progreso.barba == true,
+		afeitado = perfil.progreso.afeitado == true,
+		banado = perfil.progreso.banado == true,
 		companeros = perfil.progreso.companeros,
 		companero = perfil.progreso.companero,
 	})
@@ -214,7 +223,27 @@ pista = function(perfil: any): string
 	elseif not perfil.llaves.farol then
 		return "La llave abre las Ruinas. Tira de las 3 palancas (¡una está arriba!) y abre el cofre de la cripta: dentro hay un farol."
 	end
-	return "¡Ya lo tienes todo! Entra en la Cueva, dale su merecido al Rey Hongo y recupera el Cucharón."
+	if not perfil.progreso.final then
+		return "¡Ya lo tienes todo! Entra en la Cueva, dale su merecido al Rey Hongo y recupera el Cucharón."
+	end
+	-- historia 2: tres años después
+	if perfil.progreso.barba then
+		local falta = {}
+		if not perfil.progreso.afeitado then
+			table.insert(falta, "ve al barbero Paco de la ciudad")
+		end
+		if not perfil.progreso.banado then
+			table.insert(falta, "date un baño en la posada")
+		end
+		return "¡Así no puedes pelear, cielo! Con esa barba no ves ni la espada y hueles a guiso de hace tres años. Primero " .. table.concat(falta, " y ") .. "."
+	elseif not perfil.llaves.botas then
+		return "Han pasado tres años, cielo. El Yeti Tragón se ha llevado la Olla del Gran Guiso a los Picos Nevados. Habla con el Rey Hongo en su cueva: dice que tiene algo para ti."
+	elseif not perfil.llaves.pico then
+		return "Con las botas cruzas la nieve hasta los Picos Nevados. Junto al lago helado hay un cofre con un pico de hielo… pero unos pingüinos bandidos lo vigilan."
+	elseif not perfil.progreso.final2 then
+		return "¡Rompe el muro de hielo con el pico y sube a la Cumbre! El Yeti Tragón tiene nuestra Olla."
+	end
+	return "¡Vael vuelve a tener su Olla! Descansa, héroe… por ahora."
 end
 
 local function darLlave(j: Player, llave: string)
@@ -318,11 +347,32 @@ remoto("GuardarApariencia").OnServerEvent:Connect(function(j, datos)
 end)
 
 -- final de la historia: al ganar al Rey Hongo se recupera el Cucharón de Vael
-Combate.alVencerJefe = function(j: Player)
+Combate.alVencerJefe = function(j: Player, jefeId: string?)
 	local perfil = DatosJugador.obtener(j) :: any
+	if jefeId == "yeti" then
+		if perfil and not perfil.progreso.final2 then
+			perfil.progreso.final2 = true
+			DatosJugador.guardar(j)
+			j:SetAttribute("Final2Visto", true)
+			remoto("Final2"):FireClient(j)
+			return
+		end
+		dialogo(j, {
+			titulo = "Abuela Rosa",
+			texto = "¿Otra vez peleando con el Yeti? Ese pobre ya viene a cenar todos los domingos, cielo.",
+			quien = { "vecino", "1955" },
+			opciones = { { texto = "Era un entrenamiento" } },
+		})
+		return
+	end
 	if perfil and not perfil.progreso.final then
 		-- la primera vez: el epílogo (el cliente lo cuenta como el prólogo)
 		perfil.progreso.final = true
+		-- tres años después: barba y sin bañar (hay que pasar por el barbero y la posada antes de volver a pelear)
+		perfil.progreso.barba = true
+		perfil.progreso.afeitado = false
+		perfil.progreso.banado = false
+		perfil.progreso.desperto = false
 		DatosJugador.guardar(j)
 		j:SetAttribute("FinalVisto", true)
 		remoto("Epilogo"):FireClient(j)
@@ -337,6 +387,56 @@ Combate.alVencerJefe = function(j: Player)
 		end } },
 	})
 end
+
+-- ===================== TRES AÑOS DESPUÉS: BARBA, BARBERO Y BAÑO =====================
+--- Cuando ya se ha afeitado y bañado, vuelve a poder pelear.
+local function quizaLimpio(j: Player)
+	local perfil = DatosJugador.obtener(j) :: any
+	local pr = perfil and perfil.progreso
+	if pr and pr.barba and pr.afeitado and pr.banado then
+		pr.barba = nil
+		DatosJugador.guardar(j)
+		task.delay(1, function()
+			if j.Parent then
+				dialogo(j, {
+					titulo = "Abuela Rosa",
+					texto = "¡Ahora sí te reconozco! Guapo, limpio y oliendo a jabón. Ya puedes volver a pelear. El Rey Hongo te espera en su cueva: dice que tiene algo para ti.",
+					quien = { "vecino", "1955" },
+					opciones = { { texto = "¡Allá voy!" } },
+				})
+			end
+		end)
+	end
+	enviarEstado(j)
+end
+
+remoto("Despertar").OnServerEvent:Connect(function(j)
+	local perfil = DatosJugador.obtener(j) :: any
+	local pr = perfil and perfil.progreso
+	if not pr or not pr.barba or pr.desperto then
+		return
+	end
+	pr.desperto = true
+	DatosJugador.guardar(j)
+	local ch = j.Character
+	local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if raiz then
+		raiz.CFrame = CFrame.new(Mundo.Aparicion, 3.5, 2)
+	end
+	enviarEstado(j)
+	task.delay(1.5, function()
+		if j.Parent then
+			dialogo(j, {
+				titulo = "Abuela Rosa",
+				texto = "¡Por fin despiertas! Tres años durmiendo la siesta del guiso… ¡Mírate esa barba! Así no puedes pelear: ni ves la espada y hueles a guiso rancio. Ve al barbero Paco de la ciudad y date un baño en la posada. ¡Y rapidito, que se han llevado la Olla!",
+				quien = { "vecino", "1955" },
+				opciones = { { texto = "¿Tres años?", accion = function()
+					return "«Y roncando todo el rato. Hasta los vecinos se quejaban.»"
+				end }, { texto = "Voy al barbero" } },
+			})
+		end
+	end)
+end)
 
 -- ===================== SECRETOS (easter eggs) =====================
 -- Cada uno da 5 de oro la primera vez; encontrarlos todos regala la Corona de cartón.
@@ -822,6 +922,78 @@ for _, d in mundo:GetDescendants() do
 				},
 			})
 		end)
+	elseif nombre == "reyHongoNpc" then
+		aviso(p, "Hablar", "Rey Hongo", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			if not perfil.progreso.final then
+				dialogo(j, { titulo = "Rey Hongo", texto = "¡¿Quién osa molestar al REY?! Si quieres hablar, primero tendrás que ganarme en mi guarida.", quien = { "enemigo", "reyHongo" }, opciones = { { texto = "Ya nos veremos" } } })
+			elseif not perfil.llaves.botas then
+				dialogo(j, {
+					titulo = "Rey Hongo",
+					texto = "¡Héroe! Cuánto tiempo… Ahora soy el cocinero oficial de la fiesta (sin setas, prometido). Pero el Yeti Tragón bajó de los Picos y se llevó la Olla del Gran Guiso. Toma mis botas de nieve: sin ellas no cruzas ni un metro.",
+					quien = { "enemigo", "reyHongo" },
+					opciones = { { texto = "¡Gracias, Majestad!", accion = function()
+						darLlave(j, "botas")
+						return nil
+					end } },
+				})
+			else
+				dialogo(j, { titulo = "Rey Hongo", texto = "Tráeme esa Olla, que tengo un guiso de calabaza pendiente. ¡Y abrígate!", quien = { "enemigo", "reyHongo" }, opciones = { { texto = "Voy" } } })
+			end
+		end)
+	elseif nombre == "cofrePico" then
+		aviso(p, "Abrir", "Cofre helado", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			if perfil.llaves.pico then
+				notificar(j, "Vacío. Solo hay un pez congelado que te mira mal.")
+			else
+				guardianes(j, "¡Pingüinos bandidos!", "Unos pingüinos con antifaz rodean el cofre. «La bolsa o el pez. Y este cofre es nuestro.»", { "enemigo", "pinguino" },
+					{ id = "cueva", nombre = "Los pingüinos bandidos", nivel = 8, grupos = { { "pinguino", "pinguino", "munecoNieve" } }, color = Color3.fromRGB(200, 225, 245) }, 690,
+					function(g)
+						darLlave(g, "pico")
+					end)
+			end
+		end, 7)
+	elseif nombre == "barbero" then
+		aviso(p, "Hablar", "Barbero Paco", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			local pr = perfil.progreso
+			if pr.barba and not pr.afeitado then
+				dialogo(j, {
+					titulo = "Barbero Paco",
+					texto = "¡Madre mía! ¿Eso es una barba o un nido de pájaros? Siéntate, siéntate… Esto va a llevar un rato.",
+					quien = { "vecino", "8080" },
+					opciones = { { texto = "Adelante", accion = function()
+						pr.afeitado = true
+						remoto("Teletransporte"):FireClient(j, nil, "Chas, chas, chas…")
+						remoto("Sonido"):FireClient(j, "mejora")
+						task.delay(1.5, function()
+							notificar(j, "¡Afeitado! Has encontrado dos lápices y una seta dentro de la barba.")
+							quizaLimpio(j)
+						end)
+						return nil
+					end } },
+				})
+			else
+				dialogo(j, { titulo = "Barbero Paco", texto = "¿Un repaso? Vuelve cuando tengas pelo de sobra. ¡Ese corte te queda de héroe!", quien = { "vecino", "8080" }, opciones = { { texto = "Gracias, Paco" } } })
+			end
+		end)
+	elseif nombre == "banera" then
+		aviso(p, "Bañarse", "Bañera", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			local pr = perfil.progreso
+			if pr.barba and not pr.banado then
+				pr.banado = true
+				remoto("Teletransporte"):FireClient(j, nil, "Glu, glu, glu…")
+				remoto("Sonido"):FireClient(j, "cura")
+				task.delay(1.5, function()
+					notificar(j, "¡Qué gusto! El agua ha salido marrón. La posadera Lola dice que vas a pagar la bañera nueva.")
+					quizaLimpio(j)
+				end)
+			else
+				notificar(j, "Ya estás limpio como una patena.")
+			end
+		end, 7)
 	elseif nombre == "secreto" then
 		local id = p:GetAttribute("Secreto") :: string
 		local d = SECRETOS[id]

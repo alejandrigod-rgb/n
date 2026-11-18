@@ -12,10 +12,10 @@ local Datos = require(ReplicatedStorage.Vael.Datos)
 local Mundo = {}
 
 -- dónde está la guarida de cada zona (en X; todas en el fondo del camino)
-Mundo.Guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540 }
+Mundo.Guaridas = { huerto = -262, pradera = 110, pantano = 215, bosque = 315, ruinas = 415, cueva = 540, picos = 662, cumbre = 772 }
 Mundo.Inicio = -60 -- x de la plaza de la ciudad
 Mundo.Aparicion = -395 -- se empieza en la Aldea de Brezo, a las afueras
-Mundo.Limites = { -445, 605 }
+Mundo.Limites = { -445, 805 }
 
 local raiz: Folder
 local pasto: Folder
@@ -344,21 +344,21 @@ local function suelo()
 	s.Name = "Suelo"
 	s.CanCollide = true
 	s.CanQuery = true
-	s.Size = Vector3.new(1100, 4, 70)
-	s.Position = Vector3.new(85, -1.95, -21)
+	s.Size = Vector3.new(1290, 4, 70)
+	s.Position = Vector3.new(175, -1.95, -21)
 	s.Color = Color3.fromRGB(112, 190, 82)
 	s.Parent = raiz
 	-- borde delantero de tierra (el corte del papel)
-	plano(85, -6, 14.6, 1100, 12, Color3.fromRGB(125, 85, 55))
-	plano(85, -0.3, 14.9, 1100, 1, Color3.fromRGB(85, 155, 62), false)
-	for k = 0, 103 do
+	plano(175, -6, 14.6, 1290, 12, Color3.fromRGB(125, 85, 55))
+	plano(175, -0.3, 14.9, 1290, 1, Color3.fromRGB(85, 155, 62), false)
+	for k = 0, 122 do
 		disco(-460 + k * 10.6, -4 - (k % 3) * 2.5, 15, 1.2 + (k % 4) * 0.4, Color3.fromRGB(100, 68, 45), false)
 	end
 	-- camino de tierra
-	local camino = plano(85, 0.06, 1, 1100, 0.1, Color3.fromRGB(225, 200, 140), false)
-	camino.Size = Vector3.new(1100, 0.1, 6)
+	local camino = plano(175, 0.06, 1, 1290, 0.1, Color3.fromRGB(225, 200, 140), false)
+	camino.Size = Vector3.new(1290, 0.1, 6)
 	-- paredes invisibles para quedarse en el carril (como en un juego 2D con algo de fondo)
-	for _, datos in { { 85, -12.8, 1100, 1 }, { 85, 10.8, 1100, 1 } } do
+	for _, datos in { { 175, -12.8, 1290, 1 }, { 175, 10.8, 1290, 1 } } do
 		local muro = Instance.new("Part")
 		base(muro)
 		muro.CanCollide = true
@@ -384,7 +384,8 @@ local function suelo()
 	mancha(165, 262, Color3.fromRGB(105, 140, 85))
 	mancha(262, 362, Color3.fromRGB(80, 150, 70))
 	mancha(362, 462, Color3.fromRGB(165, 155, 120))
-	mancha(462, 610, Color3.fromRGB(110, 105, 100))
+	mancha(462, 606, Color3.fromRGB(110, 105, 100))
+	mancha(606, 820, Color3.fromRGB(232, 238, 245)) -- nieve de los Picos
 end
 
 local function ciudad(rng: Random): (BasePart, BasePart)
@@ -1649,6 +1650,22 @@ local function extras(rng: Random)
 	disco(cx + 16.5, P + 2.6, -8.9, 1.4, Color3.fromRGB(240, 150, 60))
 	disco(cx + 17.3, P + 2.9, -8.8, 0.9, Color3.fromRGB(240, 150, 60))
 
+	-- ---------- BARBERÍA (ciudad) Y BAÑERA (posada): para quitarse la barba de tres años ----------
+	plano(-152, 3.5, -11.6, 0.8, 7, Color3.fromRGB(240, 240, 235))
+	for k = 0, 3 do
+		plano(-152, 1 + k * 1.7, -11.4, 0.85, 0.5, Color3.fromRGB(200, 60, 60), false, nil, 30)
+		plano(-152, 1.8 + k * 1.7, -11.4, 0.85, 0.5, Color3.fromRGB(70, 100, 180), false, nil, 30)
+	end
+	disco(-152, 7.4, -11.4, 1.2, Color3.fromRGB(240, 240, 235))
+	letrero(-148, 6.2, -11.2, 6, 1.4, "Barbería", Color3.fromRGB(70, 100, 180), Color3.fromRGB(255, 245, 230))
+	punto("barbero", Vector3.new(-147, 2.8, -9.5), { Npc = "vecino:8080", Frases = "¡Corte y afeitado!|Ese pelo pide tijera.|Pase, pase, que no muerdo." })
+	plano(cx, P + 1.1, -9.4, 4.6, 2.2, Color3.fromRGB(235, 235, 240))
+	plano(cx, P + 2.2, -9.2, 4.8, 0.4, Color3.fromRGB(200, 200, 210), false)
+	disco(cx - 1.4, P + 2.4, -9, 0.9, Color3.fromRGB(250, 252, 255), false)
+	disco(cx + 0.6, P + 2.5, -9, 1.1, Color3.fromRGB(250, 252, 255), false)
+	disco(cx + 1.8, P + 3.3, -8.9, 0.6, Color3.fromRGB(255, 220, 90), false) -- patito
+	punto("banera", Vector3.new(cx, P + 2.8, -8), {})
+
 	-- ---------- SECRETOS EN EL MUNDO ----------
 	-- la olla del Gran Guiso de la plaza
 	punto("secreto", Vector3.new(-78, 2.8, -11), { Secreto = "olla" })
@@ -1671,8 +1688,94 @@ local function extras(rng: Random)
 	-- los bordes del mundo (se acaba el cartón)
 	letrero(-438, 4, -11, 8, 2.4, "Fin del cartón", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
 	punto("secreto", Vector3.new(-438, 2.8, -9), { Secreto = "bordeOeste" })
-	letrero(598, 4, -11, 9, 2.4, "Aquí se acabó el papel", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
-	punto("secreto", Vector3.new(598, 2.8, -9), { Secreto = "bordeEste" })
+	letrero(798, 4, -11, 9, 2.4, "Aquí se acabó el papel", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	punto("secreto", Vector3.new(798, 2.8, -9), { Secreto = "bordeEste" })
+end
+
+-- ===================== PICOS NEVADOS Y CUMBRE DEL YETI (historia 2, tres años después) =====================
+local function picos(rng: Random)
+	local NIEVE = Color3.fromRGB(240, 244, 250)
+	-- montañas nevadas al fondo
+	for _, d in { { 640, 70, 44 }, { 690, 90, 60 }, { 745, 80, 52 }, { 795, 70, 40 } } do
+		tri(d[1], 0, -40, d[2], d[3], Color3.fromRGB(170, 185, 215))
+		tri(d[1], d[3] * 0.62, -39.6, d[2] * 0.4, d[3] * 0.38, NIEVE, false)
+	end
+	-- pinos con nieve, montones de nieve y cristales de hielo
+	for _ = 1, 16 do
+		local x = rng:NextNumber(612, 800)
+		if math.abs(x - Mundo.Guaridas.picos) > 9 and math.abs(x - Mundo.Guaridas.cumbre) > 10 and math.abs(x - 706) > 6 then
+			pino(x, -15 + rng:NextNumber(-3, 1), rng:NextNumber(0.9, 1.4), Color3.fromRGB(60, 110, 95))
+			tri(x, 7.6 * 1.1, -14.2, 3, 2, NIEVE, false)
+		end
+	end
+	for _ = 1, 14 do
+		disco(rng:NextNumber(610, 800), 0.6, rng:NextNumber(-12, -10), rng:NextNumber(2, 4), NIEVE)
+	end
+	for _, x in { 628, 676, 728, 784 } do
+		tri(x, 0, -11.4, 1.6, 3.4, Color3.fromRGB(170, 220, 245))
+		tri(x + 1.2, 0, -11.2, 1.1, 2.2, Color3.fromRGB(200, 235, 250))
+	end
+	-- iglú con humo y un lago helado con un pingüino pescando
+	disco(645, 2, -18, 12, NIEVE)
+	plano(645, 0.5, -17.6, 12.5, 1, NIEVE)
+	for k = 0, 2 do
+		plano(645, 1.2 + k * 1.6, -17.4, 11 - k * 2.5, 0.15, Color3.fromRGB(200, 210, 225), false)
+	end
+	plano(641, 1.6, -17.2, 3, 3.2, Color3.fromRGB(60, 70, 90))
+	local lago = plano(700, 0.07, -6, 18, 0.1, Color3.fromRGB(170, 215, 240), false)
+	lago.Size = Vector3.new(18, 0.1, 6)
+	lago.Transparency = 0.2
+	letrero(612, 6, -11, 9, 2, "Picos Nevados", Color3.fromRGB(90, 120, 160), Color3.fromRGB(240, 248, 255))
+
+	-- barrera 5: la nieve hasta las rodillas (Cueva → Picos): hacen falta las BOTAS DE NIEVE
+	local cerrado, abierto = barrera("botas", 606)
+	for k = 0, 8 do
+		disco(606 + (k % 2) * 1.5, 1.5 + (k % 3) * 1.2, -11 + k * 2.6, 5, NIEVE, true, cerrado)
+	end
+	letrero(598, 6.5, -11, 11, 2, "Nieve hasta las rodillas: hacen falta botas", Color3.fromRGB(90, 120, 160), Color3.fromRGB(240, 248, 255), cerrado)
+	for k = 0, 3 do
+		plano(606, 0.3, -10 + k * 6, 2.4, 0.6, Color3.fromRGB(150, 110, 80), true, abierto)
+	end
+
+	-- barrera 6: el muro de hielo (Picos → Cumbre): hace falta el PICO DE HIELO
+	cerrado, abierto = barrera("pico", 712)
+	for k = 0, 5 do
+		local hielo = plano(712 + (k % 2) * 0.8, 8, -11 + k * 4.4, 4, 16, Color3.fromRGB(160, 210, 240), true, cerrado)
+		hielo.Transparency = 0.25
+	end
+	letrero(704, 7, -11, 11, 2, "Muro de hielo: hace falta un pico", Color3.fromRGB(70, 110, 150), Color3.fromRGB(240, 248, 255), cerrado)
+	for k = 0, 3 do
+		tri(712 + (k % 2) * 2, 0, -10 + k * 6, 2, 1.6, Color3.fromRGB(180, 220, 245), true, abierto)
+	end
+	-- el guardián del muro (pingüinos bandidos) y el cofre del pico
+	cofre(700, 0, -11)
+	punto("cofrePico", Vector3.new(700, 1.5, -10))
+
+	-- la cueva del Yeti en la cumbre, con la Olla del Gran Guiso congelada en la puerta
+	local gx = Mundo.Guaridas.cumbre
+	tri(gx, 0, -18, 70, 40, Color3.fromRGB(180, 195, 225))
+	tri(gx, 24, -17.6, 30, 16, NIEVE, false)
+	disco(gx, 3, -16.5, 14, Color3.fromRGB(30, 35, 50))
+	for k = -2, 2 do
+		tri(gx + k * 2.8, 9.6, -16, 1.6, -3, Color3.fromRGB(200, 235, 250), true)
+	end
+	letrero(gx, 17, -16, 13, 2.4, "Cueva del Yeti Tragón", Color3.fromRGB(70, 110, 150), Color3.fromRGB(240, 248, 255))
+	-- la olla atrapada en un bloque de hielo
+	disco(gx + 14, 3, -13, 6, Color3.fromRGB(70, 66, 76))
+	plano(gx + 14, 5.6, -12.8, 7, 0.8, Color3.fromRGB(85, 82, 92))
+	local bloque = plano(gx + 14, 3.6, -12.4, 9, 7.4, Color3.fromRGB(170, 220, 245), true)
+	bloque.Transparency = 0.45
+	letrero(gx + 14, 9.4, -12.2, 8, 1.6, "¡La Olla!", Color3.fromRGB(190, 80, 60), Color3.fromRGB(255, 240, 200))
+	-- copos de nieve que caen (usan el balanceo de "Flota" del cliente)
+	for k = 1, 18 do
+		local m = Instance.new("Model")
+		m.Name = "Copo"
+		m:SetAttribute("Flota", rng:NextNumber(0.5, 1.4))
+		m.Parent = raiz
+		disco(rng:NextNumber(610, 805), rng:NextNumber(6, 30), rng:NextNumber(-20, -14), rng:NextNumber(0.5, 1), NIEVE, false, m)
+	end
+	-- el Rey Hongo, ahora cocinero arrepentido, en la entrada de su cueva (punto para hablar con él)
+	punto("reyHongoNpc", Vector3.new(552, 2.8, -10))
 end
 
 function Mundo.construir(): { [BasePart]: any }
@@ -1733,6 +1836,7 @@ function Mundo.construir(): { [BasePart]: any }
 	bosque(rng)
 	ruinas(rng)
 	cueva(rng)
+	picos(rng)
 	fondoVivo(rng)
 	pastoPorTodas(rng)
 	exploracion(rng)

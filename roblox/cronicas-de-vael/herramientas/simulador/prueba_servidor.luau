@@ -3,6 +3,14 @@ local RT = BASE.RT
 local E = BASE.E
 local I = E.Instance
 RT.esCliente = false
+-- para poder contestar a los diálogos, se apunta el id del último que se manda
+local ultimoDialogo = nil
+RT.especiales.RemoteEvent = {
+	FireClient = function(self, _j, d)
+		if self.Name == "Dialogo" and type(d) == "table" then ultimoDialogo = d.id end
+	end,
+	FireAllClients = function() end,
+}
 
 local RS = RT.servicio("ReplicatedStorage")
 local vael = I.new("Folder")
@@ -125,11 +133,59 @@ print("rocas antes/después:", rocasAntes, rocasDespues)
 informe("combate")
 remotos.ElegirMejora.OnServerEvent:Fire(j, "calcetin")
 print("zonas ganadas:", pf.progreso.vencidas and pf.progreso.vencidas[Datos.Zonas[2].id])
+-- si la pelea de la prueba sigue abierta, se acaba (los monstruos caen)
+if b and Combate.enBatalla(j) then
+	for _, e in b.enemigos do e.hp = 0 e.vivo = false end
+	for _ = 1, 30 do
+		RT.avanzar(1)
+		remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = "defender" })
+		if not Combate.enBatalla(j) then break end
+	end
+end
+print("pelea acabada:", not Combate.enBatalla(j), "zonas ganadas:", pf.progreso.vencidas and pf.progreso.vencidas[Datos.Zonas[2].id])
 -- final: la primera vez manda el epílogo, la segunda un diálogo
 Combate.alVencerJefe(j)
 Combate.alVencerJefe(j)
 RT.avanzar(1)
 print("final visto:", pf.progreso.final, j:GetAttribute("FinalVisto"))
+print("barba tras el final:", pf.progreso.barba)
+-- tres años después: despertar, barbero y baño
+remotos.Despertar.OnServerEvent:Fire(j)
+RT.avanzar(2)
+local function pulsarPunto(nombre)
+	for _, d in mundo:GetDescendants() do
+		if d:IsA("BasePart") and d:GetAttribute("Punto") == nombre then
+			local pr = d:FindFirstChildOfClass("ProximityPrompt")
+			if pr then pr.Triggered:Fire(j) end
+		end
+	end
+	RT.avanzar(0.5)
+end
+local ok = Combate.empezar(Datos.Zonas[2], E.Vector3.new(110, 0, -10), { j })
+print("¿pelea con barba?", ok ~= nil)
+pulsarPunto("barbero")
+remotos.ElegirOpcion.OnServerEvent:Fire(j, ultimoDialogo, 1)
+RT.avanzar(2)
+pulsarPunto("banera")
+RT.avanzar(3)
+print("barba tras barbero y baño:", pf.progreso.barba, pf.progreso.afeitado, pf.progreso.banado)
+pulsarPunto("reyHongoNpc")
+remotos.ElegirOpcion.OnServerEvent:Fire(j, ultimoDialogo, 1)
+RT.avanzar(1)
+print("botas:", pf.llaves.botas)
+pulsarPunto("cofrePico")
+remotos.ElegirOpcion.OnServerEvent:Fire(j, ultimoDialogo, 1)
+RT.avanzar(2)
+print("pelea de los pingüinos:", Combate.enBatalla(j))
+for paso = 1, 40 do
+	RT.avanzar(1)
+	remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = "atacar" })
+	if not Combate.enBatalla(j) then break end
+end
+RT.avanzar(4)
+Combate.alVencerJefe(j, "yeti")
+RT.avanzar(1)
+print("final 2:", pf.progreso.final2, j:GetAttribute("Final2Visto"))
 informe("compañeros y final")
 -- eventos aleatorios y emboscadas
 RT.avanzar(200, 0.5)

@@ -22,6 +22,10 @@ Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **
 - **Rocas rompibles:** en combate, "Atacar" y las habilidades de daño pueden apuntar a una roca a tu alcance y romperla (¡CRAC!). Las habilidades en cruz rompen también las de al lado, y el torbellino las que tienes pegadas. A veces dentro hay una poción o 5 monedas.
 - **Letra de los diálogos:** Patrick Hand (`Ui.FuenteDialogo`), más fácil de leer que la de rotulador.
 
+### Historia 2: «La Olla Congelada» (tres años después)
+
+Al ganar al Rey Hongo: **animación de victoria a pantalla completa** (el héroe salta y levanta el Cucharón), el epílogo y un **subepílogo "Tres años después"** (el Rey Hongo es ahora cocinero y el Yeti Tragón se lleva la Olla del Gran Guiso). Te despiertas en casa **con barba**: hasta pasar por el **barbero Paco** (ciudad) y darte un **baño** en la posada no puedes pelear. Después, el Rey Hongo te da las **botas de nieve**, cruzas a los **Picos Nevados** (pingüinos bandidos, muñecos de nieve, lobos de la ventisca y espíritus de escarcha), consigues el **pico de hielo** peleando contra los pingüinos y subes a la **Cumbre** a por el **Yeti Tragón**. Final con victoria, la Olla y un epílogo de 4 láminas. En el menú: botones **Epílogo** y **Final 2**.
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|

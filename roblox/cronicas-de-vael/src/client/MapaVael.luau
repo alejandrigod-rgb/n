@@ -19,7 +19,9 @@ local ZONAS = {
 	{ id = "pantano", nombre = "Pantano Brumoso", mx = 560, my = 300, desde = 163, hasta = 263, color = Color3.fromRGB(110, 150, 130), llave = "cuerda" },
 	{ id = "bosque", nombre = "Bosque Susurrante", mx = 690, my = 190, desde = 263, hasta = 363, color = Color3.fromRGB(80, 140, 85), llave = "hacha" },
 	{ id = "ruinas", nombre = "Ruinas de Ceniza", mx = 800, my = 290, desde = 363, hasta = 463, color = Color3.fromRGB(170, 155, 135), llave = "llave" },
-	{ id = "cueva", nombre = "Cueva del Rey Hongo", mx = 880, my = 120, desde = 463, hasta = 605, color = Color3.fromRGB(120, 105, 110), llave = "farol" },
+	{ id = "cueva", nombre = "Cueva del Rey Hongo", mx = 870, my = 130, desde = 463, hasta = 606, color = Color3.fromRGB(120, 105, 110), llave = "farol" },
+	{ id = "picos", nombre = "Picos Nevados", mx = 720, my = 60, desde = 606, hasta = 712, color = Color3.fromRGB(200, 220, 240), llave = "botas" },
+	{ id = "cumbre", nombre = "Cumbre del Yeti", mx = 560, my = 60, desde = 712, hasta = 806, color = Color3.fromRGB(150, 185, 225), llave = "pico" },
 }
 local CALLES = {
 	mercado = { nombre = "Calle del Mercado", mx = 230, my = 120, color = Color3.fromRGB(240, 170, 110) },
@@ -67,7 +69,23 @@ function Mapa.objetivo(e: any): (string, number?)
 			end
 		end
 	end
-	return "Derrota al Rey Hongo en la Cueva", 540
+	if not e.final then
+		return "Derrota al Rey Hongo en la Cueva", 540
+	end
+	-- historia 2
+	if e.barba then
+		if not e.afeitado then
+			return "Ve al barbero Paco de la ciudad", -147
+		end
+		return "Date un baño en la posada", -22
+	elseif not ll.botas then
+		return "Habla con el Rey Hongo en su cueva", 552
+	elseif not ll.pico then
+		return "Consigue el pico de hielo junto al lago helado", 700
+	elseif not e.final2 then
+		return "Recupera la Olla: derrota al Yeti Tragón", 772
+	end
+	return "¡Historia terminada! Busca los secretos que te falten", nil
 end
 
 --- Dónde cae una posición del mundo en el mapa dibujado.

@@ -12,7 +12,7 @@ BASE.modulo("Datos", vael, FUENTES["shared/Datos.luau"])
 BASE.modulo("Sonidos", vael, FUENTES["shared/Sonidos.luau"])
 local remotos = I.new("Folder")
 remotos.Name = "Remotos"
-for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero" } do
+for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar" } do
 	local r = I.new("RemoteEvent")
 	r.Name = n
 	r.Parent = remotos
@@ -276,11 +276,23 @@ informe("combate")
 -- epílogo (al ganar al Rey Hongo por primera vez)
 remotos.Epilogo.OnClientEvent:Fire()
 RT.avanzar(2)
+print("¿Victoria en pantalla grande?", buscarTexto(pg, "¡EL CUCHARÓN ES TUYO!") ~= nil)
+RT.avanzar(5)
 print("¿Epílogo?", buscarTexto(pg, "Siguiente") ~= nil)
-for _ = 1, 12 do
+for _ = 1, 26 do
 	if boton("Siguiente") then pulsar("Siguiente") end
 end
 RT.avanzar(2)
 print("¿Epílogo cerrado?", boton("Siguiente") == nil)
 informe("epílogo")
+-- final de la historia 2
+remotos.Final2.OnClientEvent:Fire()
+RT.avanzar(7)
+print("¿Final 2?", buscarTexto(pg, "Siguiente") ~= nil)
+for _ = 1, 12 do
+	if boton("Siguiente") then pulsar("Siguiente") end
+end
+RT.avanzar(2)
+print("¿Final 2 cerrado?", boton("Siguiente") == nil)
+informe("final 2")
 print("FIN")
