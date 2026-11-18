@@ -275,16 +275,45 @@ local function accesorio(m: Muneco, tipo: number, colorPelo: Color3)
 	end
 end
 
+-- ---------- equipamiento visible ----------
+--- Dibuja un arma comprada según su forma (espada, hacha, bastón, cucharón). x, y: dónde va la mano.
+local function armaPorForma(m: Muneco, forma: string, color: Color3, x: number, y: number, z: number, rot: number?)
+	local r = rot or 0
+	if forma == "espada" then
+		pieza(m, x, y - 0.03, 0.06, 0.32, color, 0.3, z, r)
+		pieza(m, x, y + 0.13, 0.18, 0.03, Color3.fromRGB(220, 180, 70), 0.3, z + 1, r)
+		pieza(m, x, y + 0.18, 0.045, 0.07, Color3.fromRGB(110, 70, 45), 0.3, z, r)
+	elseif forma == "hacha" then
+		pieza(m, x, y + 0.02, 0.04, 0.4, Color3.fromRGB(120, 80, 50), 0.3, z, r)
+		pieza(m, x + 0.06, y - 0.13, 0.15, 0.12, color, 0.35, z + 1, r)
+	elseif forma == "baston" then
+		pieza(m, x, y + 0.02, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, z, r)
+		circ(m, x, y - 0.27, 0.13, color, z + 1)
+	elseif forma == "cucharon" then
+		pieza(m, x, y, 0.045, 0.42, color:Lerp(Color3.fromRGB(110, 70, 45), 0.3), 0.3, z, r)
+		circ(m, x, y - 0.22, 0.16, color, z + 1)
+		circ(m, x - 0.02, y - 0.235, 0.05, Color3.fromRGB(255, 240, 200), z + 2, { sb = true })
+	end
+end
+
+local function piezaEquipo(ap: any, hueco: string): any
+	local eq = ap and ap.eq
+	local id = eq and eq[hueco]
+	return id and Datos.Equipo[id] or nil
+end
+
 -- ---------- vistas del héroe: de lado (mirando a la derecha) y de espaldas ----------
 -- Se usan al caminar: de lado al ir a izquierda/derecha, de frente al venir hacia la cámara y de espaldas al irse.
 local function colorBarba(c: Color3): Color3
 	return c:Lerp(Color3.fromRGB(110, 90, 70), 0.3)
 end
 
-local function heroeDeLado(m: Muneco, clase: string, a: any, barba: boolean)
+local function heroeDeLado(m: Muneco, clase: string, a: any, barba: boolean, ap: any)
 	local piel = A.pieles[a.piel]
 	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
-	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local armadura = piezaEquipo(ap, "armadura")
+	local armaEq = piezaEquipo(ap, "arma")
+	local ropa = armadura and armadura.color or (a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase)
 	local cPelo = A.coloresPelo[a.colorPelo]
 	local deClase = a.gorro == 1
 	local capucha = deClase and (clase == "arquero" or clase == "sanador")
@@ -344,8 +373,13 @@ local function heroeDeLado(m: Muneco, clase: string, a: any, barba: boolean)
 	elseif not deClase then
 		gorroDe(m, a.gorro, A.coloresGorro[a.colorGorro])
 	end
+	if armadura then
+		circ(m, 0.56, 0.63, 0.16, armadura.color:Lerp(NEGRO, 0.2), 6) -- hombrera
+	end
 	-- el arma en la mano de delante
-	if clase == "guerrero" then
+	if armaEq and armaEq.forma ~= "arco" then
+		armaPorForma(m, armaEq.forma, armaEq.color, 0.7, 0.62, 12, 15)
+	elseif clase == "guerrero" then
 		pieza(m, 0.72, 0.6, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 12, 18)
 		pieza(m, 0.66, 0.76, 0.16, 0.03, Color3.fromRGB(220, 180, 70), 0.3, 13, 18)
 	elseif clase == "maga" or clase == "sanador" then
@@ -366,10 +400,12 @@ local function heroeDeLado(m: Muneco, clase: string, a: any, barba: boolean)
 	end
 end
 
-local function heroeDeEspaldas(m: Muneco, clase: string, a: any, barba: boolean)
+local function heroeDeEspaldas(m: Muneco, clase: string, a: any, barba: boolean, ap: any)
 	local piel = A.pieles[a.piel]
 	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
-	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local armadura = piezaEquipo(ap, "armadura")
+	local armaEq = piezaEquipo(ap, "arma")
+	local ropa = armadura and armadura.color or (a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase)
 	local cPelo = A.coloresPelo[a.colorPelo]
 	local deClase = a.gorro == 1
 	local capucha = deClase and (clase == "arquero" or clase == "sanador")
@@ -378,7 +414,9 @@ local function heroeDeEspaldas(m: Muneco, clase: string, a: any, barba: boolean)
 	pie(m, 0.37, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40))
 	pie(m, 0.63, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40))
 	-- el arma asoma por el otro lado
-	if clase == "guerrero" then
+	if armaEq and armaEq.forma ~= "arco" then
+		armaPorForma(m, armaEq.forma, armaEq.color, clase == "maga" and 0.88 or 0.12, 0.6, 2)
+	elseif clase == "guerrero" then
 		pieza(m, 0.12, 0.57, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 2)
 	elseif clase == "maga" or clase == "sanador" then
 		pieza(m, 0.88, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 2)
@@ -437,15 +475,18 @@ local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
 	local a = Datos.validarApariencia(ap or {})
 	local vista = ap and ap.vista
 	if vista == "lado" then
-		heroeDeLado(m, clase, a, ap ~= nil and ap.barba == true)
+		heroeDeLado(m, clase, a, ap ~= nil and ap.barba == true, ap)
 		return
 	elseif vista == "espalda" then
-		heroeDeEspaldas(m, clase, a, ap ~= nil and ap.barba == true)
+		heroeDeEspaldas(m, clase, a, ap ~= nil and ap.barba == true, ap)
 		return
 	end
 	local piel = A.pieles[a.piel]
 	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
-	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local armadura = piezaEquipo(ap, "armadura")
+	local armaEq = piezaEquipo(ap, "arma")
+	local amuleto = piezaEquipo(ap, "amuleto")
+	local ropa = armadura and armadura.color or (a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase)
 	local cPelo = A.coloresPelo[a.colorPelo]
 	local cGorro = A.coloresGorro[a.colorGorro]
 	local deClase = a.gorro == 1
@@ -472,11 +513,23 @@ local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
 		if trazo then
 			trazo.Color = Color3.fromRGB(120, 80, 45)
 		end
+		if armaEq and armaEq.forma == "arco" and trazo then
+			trazo.Color = armaEq.color
+		end
 		pieza(m, 0.13, 0.68, 0.012, 0.4, Color3.fromRGB(240, 240, 230), 0, 2, 0, { sb = true })
 		pieza(m, 0.8, 0.6, 0.1, 0.24, Color3.fromRGB(130, 85, 50), 0.3, 2, 15)
 	end
 	cuerpoBase(m, piel, ropa, Color3.fromRGB(70, 50, 40))
 	cara(m, piel, a.ojos, A.coloresOjos[a.colorOjos])
+	-- armadura (hombreras) y amuleto colgado
+	if armadura then
+		circ(m, 0.27, 0.64, 0.16, armadura.color:Lerp(NEGRO, 0.2), 5)
+		circ(m, 0.73, 0.64, 0.16, armadura.color:Lerp(NEGRO, 0.2), 5)
+	end
+	if amuleto then
+		pieza(m, 0.5, 0.62, 0.16, 0.012, Color3.fromRGB(110, 75, 45), 0, 6, 0, { sb = true })
+		circ(m, 0.5, 0.665, 0.07, amuleto.color, 7)
+	end
 	-- tres años después: barba enmarañada (hasta que pasa por el barbero)
 	if ap and ap.barba then
 		pieza(m, 0.5, 0.57, 0.4, 0.17, cPelo:Lerp(Color3.fromRGB(110, 90, 70), 0.3), 0.5, 9)
@@ -511,8 +564,10 @@ local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
 	elseif not deClase then
 		gorroDe(m, a.gorro, cGorro)
 	end
-	-- arma de la clase
-	if clase == "guerrero" then
+	-- arma: la equipada (si no es un arco, que ya se dibujó detrás) o la de la clase
+	if armaEq and armaEq.forma ~= "arco" then
+		armaPorForma(m, armaEq.forma, armaEq.color, clase == "maga" and 0.12 or 0.88, 0.6, 12)
+	elseif clase == "guerrero" then
 		pieza(m, 0.88, 0.57, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 12)
 		pieza(m, 0.88, 0.73, 0.18, 0.03, Color3.fromRGB(220, 180, 70), 0.3, 13)
 		pieza(m, 0.88, 0.78, 0.045, 0.07, Color3.fromRGB(110, 70, 45), 0.3, 12)

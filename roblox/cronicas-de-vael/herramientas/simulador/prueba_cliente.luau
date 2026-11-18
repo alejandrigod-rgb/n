@@ -12,7 +12,7 @@ BASE.modulo("Datos", vael, FUENTES["shared/Datos.luau"])
 BASE.modulo("Sonidos", vael, FUENTES["shared/Sonidos.luau"])
 local remotos = I.new("Folder")
 remotos.Name = "Remotos"
-for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo" } do
+for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar" } do
 	local r = I.new("RemoteEvent")
 	r.Name = n
 	r.Parent = remotos
@@ -149,6 +149,10 @@ jugador:SetAttribute("Clase", "guerrero")
 estado.clase = "guerrero"
 estado.hp, estado.maxHp, estado.mp, estado.maxMp = 120, 120, 20, 20
 estado.companeros = { tomas = true }
+estado.armas = { espadaMadera = 1, cotaMalla = 0, cascabel = 0 }
+estado.equipo = { arma = "espadaMadera", armadura = "cotaMalla", amuleto = "cascabel" }
+jugador:SetAttribute("Apariencia", RT.servicio("HttpService"):JSONEncode({ piel = 2, pelo = 3, barba = true, eq = { arma = "hachaLenador", armadura = "cotaMalla", amuleto = "cascabel" } }))
+jugador:LoadCharacter()
 estado.companero = "tomas"
 remotos.EstadoJugador.OnClientEvent:Fire(estado)
 RT.avanzar(3)
@@ -310,4 +314,29 @@ if bCerrar then bCerrar.Activated:Fire() end
 RT.avanzar(1)
 print("¿Tablón cerrado?", buscarTexto(pg, "Tablón de encargos") == nil)
 informe("encargos")
+-- armería
+remotos.AbrirArmeria.OnClientEvent:Fire({ oro = 500, nivel = 5, clase = "guerrero", armas = { espadaMadera = 1, cotaMalla = 3 }, equipo = { arma = "espadaMadera" }, novedad = "cotaMalla" })
+RT.avanzar(1)
+print("¿Armería?", buscarTexto(pg, "Herrería de Olga") ~= nil)
+pulsar("Mejorar lo mío")
+print("¿Pestaña mejorar?", buscarTexto(pg, "¡Al máximo!") ~= nil)
+informe("armería")
+-- dibujar a cada clase en sus tres vistas, con y sin equipo (para pillar errores de dibujo)
+local Mu = E.require(carpeta:FindFirstChild("Munecos"))
+local lienzo = I.new("Frame")
+lienzo.Parent = pg
+local dibujados = 0
+for _, clase in { "guerrero", "maga", "arquero", "sanador" } do
+	for _, vista in { "frente", "lado", "espalda" } do
+		for _, eq in { {}, { arma = "cucharonCombate", armadura = "armaduraCazos", amuleto = "estrellaHielo" }, { arma = "hachaLenador" }, { arma = "arcoTejo" }, { arma = "baculoCristal" } } do
+			for _, pelo in { 1, 4, 6, 7 } do
+				Mu.crear(lienzo, "clase", clase, 3, { pelo = pelo, gorro = pelo == 7 and 3 or 1, barba = pelo == 4, vista = vista, eq = eq })
+				dibujados += 1
+			end
+		end
+	end
+end
+RT.avanzar(0.5)
+print("muñecos dibujados:", dibujados)
+informe("dibujos")
 print("FIN")

@@ -372,19 +372,105 @@ function Datos.xpParaNivel(nivel: number): number
 	return math.floor(25 * nivel ^ 1.5)
 end
 
-function Datos.statsDe(claseId: string, nivel: number, mejoras: { string }?): Stats
+function Datos.statsDe(claseId: string, nivel: number, mejoras: { string }?, bonos: { [string]: number }?): Stats
 	local c = Datos.Clases[claseId]
 	local n = nivel - 1
 	local m = Datos.efectosDe(mejoras)
 	local todo = 1 + (m.todo or 0)
+	local b = bonos or {}
 	return {
-		hp = math.floor((c.base.hp + c.crece.hp * n) * (1 + (m.hpMult or 0)) * todo),
-		mp = math.floor((c.base.mp + c.crece.mp * n) * todo),
-		atk = math.floor((c.base.atk + c.crece.atk * n + (m.atk or 0)) * todo),
-		def = math.floor((c.base.def + c.crece.def * n + (m.def or 0)) * todo),
-		mag = math.floor((c.base.mag + c.crece.mag * n + (m.mag or 0)) * todo),
-		spd = math.floor((c.base.spd + c.crece.spd * n + (m.spd or 0)) * todo),
+		hp = math.floor((c.base.hp + c.crece.hp * n + (b.hp or 0)) * (1 + (m.hpMult or 0)) * todo),
+		mp = math.floor((c.base.mp + c.crece.mp * n + (b.mp or 0)) * todo),
+		atk = math.floor((c.base.atk + c.crece.atk * n + (m.atk or 0) + (b.atk or 0)) * todo),
+		def = math.floor((c.base.def + c.crece.def * n + (m.def or 0) + (b.def or 0)) * todo),
+		mag = math.floor((c.base.mag + c.crece.mag * n + (m.mag or 0) + (b.mag or 0)) * todo),
+		spd = math.max(1, math.floor((c.base.spd + c.crece.spd * n + (m.spd or 0) + (b.spd or 0)) * todo)),
 	}
+end
+
+-- ===================== EQUIPAMIENTO (armas, armaduras y amuletos; se compran y mejoran en la herrería) =====================
+-- hueco: "arma" | "armadura" | "amuleto". clases: quién puede llevarla (nil = todos). forma: cómo se dibuja el arma.
+-- Se guarda en el perfil: progreso.armas = { [id] = mejora (0 a 3) } y progreso.equipo = { arma, armadura, amuleto }.
+export type Pieza = { id: string, nombre: string, hueco: string, descripcion: string, stats: { [string]: number }, precio: number, nivel: number, color: Color3, forma: string?, clases: { [string]: boolean }? }
+Datos.Equipo = {
+	-- armas
+	espadaMadera = { id = "espadaMadera", nombre = "Espada de madera", hueco = "arma", descripcion = "La de toda la vida. Astillas incluidas.", stats = { atk = 3 }, precio = 40, nivel = 1, color = Color3.fromRGB(190, 140, 80), forma = "espada", clases = { guerrero = true } },
+	espadaHierro = { id = "espadaHierro", nombre = "Espada de hierro", hueco = "arma", descripcion = "Corta de verdad. No la uses para el pan.", stats = { atk = 7 }, precio = 140, nivel = 3, color = Color3.fromRGB(205, 210, 220), forma = "espada", clases = { guerrero = true } },
+	hachaLenador = { id = "hachaLenador", nombre = "Hacha de leñador", hueco = "arma", descripcion = "Pega fuerte, pero pesa lo suyo.", stats = { atk = 12, spd = -1 }, precio = 280, nivel = 5, color = Color3.fromRGB(180, 185, 195), forma = "hacha", clases = { guerrero = true } },
+	varitaRama = { id = "varitaRama", nombre = "Varita de rama", hueco = "arma", descripcion = "Un palo con mucha fe.", stats = { mag = 4 }, precio = 45, nivel = 1, color = Color3.fromRGB(130, 200, 220), forma = "baston", clases = { maga = true } },
+	baculoCristal = { id = "baculoCristal", nombre = "Báculo de cristal", hueco = "arma", descripcion = "Brilla un poquito. Bastante, en realidad.", stats = { mag = 10, mp = 10 }, precio = 260, nivel = 4, color = Color3.fromRGB(200, 140, 240), forma = "baston", clases = { maga = true } },
+	arcoJunco = { id = "arcoJunco", nombre = "Arco de junco", hueco = "arma", descripcion = "Ligero como una pluma. Y casi igual de fuerte.", stats = { atk = 4 }, precio = 45, nivel = 1, color = Color3.fromRGB(150, 120, 70), forma = "arco", clases = { arquero = true } },
+	arcoTejo = { id = "arcoTejo", nombre = "Arco de tejo", hueco = "arma", descripcion = "Llega lejos y no falla. Casi nunca.", stats = { atk = 9, spd = 1 }, precio = 250, nivel = 4, color = Color3.fromRGB(110, 70, 40), forma = "arco", clases = { arquero = true } },
+	cayadoHierbas = { id = "cayadoHierbas", nombre = "Cayado de hierbas", hueco = "arma", descripcion = "Huele a manzanilla. Cura el alma.", stats = { mag = 4, hp = 10 }, precio = 45, nivel = 1, color = Color3.fromRGB(120, 190, 100), forma = "baston", clases = { sanador = true } },
+	cayadoLuz = { id = "cayadoLuz", nombre = "Cayado de luz", hueco = "arma", descripcion = "Por la noche sirve de farol.", stats = { mag = 9, hp = 20 }, precio = 250, nivel = 4, color = Color3.fromRGB(255, 230, 130), forma = "baston", clases = { sanador = true } },
+	cucharonCombate = { id = "cucharonCombate", nombre = "Cucharón de combate", hueco = "arma", descripcion = "Réplica del Cucharón de Vael. Para remover… cabezas.", stats = { atk = 8, mag = 8 }, precio = 420, nivel = 6, color = Color3.fromRGB(205, 155, 90), forma = "cucharon" },
+	-- armaduras
+	chalecoCarton = { id = "chalecoCarton", nombre = "Chaleco de cartón", hueco = "armadura", descripcion = "Si llueve, mejor ponte a cubierto.", stats = { def = 3, hp = 10 }, precio = 40, nivel = 1, color = Color3.fromRGB(190, 160, 115) },
+	cotaMalla = { id = "cotaMalla", nombre = "Cota de malla", hueco = "armadura", descripcion = "Hace clinc, clinc al andar.", stats = { def = 7, hp = 25, spd = -1 }, precio = 180, nivel = 3, color = Color3.fromRGB(160, 165, 175) },
+	abrigoPieles = { id = "abrigoPieles", nombre = "Abrigo de pieles", hueco = "armadura", descripcion = "Calentito para los Picos Nevados.", stats = { def = 6, hp = 35 }, precio = 240, nivel = 5, color = Color3.fromRGB(170, 120, 80) },
+	armaduraCazos = { id = "armaduraCazos", nombre = "Armadura de cazos", hueco = "armadura", descripcion = "Hecha con los cazos viejos del Gran Guiso. Suena a cocina.", stats = { def = 12, hp = 45, spd = -2 }, precio = 450, nivel = 7, color = Color3.fromRGB(120, 120, 135) },
+	-- amuletos
+	dienteLobo = { id = "dienteLobo", nombre = "Colmillo de lobo", hueco = "amuleto", descripcion = "Te sientes más rápido. Y con ganas de aullar.", stats = { spd = 2, atk = 1 }, precio = 70, nivel = 2, color = Color3.fromRGB(240, 235, 220) },
+	colganteSeta = { id = "colganteSeta", nombre = "Colgante de seta", hueco = "amuleto", descripcion = "Una seta brillante. Fermín no sabe que la tienes.", stats = { mag = 4, mp = 10 }, precio = 120, nivel = 3, color = Color3.fromRGB(150, 220, 255) },
+	cascabel = { id = "cascabel", nombre = "Cascabel de la suerte", hueco = "amuleto", descripcion = "Lo encontraron junto a un gato morado. Tilín, tilín.", stats = { spd = 3, def = 2 }, precio = 160, nivel = 3, color = Color3.fromRGB(240, 200, 60) },
+	corazonPiedra = { id = "corazonPiedra", nombre = "Corazón de piedra", hueco = "amuleto", descripcion = "Late despacito. Te da mucha vida.", stats = { hp = 45 }, precio = 220, nivel = 4, color = Color3.fromRGB(200, 90, 100) },
+	estrellaHielo = { id = "estrellaHielo", nombre = "Estrella de hielo", hueco = "amuleto", descripcion = "Nunca se derrite. Ni en el bolsillo.", stats = { def = 4, mag = 4, hp = 20 }, precio = 300, nivel = 6, color = Color3.fromRGB(190, 230, 255) },
+}
+Datos.OrdenEquipo = { "espadaMadera", "espadaHierro", "hachaLenador", "varitaRama", "baculoCristal", "arcoJunco", "arcoTejo", "cayadoHierbas", "cayadoLuz", "cucharonCombate", "chalecoCarton", "cotaMalla", "abrigoPieles", "armaduraCazos", "dienteLobo", "colganteSeta", "cascabel", "corazonPiedra", "estrellaHielo" }
+Datos.ArmaInicial = { guerrero = "espadaMadera", maga = "varitaRama", arquero = "arcoJunco", sanador = "cayadoHierbas" }
+Datos.MAX_MEJORA_EQUIPO = 3
+Datos.NOMBRES_STAT = { hp = "VIDA", mp = "MANÁ", atk = "ATQ", def = "DEF", mag = "MAG", spd = "VEL" }
+
+--- Estadísticas de una pieza con su mejora (+1, +2, +3: un 35 % más cada una).
+function Datos.statsPieza(id: string, mejora: number?): { [string]: number }
+	local p = Datos.Equipo[id]
+	local r = {}
+	if not p then
+		return r
+	end
+	local f = 1 + 0.35 * (mejora or 0)
+	for k, v in p.stats do
+		r[k] = v > 0 and math.floor(v * f + 0.5) or v
+	end
+	return r
+end
+
+--- Lo que cuesta mejorar una pieza al siguiente nivel.
+function Datos.precioMejora(id: string, mejora: number): number
+	local p = Datos.Equipo[id]
+	return p and math.floor(p.precio * 0.6 * (mejora + 1)) or 0
+end
+
+function Datos.puedeLlevar(id: string, clase: string?): boolean
+	local p = Datos.Equipo[id]
+	return p ~= nil and (p.clases == nil or (clase ~= nil and p.clases[clase] == true))
+end
+
+--- Suma de lo que da todo lo equipado (a partir de progreso.equipo y progreso.armas).
+function Datos.bonosEquipo(progreso: any, clase: string?): { [string]: number }
+	local total: { [string]: number } = {}
+	local equipo = progreso and progreso.equipo or {}
+	local armas = progreso and progreso.armas or {}
+	for _, id in equipo do
+		if type(id) == "string" and armas[id] ~= nil and Datos.puedeLlevar(id, clase) then
+			for k, v in Datos.statsPieza(id, armas[id]) do
+				total[k] = (total[k] or 0) + v
+			end
+		end
+	end
+	return total
+end
+
+--- Texto corto de estadísticas: "+7 ATQ · -1 VEL".
+function Datos.textoStats(st: { [string]: number }): string
+	local partes = {}
+	for _, k in { "hp", "mp", "atk", "def", "mag", "spd" } do
+		local v = st[k]
+		if v and v ~= 0 then
+			table.insert(partes, (v > 0 and "+" or "") .. v .. " " .. Datos.NOMBRES_STAT[k])
+		end
+	end
+	return table.concat(partes, " · ")
 end
 
 --- Daño: (atributo × poder) contra la defensa, con un 10 % de variación. Nunca menos de 1.

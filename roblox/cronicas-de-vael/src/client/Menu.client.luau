@@ -61,6 +61,7 @@ local Mochila: any = nil
 local Idioma: any = nil
 local Interaccion: any = nil
 local Encargos: any = nil
+local Armeria: any = nil
 
 local function remoto(nombre: string): RemoteEvent
 	return Vael:WaitForChild("Remotos"):WaitForChild(nombre) :: RemoteEvent
@@ -203,6 +204,9 @@ local function cerrarTodo()
 	if Encargos then
 		Encargos.cerrar()
 	end
+	if Armeria then
+		Armeria.cerrar()
+	end
 end
 
 local function sePuedeAbrir(): boolean
@@ -233,6 +237,8 @@ local function alternarMochila()
 			remoto("UsarObjeto"):FireServer(id)
 		end, function(cid)
 			remoto("ElegirCompanero"):FireServer(cid)
+		end, function(id)
+			remoto("Equipar"):FireServer(id)
 		end)
 	end
 end
@@ -492,6 +498,8 @@ task.spawn(function()
 				remoto("UsarObjeto"):FireServer(id)
 			end, function(cid)
 				remoto("ElegirCompanero"):FireServer(cid)
+			end, function(id)
+				remoto("Equipar"):FireServer(id)
 			end)
 		end
 	end)
@@ -507,6 +515,23 @@ task.spawn(function()
 		end)
 	end)
 	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
+	-- armería de Olga (comprar y mejorar equipo)
+	remoto("AbrirArmeria").OnClientEvent:Connect(function(d: any)
+		if not Armeria or enCombate then
+			return
+		end
+		if d.novedad and Audio then
+			Audio.jingle("encargo")
+		end
+		if not Armeria.estaAbierto() then
+			cerrarTodo()
+		end
+		Armeria.abrir(gui, d, function(id)
+			remoto("ComprarEquipo"):FireServer(id)
+		end, function(id)
+			remoto("MejorarEquipo"):FireServer(id)
+		end)
+	end)
 	-- tablón de encargos de la plaza
 	remoto("AbrirTablon").OnClientEvent:Connect(function(d: any)
 		if not Encargos or enCombate then
@@ -593,6 +618,7 @@ task.spawn(function()
 	Mochila = cargar("Mochila")
 	Interaccion = cargar("Interaccion")
 	Encargos = cargar("Encargos")
+	Armeria = cargar("Armeria")
 	if Interaccion then
 		pcall(Interaccion.iniciar)
 	end

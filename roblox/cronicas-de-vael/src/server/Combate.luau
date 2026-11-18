@@ -171,7 +171,7 @@ function Combate.vidaDe(j: Player): (number, number, number, number)
 	if not perfil or not perfil.clase then
 		return 0, 0, 0, 0
 	end
-	local s = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras)
+	local s = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras, Datos.bonosEquipo(perfil.progreso, perfil.clase))
 	local v = vida[j]
 	if not v then
 		v = { hp = s.hp, mp = s.mp }
@@ -185,7 +185,7 @@ end
 function Combate.curarDelTodo(j: Player)
 	local perfil = DatosJugador.obtener(j)
 	if perfil and perfil.clase then
-		local s = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras)
+		local s = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras, Datos.bonosEquipo(perfil.progreso, perfil.clase))
 		vida[j] = { hp = s.hp, mp = s.mp }
 	end
 end
@@ -1302,7 +1302,7 @@ local function entidadJugador(b: Batalla, j: Player): Entidad?
 		return nil
 	end
 	local hp, maxHp, mp = Combate.vidaDe(j)
-	local stats = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras)
+	local stats = Datos.statsDe(perfil.clase, perfil.nivel, perfil.mejoras, Datos.bonosEquipo(perfil.progreso, perfil.clase))
 	local mods = Datos.efectosDe(perfil.mejoras)
 	local clase = Datos.Clases[perfil.clase]
 	local c, f = casillaLibreEn(b, { 1, 2 })

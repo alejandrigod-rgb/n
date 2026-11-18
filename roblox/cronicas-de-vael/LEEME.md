@@ -31,6 +31,12 @@ Al ganar al Rey Hongo: **animación de victoria a pantalla completa** (el héroe
 - **Tablón de encargos** en la plaza (`Encargos.luau`, `Datos.Encargos`): 14 misiones secundarias (cazar monstruos, ganar peleas en una zona, romper rocas, encontrar secretos, entregar pociones), hasta 3 a la vez, con oro, EXP, objetos y mejoras. Dos se desbloquean tras la primera historia.
 - **Más sonido:** fanfarria al ganar, otra más grande al vencer a un jefe, entrada dramática de los jefes ("¡JEFE FINAL!") y un cartel con música al llegar a cada zona ("¡Zona nueva!" la primera vez). `Audio.jingle` encadena los efectos que ya hay.
 
+### v1.8: equipamiento y tienda
+- **Herrería de Olga** (ciudad): al hablar con ella eliges "Armas y armaduras" o "Rarezas (mejoras)". La armería (`Armeria.luau`) tiene dos pestañas: **Comprar** (solo lo de tu clase, con nivel mínimo y precio) y **Mejorar lo mío** (+1, +2 y +3; cada una da un 35 % más).
+- **19 piezas** (`Datos.Equipo`): 2–3 armas por clase, el Cucharón de combate (para todos), 4 armaduras y 5 amuletos. Cada clase empieza con su arma de madera.
+- **En la mochila (B)**, sección **Equipo**: pulsas una pieza para ponértela o quitártela. Las estadísticas se suman en combate (`Datos.bonosEquipo` → `Datos.statsDe`).
+- **Se ve en el muñeco** (en las tres vistas): el arma por su forma (espada, hacha, bastón, cucharón; el arco cambia de color), la armadura con su color y hombreras, y el amuleto colgado del cuello.
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|

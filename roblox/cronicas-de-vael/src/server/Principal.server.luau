@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -73,6 +73,19 @@ local function enviarEstado(j: Player)
 		return
 	end
 	asegurarCompaneros(perfil)
+	-- equipamiento: cada clase empieza con su arma de madera (o de rama, o de junco…)
+	local pr = perfil.progreso
+	pr.armas = pr.armas or {}
+	pr.equipo = pr.equipo or {}
+	if perfil.clase and next(pr.armas) == nil and Datos.ArmaInicial[perfil.clase] then
+		pr.armas[Datos.ArmaInicial[perfil.clase]] = 0
+		pr.equipo.arma = Datos.ArmaInicial[perfil.clase]
+	end
+	for hueco, id in pr.equipo do
+		if not (pr.armas[id] ~= nil and Datos.puedeLlevar(id, perfil.clase)) then
+			pr.equipo[hueco] = nil
+		end
+	end
 	j:SetAttribute("FinalVisto", perfil.progreso.final == true)
 	j:SetAttribute("Final2Visto", perfil.progreso.final2 == true)
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
@@ -82,6 +95,8 @@ local function enviarEstado(j: Player)
 	-- tras los tres años, el héroe tiene barba hasta que pase por el barbero (se dibuja en el muñeco)
 	local ap = table.clone(perfil.apariencia)
 	ap.barba = perfil.progreso.barba == true
+	-- lo que lleva puesto también se ve en el muñeco
+	ap.eq = { arma = pr.equipo.arma, armadura = pr.equipo.armadura, amuleto = pr.equipo.amuleto }
 	j:SetAttribute("Apariencia", HttpService:JSONEncode(ap))
 	j:SetAttribute("NombreHeroe", perfil.nombreHeroe ~= "" and perfil.nombreHeroe or j.DisplayName)
 	local _, sinergias = Datos.efectosDe(perfil.mejoras)
@@ -112,6 +127,8 @@ local function enviarEstado(j: Player)
 		afeitado = perfil.progreso.afeitado == true,
 		banado = perfil.progreso.banado == true,
 		companeros = perfil.progreso.companeros,
+		armas = pr.armas,
+		equipo = pr.equipo,
 		companero = perfil.progreso.companero,
 	})
 end
@@ -506,6 +523,85 @@ remoto("EntregarEncargo").OnServerEvent:Connect(function(j, id)
 	DatosJugador.guardar(j)
 	enviarEstado(j)
 	abrirTablon(j, id)
+end)
+
+-- ===================== ARMERÍA (equipamiento: comprar, mejorar y equipar) =====================
+local function abrirArmeria(j: Player, novedad: string?)
+	local perfil = DatosJugador.obtener(j) :: any
+	if not perfil then
+		return
+	end
+	remoto("AbrirArmeria"):FireClient(j, { oro = perfil.oro, nivel = perfil.nivel, clase = perfil.clase, armas = perfil.progreso.armas or {}, equipo = perfil.progreso.equipo or {}, novedad = novedad })
+end
+
+remoto("ComprarEquipo").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j) :: any
+	local p = type(id) == "string" and Datos.Equipo[id]
+	if not perfil or not p or Combate.enBatalla(j) then
+		return
+	end
+	local pr = perfil.progreso
+	pr.armas = pr.armas or {}
+	pr.equipo = pr.equipo or {}
+	if pr.armas[id] ~= nil or not Datos.puedeLlevar(id, perfil.clase) then
+		return
+	end
+	if perfil.nivel < p.nivel then
+		notificar(j, "Olga: «Vuelve cuando seas nivel " .. p.nivel .. ". Esto pesa mucho para ti.»")
+		return
+	end
+	if perfil.oro < p.precio then
+		notificar(j, "Olga: «Sin oro no hay hierro, chaval.»")
+		return
+	end
+	perfil.oro -= p.precio
+	pr.armas[id] = 0
+	pr.equipo[p.hueco] = id -- se lo pone directamente
+	DatosJugador.guardar(j)
+	enviarEstado(j)
+	abrirArmeria(j, id)
+end)
+
+remoto("MejorarEquipo").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j) :: any
+	local armas = perfil and perfil.progreso.armas
+	if not armas or type(id) ~= "string" or armas[id] == nil or Combate.enBatalla(j) then
+		return
+	end
+	local nivel = armas[id]
+	if nivel >= Datos.MAX_MEJORA_EQUIPO then
+		return
+	end
+	local precio = Datos.precioMejora(id, nivel)
+	if perfil.oro < precio then
+		notificar(j, "Olga: «Para mejorar eso necesito " .. precio .. " de oro.»")
+		return
+	end
+	perfil.oro -= precio
+	armas[id] = nivel + 1
+	DatosJugador.guardar(j)
+	enviarEstado(j)
+	abrirArmeria(j, id)
+end)
+
+remoto("Equipar").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j) :: any
+	local p = type(id) == "string" and Datos.Equipo[id]
+	if not perfil or not p or Combate.enBatalla(j) then
+		return
+	end
+	local pr = perfil.progreso
+	pr.equipo = pr.equipo or {}
+	if not (pr.armas and pr.armas[id] ~= nil) or not Datos.puedeLlevar(id, perfil.clase) then
+		return
+	end
+	if pr.equipo[p.hueco] == id then
+		pr.equipo[p.hueco] = nil -- quitárselo
+	else
+		pr.equipo[p.hueco] = id
+	end
+	DatosJugador.guardar(j)
+	enviarEstado(j)
 end)
 
 -- ===================== TRES AÑOS DESPUÉS: BARBA, BARBERO Y BAÑO =====================
@@ -953,7 +1049,24 @@ for _, d in mundo:GetDescendants() do
 	elseif nombre == "herrero" then
 		p:SetAttribute("Npc", "vecino:5150")
 		p:SetAttribute("Frases", "¡CLANG! ¡CLANG!|Mejoras de hierro, a buen precio.")
-		aviso(p, "Comprar", "Herrería de Olga", herrero)
+		aviso(p, "Comprar", "Herrería de Olga", function(j)
+			dialogo(j, {
+				titulo = "Herrera Olga",
+				texto = "¿Qué buscas? Tengo armas, armaduras y amuletos… y unas cuantas rarezas para los valientes. También mejoro lo tuyo, si traes oro.",
+				quien = { "vecino", "5150" },
+				opciones = {
+					{ texto = "Armas y armaduras", accion = function()
+						abrirArmeria(j)
+						return nil
+					end },
+					{ texto = "Rarezas (mejoras)", accion = function()
+						herrero(j)
+						return nil
+					end },
+					{ texto = "Solo miraba" },
+				},
+			})
+		end)
 	elseif nombre == "irMercado" or nombre == "irCallejon" then
 		local destino = nombre == "irMercado" and "mercado" or "callejon"
 		aviso(p, "Entrar", destino == "mercado" and "Calle del Mercado" or "Callejón del Gato", function(j)

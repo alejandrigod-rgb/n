@@ -156,6 +156,18 @@ local oroAntes = pf.oro
 remotos.EntregarEncargo.OnServerEvent:Fire(j, "curioso")
 RT.avanzar(0.5)
 print("encargo entregado:", enc.curioso and enc.curioso.estado, pf.oro - oroAntes)
+-- equipamiento: arma inicial, comprar, mejorar y equiparse
+print("arma inicial:", pf.progreso.equipo and pf.progreso.equipo.arma)
+pf.oro += 1000
+pf.nivel = math.max(pf.nivel, 3)
+remotos.ComprarEquipo.OnServerEvent:Fire(j, "cotaMalla")
+remotos.ComprarEquipo.OnServerEvent:Fire(j, "varitaRama") -- no es de su clase
+remotos.MejorarEquipo.OnServerEvent:Fire(j, "cotaMalla")
+remotos.ComprarEquipo.OnServerEvent:Fire(j, "cascabel")
+remotos.Equipar.OnServerEvent:Fire(j, "cascabel") -- quitárselo
+RT.avanzar(0.5)
+local _, maxHp = Combate.vidaDe(j)
+print("equipo:", pf.progreso.equipo.armadura, pf.progreso.armas.cotaMalla, pf.progreso.armas.varitaRama, pf.progreso.equipo.amuleto, "vida máx:", maxHp)
 -- final: la primera vez manda el epílogo, la segunda un diálogo
 Combate.alVencerJefe(j)
 Combate.alVencerJefe(j)

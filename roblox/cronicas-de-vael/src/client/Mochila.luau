@@ -27,7 +27,7 @@ function Mochila.cerrar()
 end
 
 --- Abre la mochila (o la cierra si ya está abierta). usar(id) pide al servidor usar un objeto.
-function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string) -> (), elegirCompanero: ((string) -> ())?)
+function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string) -> (), elegirCompanero: ((string) -> ())?, equipar: ((string) -> ())?)
 	if Mochila.estaAbierta() then
 		Mochila.cerrar()
 		return
@@ -171,6 +171,31 @@ function Mochila.alternar(gui: Instance, e: any, apariencia: any, usar: (string)
 				elegir("¿?", Ui.t("Aún no se ha unido.") .. " " .. Ui.t(def.como))
 			end
 		end)
+	end
+
+	-- equipo: lo que tienes (armas, armaduras y amuletos); lo puesto lleva una estrella
+	local equipoS = seccion("Equipo")
+	local puesto = e.equipo or {}
+	local tieneAlgo = false
+	for _, id in Datos.OrdenEquipo do
+		local mejora = e.armas and e.armas[id]
+		local pz = Datos.Equipo[id]
+		if mejora ~= nil and pz then
+			tieneAlgo = true
+			local llevado = puesto[pz.hueco] == id
+			local icono = pz.forma == "baston" and "magia" or (pz.hueco == "arma" and "espada" or pz.hueco == "armadura" and "escudo" or "estrella")
+			casilla(equipoS, icono, pz.color, llevado and Color3.fromRGB(220, 170, 60) or Color3.fromRGB(150, 110, 70), nil, false, function()
+				local titulo = pz.nombre .. (mejora > 0 and (" +" .. mejora) or "")
+				local texto = Ui.t(pz.descripcion) .. "\n" .. Datos.textoStats(Datos.statsPieza(id, mejora))
+				elegir(titulo, texto, nil, equipar and { texto = llevado and "Quitármelo" or "Ponérmelo", alPulsar = function()
+					(equipar :: any)(id)
+				end } or nil)
+			end)
+		end
+	end
+	if not tieneAlgo then
+		Ui.texto({ Size = UDim2.fromOffset(500, 30), Text = "Compra equipo en la herrería de Olga.", TextColor3 = C.suave, LayoutOrder = orden + 1, ZIndex = 122, Parent = zona })
+		orden += 1
 	end
 
 	local consumibles = seccion("Objetos")
