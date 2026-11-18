@@ -37,6 +37,12 @@ Al ganar al Rey Hongo: **animación de victoria a pantalla completa** (el héroe
 - **En la mochila (B)**, sección **Equipo**: pulsas una pieza para ponértela o quitártela. Las estadísticas se suman en combate (`Datos.bonosEquipo` → `Datos.statsDe`).
 - **Se ve en el muñeco** (en las tres vistas): el arma por su forma (espada, hacha, bastón, cucharón; el arco cambia de color), la armadura con su color y hombreras, y el amuleto colgado del cuello.
 
+### v1.9: cooperativo
+- **Las Bodegas del Gran Guiso** (mazmorra de oleadas): trampilla en la plaza. El primero abre una sala de espera de 10 s y los demás se apuntan pulsando la trampilla (hasta 4). Abajo, **5 oleadas** seguidas con un respiro del 35 % entre ellas; tras la primera historia, las oleadas traen bichos de los Picos. Premio: +150 de oro y un cofre de mejoras. Se guarda el **récord de oleada**.
+- **Regalar** (mochila): una poción o un éter (botón "Regalar" en el objeto) o 10 de oro (botón arriba), a cualquier jugador del servidor.
+- **Emotes** (tecla **G** o el botón del corazón): saludar, bailar, reír, aplaudir, enfadarse, dormir y "¡A pelear!". Todos los ven, con bocadillo y animación.
+- **Clasificación** (pausa → Clasificación): los del servidor (nivel, victorias y récord de oleada) y el top 10 de todos los servidores (OrderedDataStore `VaelVictorias_v1`). La lista de jugadores de Roblox enseña **Nivel** y **Victorias** (leaderstats).
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|

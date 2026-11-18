@@ -1789,6 +1789,61 @@ local function picos(rng: Random)
 	punto("reyHongoNpc", Vector3.new(552, 2.8, -10))
 end
 
+-- ===================== LAS BODEGAS DEL GRAN GUISO (mazmorra de oleadas, cooperativa) =====================
+-- Un sótano enorme bajo la plaza, lleno de barriles y bichos. Se baja por la trampilla de la plaza.
+Mundo.Mazmorra = { entrada = Vector3.new(-78, 903.5, 3), centro = Vector3.new(-60, 900, 0), salida = Vector3.new(-66, 3.5, -5) }
+local function bodegas()
+	local Y, cx = 900, -60
+	sala(cx, Y, Color3.fromRGB(110, 95, 90), Color3.fromRGB(95, 80, 70))
+	-- piedras de la pared
+	for fila = 0, 5 do
+		for k = 0, 9 do
+			plano(cx - 50 + k * 11 + (fila % 2) * 5, Y + 3 + fila * 6, -12, 9.5, 5, Color3.fromRGB(125, 110, 100), false)
+		end
+	end
+	-- barriles apilados, estanterías con tarros, el Cucharón gigante pintado y antorchas que tiemblan
+	for _, bx in { cx - 19, cx - 16, cx + 16, cx + 19 } do
+		disco(bx, Y + 1.6, -10.5, 3.2, Color3.fromRGB(150, 100, 55))
+		plano(bx, Y + 2.2, -10.2, 3.2, 0.3, Color3.fromRGB(90, 90, 100), false)
+		plano(bx, Y + 1, -10.2, 3.2, 0.3, Color3.fromRGB(90, 90, 100), false)
+	end
+	disco(cx - 17.5, Y + 4.4, -10.8, 3, Color3.fromRGB(140, 95, 50))
+	for k = -1, 1 do
+		plano(cx + k * 9, Y + 8, -11.4, 6, 0.4, Color3.fromRGB(110, 75, 45))
+		for t = -1, 1 do
+			disco(cx + k * 9 + t * 1.8, Y + 9, -11.2, 1.3, ({ Color3.fromRGB(200, 120, 80), Color3.fromRGB(130, 180, 110), Color3.fromRGB(220, 200, 120) })[t + 2])
+		end
+	end
+	plano(cx, Y + 15, -11.6, 1, 9, Color3.fromRGB(190, 140, 80), true, nil, 30)
+	disco(cx + 2.4, Y + 11, -11.5, 3.4, Color3.fromRGB(205, 155, 90))
+	for _, tx in { cx - 12, cx + 12 } do
+		plano(tx, Y + 10, -11.4, 0.6, 2.4, Color3.fromRGB(90, 60, 40))
+		local fuego = disco(tx, Y + 11.6, -11.2, 1.4, Color3.fromRGB(255, 160, 60))
+		fuego:SetAttribute("Parpadea", true)
+	end
+	-- telarañas en las esquinas
+	for _, d in { { cx - 21, 1 }, { cx + 21, -1 } } do
+		for k = 0, 2 do
+			plano(d[1], Y + 22 - k * 1.5, -11.3, 5 - k * 1.4, 0.15, Color3.fromRGB(230, 230, 235), false, nil, d[2] * (30 + k * 15))
+		end
+	end
+	letrero(cx, Y + 19, -11.2, 14, 2.4, "Bodegas del Gran Guiso", Color3.fromRGB(90, 60, 45), Color3.fromRGB(255, 225, 150))
+	-- escalera de salida
+	plano(cx - 19, Y + 3, -10.8, 4, 6, Color3.fromRGB(80, 60, 45))
+	letrero(cx - 19, Y + 7, -10.6, 4, 1.2, "Salida", Color3.fromRGB(150, 95, 55))
+	punto("salirMazmorra", Vector3.new(cx - 19, Y + 2.8, -8))
+	-- la trampilla de la plaza
+	local t = plano(-68, 0.07, -8.5, 4.4, 0.1, Color3.fromRGB(110, 75, 45), false)
+	t.Size = Vector3.new(4.4, 0.1, 3.2)
+	for k = -1, 1 do
+		local tabla = plano(-68 + k * 1.4, 0.09, -8.5, 0.12, 0.1, Color3.fromRGB(80, 55, 35), false)
+		tabla.Size = Vector3.new(0.12, 0.1, 3.2)
+	end
+	plano(-65.6, 2.2, -10.4, 0.5, 4.4, Color3.fromRGB(110, 75, 45))
+	letrero(-65.6, 4.8, -10.2, 6, 1.4, "Bodegas ↓", Color3.fromRGB(90, 60, 45), Color3.fromRGB(255, 225, 150))
+	punto("mazmorra", Vector3.new(-68, 2.8, -8.5))
+end
+
 function Mundo.construir(): { [BasePart]: any }
 	local zonas: { [BasePart]: any } = {}
 	local existente = workspace:FindFirstChild("MundoVael")
@@ -1856,6 +1911,7 @@ function Mundo.construir(): { [BasePart]: any }
 	posada()
 	calles(rng)
 	extras(rng)
+	bodegas()
 
 	local sp = Instance.new("SpawnLocation")
 	sp.Anchored = true

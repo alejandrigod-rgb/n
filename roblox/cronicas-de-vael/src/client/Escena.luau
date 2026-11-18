@@ -1137,6 +1137,50 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 	end
 end)
 
+-- ===================== EMOTES (saludar, bailar, reír…) =====================
+local TEXTO_EMOTE = { saludar = "¡Hola!", bailar = "♪ ♫ ♪", reir = "¡JA, JA, JA!", aplaudir = "¡Bravo, bravo!", enfado = "¡Grrr!", dormir = "Zzz…", pelea = "¡A por ellos!", regalo = "¡Toma, un regalo!" }
+function Escena.emote(userId: number, nombre: string)
+	local p = Players:GetPlayerByUserId(userId)
+	local h = p and heroes[p] :: any
+	if not h then
+		return
+	end
+	-- se pone de frente para el emote
+	h.quieto = 99
+	local texto = TEXTO_EMOTE[nombre]
+	if texto then
+		Escena.decir("j" .. userId, texto)
+	end
+	task.spawn(function()
+		if nombre == "bailar" then
+			for k = 1, 6 do
+				local m = h.m
+				Munecos.atacar(m, k % 2 == 0 and 1 or -1)
+				task.wait(0.4)
+			end
+		elseif nombre == "aplaudir" then
+			for _ = 1, 4 do
+				Munecos.hablar(h.m, 0.2)
+				Munecos.golpear(h.m)
+				task.wait(0.3)
+			end
+		elseif nombre == "dormir" then
+			Munecos.caer(h.m, true)
+			task.wait(2.5)
+			Munecos.caer(h.m, false)
+		elseif nombre == "reir" then
+			Munecos.hablar(h.m, 2)
+			for _ = 1, 3 do
+				Munecos.golpear(h.m)
+				task.wait(0.5)
+			end
+		else
+			Munecos.hablar(h.m, 1)
+			Munecos.atacar(h.m, 1)
+		end
+	end)
+end
+
 -- ===================== AMBIENTE POR ZONA =====================
 -- Cada sitio tiene su luz: el Callejón se oscurece (con viñeta), el Pantano se pone verdoso, la Cueva fría,
 -- y la taberna y la posada cálidas. Todo es local (solo lo ve este jugador) y con fundido suave.
@@ -1178,10 +1222,13 @@ local AMBIENTES: { [string]: Ambiente } = {
 	cueva = { brillo = -0.1, contraste = 0.06, saturacion = -0.15, tinte = Color3.fromRGB(200, 190, 225), vineta = 0.35 },
 	taberna = { brillo = 0, contraste = 0.02, saturacion = 0.05, tinte = Color3.fromRGB(255, 225, 190), vineta = 0.55 },
 	posada = { brillo = -0.02, contraste = 0, saturacion = 0, tinte = Color3.fromRGB(255, 232, 205), vineta = 0.6 },
+	bodega = { brillo = -0.08, contraste = 0.04, saturacion = -0.05, tinte = Color3.fromRGB(255, 215, 175), vineta = 0.3 },
 	nieve = { brillo = 0.04, contraste = -0.02, saturacion = -0.15, tinte = Color3.fromRGB(220, 232, 255), vineta = 0.75 },
 }
 local function ambienteDe(p: Vector3): string
-	if p.Y > 650 then
+	if p.Y > 850 then
+		return "bodega"
+	elseif p.Y > 650 then
 		return "callejon"
 	elseif p.Y > 450 then
 		return "normal" -- Calle del Mercado: alegre

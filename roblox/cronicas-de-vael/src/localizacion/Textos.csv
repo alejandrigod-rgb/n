@@ -535,3 +535,37 @@ t539,Corazón de piedra,,,Corazón de piedra,Stone heart,Coração de pedra,Cœu
 t540,Late despacito. Te da mucha vida.,,,Late despacito. Te da mucha vida.,It beats slowly. Gives you lots of health.,Bate devagarinho. Te dá muita vida.,Il bat lentement. Il te donne beaucoup de vie.,Schlägt langsam. Gibt dir viel Leben.
 t541,Estrella de hielo,,,Estrella de hielo,Ice star,Estrela de gelo,Étoile de glace,Eisstern
 t542,Nunca se derrite. Ni en el bolsillo.,,,Nunca se derrite. Ni en el bolsillo.,It never melts. Not even in your pocket.,Nunca derrete. Nem no bolso.,Elle ne fond jamais. Même pas dans la poche.,Schmilzt nie. Nicht mal in der Tasche.
+t543,Bajar,,,Bajar,Go down,Descer,Descendre,Hinabsteigen
+t544,Subir,,,Subir,Go up,Subir,Monter,Hinaufsteigen
+t545,Escalera,,,Escalera,Stairs,Escada,Escalier,Treppe
+t546,Bodegas del Gran Guiso,,,Bodegas del Gran Guiso,Great Stew Cellars,Adegas do Grande Ensopado,Caves du Grand Ragoût,Keller des Großen Eintopfs
+t547,¡Bajar!,,,¡Bajar!,Go down!,Descer!,Descendre !,Runter!
+t548,Mejor no,,,Mejor no,Better not,Melhor não,Plutôt pas,Lieber nicht
+t549,Regalar,,,Regalar,Gift,Presentear,Offrir,Schenken
+t550,Regalar 10 de oro,,,Regalar 10 de oro,Gift 10 gold,Presentear 10 de ouro,Offrir 10 pièces d'or,10 Gold schenken
+t551,¿A quién le das 10 de oro?,,,¿A quién le das 10 de oro?,Who gets 10 gold?,Para quem você dá 10 de ouro?,À qui donnes-tu 10 pièces d'or ?,Wem gibst du 10 Gold?
+t552,¿A quién se lo regalas?,,,¿A quién se lo regalas?,Who do you give it to?,Para quem você dá?,À qui l'offres-tu ?,Wem schenkst du es?
+t553,No hay nadie más en el servidor. ¡Invita a un amigo!,,,No hay nadie más en el servidor. ¡Invita a un amigo!,There's nobody else on the server. Invite a friend!,Não há mais ninguém no servidor. Convide um amigo!,Il n'y a personne d'autre sur le serveur. Invite un ami !,Sonst ist niemand auf dem Server. Lade einen Freund ein!
+t554,Saludar,,,Saludar,Wave,Acenar,Saluer,Winken
+t555,Bailar,,,Bailar,Dance,Dançar,Danser,Tanzen
+t556,Reír,,,Reír,Laugh,Rir,Rire,Lachen
+t557,Aplaudir,,,Aplaudir,Clap,Aplaudir,Applaudir,Klatschen
+t558,Enfadarse,,,Enfadarse,Get angry,Ficar bravo,Se fâcher,Wütend werden
+t559,Dormir,,,Dormir,Sleep,Dormir,Dormir,Schlafen
+t561,¡Hola!,,,¡Hola!,Hello!,Olá!,Salut !,Hallo!
+t562,"¡JA, JA, JA!",,,"¡JA, JA, JA!","HA, HA, HA!","HA, HA, HA!","HA, HA, HA !","HA, HA, HA!"
+t563,"¡Bravo, bravo!",,,"¡Bravo, bravo!","Bravo, bravo!","Bravo, bravo!","Bravo, bravo !","Bravo, bravo!"
+t564,¡Grrr!,,,¡Grrr!,Grrr!,Grrr!,Grrr !,Grrr!
+t566,"¡Toma, un regalo!",,,"¡Toma, un regalo!","Here, a gift!","Toma, um presente!","Tiens, un cadeau !","Hier, ein Geschenk!"
+t567,Clasificación,,,Clasificación,Leaderboard,Classificação,Classement,Rangliste
+t568,En este servidor,,,En este servidor,On this server,Neste servidor,Sur ce serveur,Auf diesem Server
+t569,Los mejores de Vael,,,Los mejores de Vael,Vael's best,Os melhores de Vael,Les meilleurs de Vael,Die Besten von Vael
+t570,tú,,,tú,you,você,toi,du
+t571,victorias,,,victorias,wins,vitórias,victoires,Siege
+t572,oleada,,,oleada,wave,onda,vague,Welle
+t573,Todavía no hay datos (en Studio hace falta activar el acceso a la API).,,,Todavía no hay datos (en Studio hace falta activar el acceso a la API).,No data yet (in Studio you need to enable API access).,Ainda não há dados (no Studio é preciso ativar o acesso à API).,"Pas encore de données (dans Studio, il faut activer l'accès à l'API).",Noch keine Daten (in Studio muss der API-Zugriff aktiviert sein).
+t574,Un respiro… La siguiente oleada llega en 6 segundos.,,,Un respiro… La siguiente oleada llega en 6 segundos.,A breather… The next wave arrives in 6 seconds.,Um respiro… A próxima onda chega em 6 segundos.,Une pause… La prochaine vague arrive dans 6 secondes.,Eine Verschnaufpause… Die nächste Welle kommt in 6 Sekunden.
+t575,¡Bodegas limpias! +150 de oro y un cofre de mejoras para cada uno.,,,¡Bodegas limpias! +150 de oro y un cofre de mejoras para cada uno.,Cellars cleared! +150 gold and an upgrade chest for everyone.,Adegas limpas! +150 de ouro e um baú de melhorias para cada um.,Caves nettoyées ! +150 pièces d'or et un coffre d'améliorations pour chacun.,Keller gesäubert! +150 Gold und eine Verbesserungstruhe für jeden.
+t576,Ya estás en la sala de espera.,,,Ya estás en la sala de espera.,You're already in the waiting room.,Você já está na sala de espera.,Tu es déjà dans la salle d'attente.,Du bist schon im Warteraum.
+t577,Ahora no puedes bajar.,,,Ahora no puedes bajar.,You can't go down right now.,Agora você não pode descer.,Tu ne peux pas descendre maintenant.,Du kannst jetzt nicht hinunter.
+t578,No tienes 10 de oro para regalar.,,,No tienes 10 de oro para regalar.,You don't have 10 gold to give.,Você não tem 10 de ouro para dar.,Tu n'as pas 10 pièces d'or à offrir.,Du hast keine 10 Gold zum Verschenken.

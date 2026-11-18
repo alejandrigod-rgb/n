@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar", "Regalar", "Emote", "EmoteJugador", "PedirClasificacion", "Clasificacion",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -88,6 +88,21 @@ local function enviarEstado(j: Player)
 	end
 	j:SetAttribute("FinalVisto", perfil.progreso.final == true)
 	j:SetAttribute("Final2Visto", perfil.progreso.final2 == true)
+	-- la lista de jugadores de Roblox (arriba a la derecha) enseña el nivel y las victorias
+	local stats = j:FindFirstChild("leaderstats")
+	if not stats then
+		stats = Instance.new("Folder")
+		stats.Name = "leaderstats"
+		for _, n in { "Nivel", "Victorias" } do
+			local v = Instance.new("IntValue")
+			v.Name = n
+			v.Parent = stats
+		end
+		stats.Parent = j
+	end
+	local ls = stats :: any
+	ls.Nivel.Value = perfil.nivel
+	ls.Victorias.Value = perfil.progreso.victorias or 0
 	local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
 	-- los clientes dibujan el muñeco 2D de cada jugador según su clase
 	j:SetAttribute("Creado", perfil.creado)
@@ -604,6 +619,107 @@ remoto("Equipar").OnServerEvent:Connect(function(j, id)
 	enviarEstado(j)
 end)
 
+-- ===================== REGALAR, EMOTES Y CLASIFICACIÓN (cooperativo) =====================
+--- Regalar a otro jugador del servidor: una poción, un éter o 10 de oro.
+remoto("Regalar").OnServerEvent:Connect(function(j, userId, tipo, id)
+	local destino = type(userId) == "number" and Players:GetPlayerByUserId(userId)
+	if not destino or destino == j or Combate.enBatalla(j) then
+		return
+	end
+	local p1 = DatosJugador.obtener(j) :: any
+	local p2 = DatosJugador.obtener(destino) :: any
+	if not p1 or not p2 then
+		return
+	end
+	local que = ""
+	if tipo == "oro" then
+		if p1.oro < 10 then
+			notificar(j, "No tienes 10 de oro para regalar.")
+			return
+		end
+		p1.oro -= 10
+		p2.oro += 10
+		que = "10 de oro"
+	elseif tipo == "objeto" and type(id) == "string" and Datos.Objetos[id] and (p1.objetos[id] or 0) > 0 then
+		p1.objetos[id] -= 1
+		p2.objetos[id] = (p2.objetos[id] or 0) + 1
+		que = Datos.Objetos[id].nombre
+	else
+		return
+	end
+	DatosJugador.guardar(j)
+	DatosJugador.guardar(destino)
+	enviarEstado(j)
+	enviarEstado(destino)
+	notificar(j, "Le has regalado " .. que .. " a " .. destino.DisplayName .. ".")
+	notificar(destino, j.DisplayName .. " te ha regalado " .. que .. ". ¡Qué detalle!")
+	remoto("Sonido"):FireClient(destino, "moneda")
+	remoto("EmoteJugador"):FireAllClients(j.UserId, "regalo")
+end)
+
+--- Emotes: el servidor los reparte a todos (con un pequeño freno para que nadie los spamee).
+local ultimoEmote: { [Player]: number } = {}
+local EMOTES = { saludar = true, bailar = true, reir = true, aplaudir = true, enfado = true, dormir = true, pelea = true }
+remoto("Emote").OnServerEvent:Connect(function(j, nombre)
+	if type(nombre) ~= "string" or not EMOTES[nombre] or os.clock() < (ultimoEmote[j] or 0) + 1.5 then
+		return
+	end
+	ultimoEmote[j] = os.clock()
+	remoto("EmoteJugador"):FireAllClients(j.UserId, nombre)
+end)
+
+--- Clasificación: los de este servidor (nivel, victorias y récord de oleadas) y el top 10 de todos los servidores.
+local rankingGlobal: { [string]: any } = { lista = {}, hora = 0 }
+local almacenRanking: OrderedDataStore? = nil
+pcall(function()
+	almacenRanking = game:GetService("DataStoreService"):GetOrderedDataStore("VaelVictorias_v1")
+end)
+local ultimoGuardadoRanking: { [Player]: number } = {}
+local function guardarRanking(j: Player)
+	local perfil = DatosJugador.obtener(j) :: any
+	if not almacenRanking or not perfil or os.clock() < (ultimoGuardadoRanking[j] or 0) + 60 then
+		return
+	end
+	ultimoGuardadoRanking[j] = os.clock()
+	task.spawn(function()
+		pcall(function()
+			(almacenRanking :: any):SetAsync(tostring(j.UserId), perfil.progreso.victorias or 0)
+		end)
+	end)
+end
+local nombres: { [number]: string } = {}
+remoto("PedirClasificacion").OnServerEvent:Connect(function(j)
+	local servidor = {}
+	for _, otro in Players:GetPlayers() do
+		local p = DatosJugador.obtener(otro) :: any
+		if p then
+			table.insert(servidor, { nombre = otro.DisplayName, nivel = p.nivel, victorias = p.progreso.victorias or 0, oleada = p.progreso.mejorOleada or 0, yo = otro == j })
+		end
+	end
+	table.sort(servidor, function(a, b)
+		return a.victorias > b.victorias
+	end)
+	if almacenRanking and os.clock() - rankingGlobal.hora > 60 then
+		rankingGlobal.hora = os.clock()
+		pcall(function()
+			local pagina = (almacenRanking :: any):GetSortedAsync(false, 10):GetCurrentPage()
+			local lista = {}
+			for _, fila in pagina do
+				local uid = tonumber(fila.key) or 0
+				if not nombres[uid] then
+					local ok, n = pcall(function()
+						return Players:GetNameFromUserIdAsync(uid)
+					end)
+					nombres[uid] = ok and n or "???"
+				end
+				table.insert(lista, { nombre = nombres[uid], victorias = fila.value })
+			end
+			rankingGlobal.lista = lista
+		end)
+	end
+	remoto("Clasificacion"):FireClient(j, { servidor = servidor, global = rankingGlobal.lista })
+end)
+
 -- ===================== TRES AÑOS DESPUÉS: BARBA, BARBERO Y BAÑO =====================
 --- Cuando ya se ha afeitado y bañado, vuelve a poder pelear.
 local function quizaLimpio(j: Player)
@@ -757,12 +873,21 @@ for disco, zona in zonas do
 	end)
 end
 
+local mazmorraFin: ((any) -> ())? = nil
 Combate.alTerminar = function(b)
+	if b.zona and b.zona.mazmorra and mazmorraFin then
+		task.spawn(mazmorraFin :: any, b)
+	end
 	if b.victoria then
 		for _, e in b.aliados do
 			local j = e.jugador
 			local perfil = j and DatosJugador.obtener(j) :: any
 			if j and perfil then
+				local pr0 = perfil.progreso
+				pr0.victorias = (pr0.victorias or 0) + 1
+				if guardarRanking then
+					guardarRanking(j)
+				end
 				-- encargos: cada monstruo vencido y cada pelea ganada en una zona
 				for _, en in b.enemigos do
 					if en.enemigoId then
@@ -829,6 +954,186 @@ local function teletransportar(j: Player, pos: Vector3)
 		task.wait(0.35)
 		raiz.CFrame = CFrame.new(pos)
 	end
+end
+
+-- ===================== MAZMORRA DE OLEADAS: LAS BODEGAS DEL GRAN GUISO (cooperativo, hasta 4) =====================
+-- Alguien pulsa la trampilla de la plaza → 10 s de sala de espera (los demás se apuntan con la trampilla) →
+-- todos bajan → 5 oleadas seguidas (con un respiro entre ellas). Si caen todos, se acaba. Si ganan la 5.ª, premio gordo.
+local OLEADAS = {
+	{ "babosa", "hongo", "babosa" },
+	{ "lobo", "abeja", "abeja" },
+	{ "rana", "planta", "fantasma" },
+	{ "esqueleto", "esqueleto", "murcielago", "duende" },
+	{ "golem", "tronco", "mimico" },
+}
+local OLEADAS_DIFICILES = { -- tras la primera historia, las bodegas se llenan de bichos del frío
+	{ "pinguino", "hongo", "pinguino" },
+	{ "loboBlanco", "abeja", "lobo" },
+	{ "espiritu", "planta", "fantasma" },
+	{ "esqueleto", "munecoNieve", "murcielago", "pinguino" },
+	{ "golem", "munecoNieve", "loboBlanco", "mimico" },
+}
+type Expedicion = { id: number, jugadores: { Player }, oleada: number, dificil: boolean }
+local esperaMazmorra: { jugadores: { Player }, hasta: number }? = nil
+local expediciones: { [number]: Expedicion } = {}
+local siguienteExpedicion = 0
+
+local function enExpedicion(j: Player): boolean
+	for _, ex in expediciones do
+		if table.find(ex.jugadores, j) then
+			return true
+		end
+	end
+	return false
+end
+
+local function puedeBajar(j: Player): boolean
+	local perfil = DatosJugador.obtener(j) :: any
+	return j.Parent ~= nil and perfil ~= nil and perfil.clase ~= nil and not perfil.progreso.barba and not Combate.enBatalla(j) and not enExpedicion(j)
+end
+
+local function lanzarOleada(ex: Expedicion)
+	local vivos = {}
+	for _, j in ex.jugadores do
+		if j.Parent and not Combate.enBatalla(j) then
+			table.insert(vivos, j)
+		end
+	end
+	if #vivos == 0 then
+		expediciones[ex.id] = nil
+		return
+	end
+	local grupo = (ex.dificil and OLEADAS_DIFICILES or OLEADAS)[ex.oleada]
+	for _, j in vivos do
+		notificar(j, "¡Oleada " .. ex.oleada .. " de " .. #OLEADAS .. "!")
+	end
+	local zona = { id = "ruinas", mazmorra = ex.id, nombre = "Bodegas · oleada " .. ex.oleada .. "/" .. #OLEADAS, nivel = 3 + ex.oleada, grupos = { grupo }, color = Color3.fromRGB(150, 110, 80) }
+	local b = Combate.empezar(zona, Mundo.Mazmorra.centro, vivos, { altura = Mundo.Mazmorra.centro.Y })
+	if not b then
+		expediciones[ex.id] = nil
+	end
+end
+
+local function empezarExpedicion(lista: { Player })
+	local jugadores = {}
+	for _, j in lista do
+		if puedeBajar(j) and #jugadores < Datos.MAX_EQUIPO then
+			table.insert(jugadores, j)
+		end
+	end
+	if #jugadores == 0 then
+		return
+	end
+	siguienteExpedicion += 1
+	local dificil = false
+	for _, j in jugadores do
+		local perfil = DatosJugador.obtener(j) :: any
+		if perfil and perfil.progreso.final then
+			dificil = true
+		end
+	end
+	local ex: Expedicion = { id = siguienteExpedicion, jugadores = jugadores, oleada = 1, dificil = dificil }
+	expediciones[ex.id] = ex
+	for k, j in jugadores do
+		task.spawn(teletransportar, j, Mundo.Mazmorra.entrada + Vector3.new(k * 2.5, 0, 0))
+	end
+	task.wait(2.5)
+	lanzarOleada(ex)
+end
+
+--- Al acabar cada pelea de la mazmorra: siguiente oleada, premio final o fin de la expedición.
+mazmorraFin = function(b: any)
+	local ex = expediciones[b.zona.mazmorra]
+	if not ex then
+		return
+	end
+	if not b.victoria then
+		for _, j in ex.jugadores do
+			if j.Parent then
+				local perfil = DatosJugador.obtener(j) :: any
+				local llegada = ex.oleada - 1
+				if perfil and llegada > (perfil.progreso.mejorOleada or 0) then
+					perfil.progreso.mejorOleada = llegada
+					DatosJugador.guardar(j)
+				end
+				notificar(j, "Las Bodegas os echan a escobazos… Llegasteis a la oleada " .. ex.oleada .. ".")
+			end
+		end
+		expediciones[ex.id] = nil
+		return
+	end
+	if ex.oleada >= #OLEADAS then
+		-- ¡las 5 oleadas!
+		task.wait(3)
+		for _, j in ex.jugadores do
+			local perfil = j.Parent and DatosJugador.obtener(j) :: any
+			if perfil then
+				perfil.oro += 150
+				perfil.progreso.mejorOleada = #OLEADAS
+				perfil.progreso.bodegas = (perfil.progreso.bodegas or 0) + 1
+				DatosJugador.guardar(j)
+				enviarEstado(j)
+				notificar(j, "¡Bodegas limpias! +150 de oro y un cofre de mejoras para cada uno.")
+				Combate.ofrecerMejoras(j, "jefe")
+			end
+		end
+		expediciones[ex.id] = nil
+		task.wait(8)
+		for _, j in ex.jugadores do
+			if j.Parent and not Combate.enBatalla(j) then
+				task.spawn(teletransportar, j, Mundo.Mazmorra.salida)
+			end
+		end
+		return
+	end
+	-- respiro: cada uno recupera un 35 % de vida y maná
+	ex.oleada += 1
+	for _, j in ex.jugadores do
+		if j.Parent then
+			local hp, maxHp, mp, maxMp = Combate.vidaDe(j)
+			Combate.ponerVida(j, math.min(maxHp, hp + math.floor(maxHp * 0.35)), math.min(maxMp, mp + math.floor(maxMp * 0.35)))
+			enviarEstado(j)
+			notificar(j, "Un respiro… La siguiente oleada llega en 6 segundos.")
+		end
+	end
+	task.wait(6)
+	if expediciones[ex.id] then
+		lanzarOleada(ex)
+	end
+end
+
+--- La trampilla: abre (o se une a) la sala de espera.
+local function apuntarseMazmorra(j: Player)
+	if not puedeBajar(j) then
+		local perfil = DatosJugador.obtener(j) :: any
+		notificar(j, perfil and perfil.progreso.barba and "¡Con esa barba no bajas ni a por vino! Primero el barbero." or "Ahora no puedes bajar.")
+		return
+	end
+	if esperaMazmorra then
+		local espera = esperaMazmorra :: any
+		if table.find(espera.jugadores, j) then
+			notificar(j, "Ya estás en la sala de espera.")
+		elseif #espera.jugadores >= Datos.MAX_EQUIPO then
+			notificar(j, "Ya hay " .. Datos.MAX_EQUIPO .. " valientes. Espera a la próxima.")
+		else
+			table.insert(espera.jugadores, j)
+			for _, otro in espera.jugadores do
+				notificar(otro, j.DisplayName .. " se apunta a las Bodegas (" .. #espera.jugadores .. "/" .. Datos.MAX_EQUIPO .. ")")
+			end
+		end
+		return
+	end
+	local espera = { jugadores = { j }, hasta = os.clock() + 10 }
+	esperaMazmorra = espera
+	for _, otro in Players:GetPlayers() do
+		notificar(otro, j.DisplayName .. " baja a las Bodegas del Gran Guiso. ¡Pulsa E en la trampilla de la plaza para unirte! (10 s)")
+	end
+	task.delay(10, function()
+		if esperaMazmorra == espera then
+			esperaMazmorra = nil
+			empezarExpedicion(espera.jugadores)
+		end
+	end)
 end
 
 local VASOS_FRASES = { "¡Ja! Otra vez será.", "El vaso de la izquierda… o no.", "Mis manos son más rápidas que tus ojos." }
@@ -1301,6 +1606,36 @@ for _, d in mundo:GetDescendants() do
 	elseif nombre == "posada" then
 		aviso(p, "Entrar", "Posada El Ronquido", function(j)
 			teletransportar(j, Mundo.Posada.entrada)
+		end)
+	elseif nombre == "mazmorra" then
+		aviso(p, "Bajar", "Bodegas del Gran Guiso", function(j)
+			if esperaMazmorra then
+				apuntarseMazmorra(j)
+				return
+			end
+			local perfil = DatosJugador.obtener(j) :: any
+			dialogo(j, {
+				titulo = "Bodegas del Gran Guiso",
+				texto = "Una trampilla bajo la plaza. Huele a guiso de hace cien años… y algo se mueve ahí abajo. 5 oleadas de monstruos, hasta 4 valientes. Récord: oleada " .. tostring(perfil.progreso.mejorOleada or 0) .. ".",
+				quien = { "enemigo", "babosa" },
+				opciones = { { texto = "¡Bajar!", accion = function()
+					apuntarseMazmorra(j)
+					return nil
+				end }, { texto = "Mejor no" } },
+			})
+		end)
+	elseif nombre == "salirMazmorra" then
+		aviso(p, "Subir", "Escalera", function(j)
+			for id, ex in expediciones do
+				local k = table.find(ex.jugadores, j)
+				if k then
+					table.remove(ex.jugadores, k)
+					if #ex.jugadores == 0 then
+						expediciones[id] = nil
+					end
+				end
+			end
+			teletransportar(j, Mundo.Mazmorra.salida)
 		end)
 	elseif nombre == "salirPosada" then
 		aviso(p, "Salir", "Puerta", function(j)

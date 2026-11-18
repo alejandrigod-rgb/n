@@ -1360,7 +1360,9 @@ local SITIOS_ZONA = {
 	{ 463, 606, "Cueva del Rey Hongo" }, { 606, 712, "Picos Nevados" }, { 712, 810, "Cumbre del Yeti" },
 }
 local function zonaDe(p: Vector3): string?
-	if p.Y > 650 then
+	if p.Y > 850 then
+		return "Bodegas del Gran Guiso"
+	elseif p.Y > 650 then
 		return "Callejón del Gato"
 	elseif p.Y > 450 then
 		return "Calle del Mercado"

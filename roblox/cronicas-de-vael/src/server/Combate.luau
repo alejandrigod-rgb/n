@@ -161,6 +161,11 @@ function Combate.iniciar(remotos: Folder)
 	end)
 end
 
+--- La batalla en la que está un jugador (o nil).
+function Combate.batallaDe(j: Player): Batalla?
+	return batallaDe[j]
+end
+
 function Combate.enBatalla(j: Player): boolean
 	return batallaDe[j] ~= nil
 end
@@ -1599,7 +1604,8 @@ end
 --- Empieza un combate en una zona con los jugadores dados (hasta 4).
 --- opciones: { emboscada = true } (los monstruos actúan primero) y { alGanar = function(jugador) end } (premio extra).
 function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opciones: any?): Batalla?
-	centro = Vector3.new(centro.X, 0, 0)
+	-- normalmente en el suelo del mundo (Y = 0); la mazmorra lo monta en su propio interior (opciones.altura)
+	centro = Vector3.new(centro.X, opciones and opciones.altura or 0, 0)
 	siguienteId += 1
 	local carpeta = Instance.new("Folder")
 	carpeta.Name = "Batalla_" .. siguienteId
@@ -1607,7 +1613,7 @@ function Combate.empezar(zona: any, centro: Vector3, jugadores: { Player }, opci
 		id = siguienteId,
 		zona = zona,
 		centro = centro,
-		origen = Vector3.new(centro.X - R.columnas * R.ancho / 2, 0, -R.filas * R.fondo / 2),
+		origen = Vector3.new(centro.X - R.columnas * R.ancho / 2, centro.Y, -R.filas * R.fondo / 2),
 		aliados = {},
 		enemigos = {},
 		pendientes = {},

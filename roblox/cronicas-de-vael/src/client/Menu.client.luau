@@ -63,6 +63,9 @@ local Interaccion: any = nil
 local Encargos: any = nil
 local Armeria: any = nil
 
+local elegirJugador: (string, (number) -> ()) -> ()
+local regalarA: (string, string?) -> ()
+
 local function remoto(nombre: string): RemoteEvent
 	return Vael:WaitForChild("Remotos"):WaitForChild(nombre) :: RemoteEvent
 end
@@ -110,7 +113,7 @@ local function panelInfo(padre: Instance, titulo: string, cuerpo: string)
 	end)
 end
 
-local COMO_SE_JUEGA = "• Muévete con A y D (W y S: al fondo y hacia delante). Mantén Mayús para correr. Salta con Espacio.\n• E: hablar, abrir, entrar. M: mapa. B: mochila. P: pausa.\n• Explora: hay calles a los lados de la ciudad y caminos cerrados. Busca la cuerda, el hacha, la llave y el farol.\n• Combate: muévete por las casillas verdes y luego ataca. Empuja a los monstruos contra rocas. C cambia la cámara y Q/E la giran.\n• Gana cofres con mejoras: se suman y algunas se combinan."
+local COMO_SE_JUEGA = "• Muévete con A y D (W y S: al fondo y hacia delante). Mantén Mayús para correr. Salta con Espacio.\n• E: hablar, abrir, entrar. M: mapa. B: mochila. P: pausa.\n• Explora: hay calles a los lados de la ciudad y caminos cerrados. Busca la cuerda, el hacha, la llave y el farol.\n• Combate: muévete por las casillas verdes y luego ataca. Empuja a los monstruos contra rocas. C cambia la cámara y Q/E la giran.\n• Gana cofres con mejoras: se suman y algunas se combinan.\n• G: emotes (saludar, bailar…). En la plaza: el tablón de encargos y la trampilla de las Bodegas (oleadas para hasta 4 amigos). En la mochila puedes regalar pociones y oro."
 
 -- ===================== CONFIGURACIÓN =====================
 local function guardarAjustes()
@@ -207,6 +210,10 @@ local function cerrarTodo()
 	if Armeria then
 		Armeria.cerrar()
 	end
+	if ventanaCoop then
+		ventanaCoop:Destroy()
+		ventanaCoop = nil
+	end
 end
 
 local function sePuedeAbrir(): boolean
@@ -239,11 +246,106 @@ local function alternarMochila()
 			remoto("ElegirCompanero"):FireServer(cid)
 		end, function(id)
 			remoto("Equipar"):FireServer(id)
-		end)
+		end, regalarA)
 	end
 end
 
 local abrirInicio: () -> ()
+
+-- ===================== COOPERATIVO: REGALAR, EMOTES Y CLASIFICACIÓN =====================
+local ventanaCoop: Frame? = nil
+local function cerrarCoop()
+	if ventanaCoop then
+		ventanaCoop:Destroy()
+		ventanaCoop = nil
+	end
+end
+
+--- Elegir a quién regalar (los demás jugadores del servidor).
+elegirJugador = function(titulo: string, alElegir: (number) -> ())
+	cerrarCoop()
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(360, 330), Parent = gui, ZIndex = 140 })
+	ventanaCoop = p
+	Ui.aparecer(p)
+	Ui.texto({ Position = UDim2.fromOffset(0, 14), Size = UDim2.new(1, 0, 0, 36), Text = titulo, TextColor3 = C.oro, ZIndex = 141, Parent = p })
+	local caja = Ui.crear("Frame", { Position = UDim2.fromOffset(24, 60), Size = UDim2.new(1, -48, 1, -130), BackgroundTransparency = 1, ZIndex = 141, Parent = p })
+	Ui.crear("UIListLayout", { Padding = UDim.new(0, 8), Parent = caja })
+	local n = 0
+	for _, otro in Players:GetPlayers() do
+		if otro ~= jugador then
+			n += 1
+			Ui.boton({ Size = UDim2.new(1, 0, 0, 44), Text = (otro:GetAttribute("NombreHeroe") :: string?) or otro.DisplayName, BackgroundColor3 = Color3.fromRGB(100, 160, 90), Icono = "corazon", ZIndex = 142, LayoutOrder = n, Parent = caja }, function()
+				alElegir(otro.UserId)
+				cerrarCoop()
+			end)
+		end
+	end
+	if n == 0 then
+		Ui.texto({ Size = UDim2.new(1, 0, 0, 60), Text = "No hay nadie más en el servidor. ¡Invita a un amigo!", TextColor3 = C.suave, TextWrapped = true, ZIndex = 142, Parent = caja })
+	end
+	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -14), Size = UDim2.fromOffset(180, 44), Text = "Cerrar", Icono = "volver", BackgroundColor3 = Color3.fromRGB(120, 110, 100), ZIndex = 142, Parent = p }, cerrarCoop)
+end
+
+regalarA = function(tipo: string, id: string?)
+	elegirJugador(tipo == "oro" and "¿A quién le das 10 de oro?" or "¿A quién se lo regalas?", function(uid)
+		remoto("Regalar"):FireServer(uid, tipo, id)
+	end)
+end
+
+local EMOTES_MENU = { { "saludar", "Saludar" }, { "bailar", "Bailar" }, { "reir", "Reír" }, { "aplaudir", "Aplaudir" }, { "enfado", "Enfadarse" }, { "dormir", "Dormir" }, { "pelea", "¡A pelear!" } }
+local function alternarEmotes()
+	if ventanaCoop and ventanaCoop.Name == "Emotes" then
+		cerrarCoop()
+		return
+	end
+	if inicio or enCombate or jugador:GetAttribute("EnDialogo") == true then
+		return
+	end
+	cerrarCoop()
+	local p = Ui.panel({ Name = "Emotes", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -18), Size = UDim2.fromOffset(820, 76), Parent = gui, ZIndex = 140 })
+	p.Name = "Emotes"
+	ventanaCoop = p
+	Ui.aparecer(p)
+	local fila = Ui.crear("Frame", { Position = UDim2.fromOffset(14, 14), Size = UDim2.new(1, -28, 1, -28), BackgroundTransparency = 1, ZIndex = 141, Parent = p })
+	Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), Parent = fila })
+	for i, e in EMOTES_MENU do
+		Ui.boton({ Size = UDim2.fromOffset(106, 48), Text = e[2], BackgroundColor3 = Color3.fromRGB(150, 110, 170), ZIndex = 142, LayoutOrder = i, Parent = fila }, function()
+			remoto("Emote"):FireServer(e[1])
+			cerrarCoop()
+		end)
+	end
+end
+
+local function panelClasificacion(d: any)
+	cerrarCoop()
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(760, 470), Parent = gui, ZIndex = 140 })
+	ventanaCoop = p
+	Ui.aparecer(p)
+	Ui.texto({ Position = UDim2.fromOffset(0, 14), Size = UDim2.new(1, 0, 0, 40), Text = "Clasificación", TextColor3 = C.oro, ZIndex = 141, Parent = p })
+	local function columna(x: number, titulo: string, filas: { string })
+		local hoja = Ui.crear("Frame", { Position = UDim2.fromOffset(x, 66), Size = UDim2.fromOffset(340, 320), BackgroundColor3 = Color3.fromRGB(236, 222, 190), BorderSizePixel = 0, ZIndex = 141, Parent = p })
+		Ui.esquinas(hoja, 6)
+		Ui.borde(hoja, C.tinta, 2)
+		Ui.crear("TextLabel", { Position = UDim2.fromOffset(12, 8), Size = UDim2.new(1, -24, 0, 30), BackgroundTransparency = 1, Text = titulo, Font = Ui.Fuente, TextScaled = true, TextColor3 = Color3.fromRGB(120, 80, 50), ZIndex = 142, Parent = hoja })
+		for i, f in filas do
+			Ui.crear("TextLabel", { Position = UDim2.fromOffset(14, 44 + (i - 1) * 27), Size = UDim2.new(1, -28, 0, 25), BackgroundTransparency = 1, Text = f, Font = Ui.FuenteDialogo, TextSize = 20, TextColor3 = C.tinta, TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 142, Parent = hoja })
+		end
+		if #filas == 0 then
+			Ui.crear("TextLabel", { Position = UDim2.fromOffset(14, 50), Size = UDim2.new(1, -28, 0, 60), BackgroundTransparency = 1, Text = "Todavía no hay datos (en Studio hace falta activar el acceso a la API).", Font = Ui.FuenteDialogo, TextSize = 18, TextWrapped = true, TextColor3 = Color3.fromRGB(120, 100, 90), ZIndex = 142, Parent = hoja })
+		end
+	end
+	local servidor = {}
+	for i, f in d.servidor or {} do
+		table.insert(servidor, string.format("%d. %s%s · Nv %d · %d %s · %s %d", i, f.nombre, f.yo and " (" .. Ui.t("tú") .. ")" or "", f.nivel, f.victorias, Ui.t("victorias"), Ui.t("oleada"), f.oleada))
+	end
+	local global = {}
+	for i, f in d.global or {} do
+		table.insert(global, string.format("%d. %s · %d %s", i, f.nombre, f.victorias, Ui.t("victorias")))
+	end
+	columna(24, Ui.t("En este servidor"), servidor)
+	columna(396, Ui.t("Los mejores de Vael"), global)
+	Ui.boton({ AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -14), Size = UDim2.fromOffset(180, 44), Text = "Cerrar", Icono = "volver", BackgroundColor3 = Color3.fromRGB(120, 110, 100), ZIndex = 142, Parent = p }, cerrarCoop)
+end
 
 local function abrirPausa()
 	if pausa then
@@ -257,7 +359,7 @@ local function abrirPausa()
 	sonido("pop")
 	local capa = Ui.crear("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(40, 32, 28), BackgroundTransparency = 0.45, ZIndex = 100, Parent = gui })
 	pausa = capa
-	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(380, 520), Parent = capa, ZIndex = 101 })
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.fromOffset(380, 580), Parent = capa, ZIndex = 101 })
 	Ui.aparecer(p)
 	Ui.texto({ Position = UDim2.fromOffset(0, 18), Size = UDim2.new(1, 0, 0, 44), Text = "Pausa", TextColor3 = C.oro, ZIndex = 102, Parent = p })
 	local caja = Ui.crear("Frame", { Position = UDim2.fromOffset(30, 78), Size = UDim2.new(1, -60, 1, -96), BackgroundTransparency = 1, ZIndex = 102, Parent = p })
@@ -269,6 +371,10 @@ local function abrirPausa()
 		{ "Mi personaje", Color3.fromRGB(190, 120, 80), "corazon", function()
 			cerrarPausa()
 			abrirEditor()
+		end },
+		{ "Clasificación", Color3.fromRGB(200, 150, 60), "estrella", function()
+			cerrarPausa()
+			remoto("PedirClasificacion"):FireServer()
 		end },
 		{ "Configuración", Color3.fromRGB(80, 120, 170), "escudo", function()
 			panelAjustes(capa)
@@ -287,7 +393,7 @@ local function abrirPausa()
 end
 
 -- botones pequeños arriba a la derecha (no tapan nada)
-local barra = Ui.crear("Frame", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(170, 50), BackgroundTransparency = 1, Visible = false, ZIndex = 40, Parent = gui })
+local barra = Ui.crear("Frame", { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -12, 0, 10), Size = UDim2.fromOffset(230, 50), BackgroundTransparency = 1, Visible = false, ZIndex = 40, Parent = gui })
 Ui.crear("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Right, Padding = UDim.new(0, 6), Parent = barra })
 local function botonPequeno(icono: string, tecla: string, alPulsar: () -> ())
 	local b = Ui.crear("TextButton", { Size = UDim2.fromOffset(50, 50), Text = "", AutoButtonColor = false, BackgroundColor3 = Color3.fromRGB(150, 118, 88), BorderSizePixel = 0, ZIndex = 41, Parent = barra })
@@ -475,6 +581,8 @@ UserInputService.InputBegan:Connect(function(entrada, procesado)
 		alternarMochila()
 	elseif k == Enum.KeyCode.P then
 		abrirPausa()
+	elseif k == Enum.KeyCode.G then
+		alternarEmotes()
 	end
 end)
 
@@ -500,7 +608,7 @@ task.spawn(function()
 				remoto("ElegirCompanero"):FireServer(cid)
 			end, function(id)
 				remoto("Equipar"):FireServer(id)
-			end)
+			end, regalarA)
 		end
 	end)
 	remoto("BatallaInicio").OnClientEvent:Connect(function()
@@ -515,6 +623,20 @@ task.spawn(function()
 		end)
 	end)
 	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
+	-- emotes de todos los jugadores y clasificación
+	remoto("EmoteJugador").OnClientEvent:Connect(function(userId: number, nombre: string)
+		if Escena and Escena.emote then
+			Escena.emote(userId, nombre)
+		end
+		if Audio and nombre ~= "dormir" then
+			Audio.sfx(nombre == "bailar" and "brillo" or nombre == "regalo" and "moneda" or "pop", 0.5, 1.1)
+		end
+	end)
+	remoto("Clasificacion").OnClientEvent:Connect(function(d: any)
+		if not enCombate then
+			panelClasificacion(d)
+		end
+	end)
 	-- armería de Olga (comprar y mejorar equipo)
 	remoto("AbrirArmeria").OnClientEvent:Connect(function(d: any)
 		if not Armeria or enCombate then
@@ -637,6 +759,7 @@ task.spawn(function()
 	pcall(function()
 		botonPequeno("estrella", "M", alternarMapa)
 		botonPequeno("pocion", "B", alternarMochila)
+		botonPequeno("corazon", "G", alternarEmotes)
 		botonPequeno("escudo", "P", abrirPausa)
 	end)
 	refrescarBarra()

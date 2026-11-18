@@ -12,7 +12,7 @@ BASE.modulo("Datos", vael, FUENTES["shared/Datos.luau"])
 BASE.modulo("Sonidos", vael, FUENTES["shared/Sonidos.luau"])
 local remotos = I.new("Folder")
 remotos.Name = "Remotos"
-for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar" } do
+for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo", "AbrirArmeria", "ComprarEquipo", "MejorarEquipo", "Equipar", "Regalar", "Emote", "EmoteJugador", "PedirClasificacion", "Clasificacion" } do
 	local r = I.new("RemoteEvent")
 	r.Name = n
 	r.Parent = remotos
@@ -339,4 +339,15 @@ end
 RT.avanzar(0.5)
 print("muñecos dibujados:", dibujados)
 informe("dibujos")
+-- cooperativo en el cliente
+tecla("G")
+print("¿Emotes con G?", buscarTexto(pg, "Bailar") ~= nil)
+pulsar("Bailar")
+remotos.EmoteJugador.OnClientEvent:Fire(1, "bailar")
+remotos.EmoteJugador.OnClientEvent:Fire(1, "dormir")
+RT.avanzar(4)
+remotos.Clasificacion.OnClientEvent:Fire({ servidor = { { nombre = "kilonil", nivel = 3, victorias = 12, oleada = 4, yo = true } }, global = {} })
+RT.avanzar(1)
+print("¿Clasificación?", buscarTexto(pg, "Los mejores de Vael") ~= nil)
+informe("cooperativo")
 print("FIN")

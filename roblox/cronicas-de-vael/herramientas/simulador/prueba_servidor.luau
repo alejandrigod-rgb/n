@@ -229,4 +229,53 @@ for _, m in mundo:GetChildren() do
 end
 RT.avanzar(5)
 informe("paraderos: " .. paraderos)
+-- ===== cooperativo: un segundo jugador, regalos, emotes, clasificación y la mazmorra =====
+local j2 = I.new("Player")
+j2.Name = "amigo"
+j2.DisplayName = "amigo"
+j2.UserId = 2
+j2.Parent = Players
+Players.PlayerAdded:Fire(j2)
+RT.avanzar(3)
+remotos.ElegirClase.OnServerEvent:Fire(j2, "maga")
+RT.avanzar(1)
+local pf2 = DJ.obtener(j2)
+local pocionesAntes = pf2.objetos.pocion or 0
+pf.objetos.pocion = (pf.objetos.pocion or 0) + 1
+remotos.Regalar.OnServerEvent:Fire(j, 2, "objeto", "pocion")
+remotos.Regalar.OnServerEvent:Fire(j, 2, "oro", nil)
+RT.avanzar(0.5)
+print("regalo recibido:", (pf2.objetos.pocion or 0) - pocionesAntes, pf2.oro)
+remotos.Emote.OnServerEvent:Fire(j, "bailar")
+remotos.PedirClasificacion.OnServerEvent:Fire(j)
+RT.avanzar(1)
+print("victorias:", pf.progreso.victorias, j:FindFirstChild("leaderstats") ~= nil)
+-- la mazmorra: los dos se apuntan y se juegan las 5 oleadas (los monstruos caen solos en la prueba)
+pulsarPunto("mazmorra")
+remotos.ElegirOpcion.OnServerEvent:Fire(j, ultimoDialogo, 1)
+RT.avanzar(1)
+for _, d in mundo:GetDescendants() do
+	if d:IsA("BasePart") and d:GetAttribute("Punto") == "mazmorra" then
+		d:FindFirstChildOfClass("ProximityPrompt").Triggered:Fire(j2)
+	end
+end
+RT.avanzar(13)
+print("en la mazmorra:", Combate.enBatalla(j), Combate.enBatalla(j2))
+for oleada = 1, 6 do
+	-- tumbar a los monstruos de la oleada
+	local bo = Combate.batallaDe(j) or Combate.batallaDe(j2)
+	if bo then
+		print("  oleada:", bo.zona.nombre, #bo.enemigos, "monstruos,", #bo.aliados, "aliados")
+		for _, e in bo.enemigos do e.hp = 0 e.vivo = false end
+	end
+	for _ = 1, 40 do
+		RT.avanzar(1)
+		remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = "atacar" })
+		remotos.EnviarAccion.OnServerEvent:Fire(j2, { tipo = "atacar" })
+		if not Combate.enBatalla(j) and not Combate.enBatalla(j2) then break end
+	end
+	RT.avanzar(8)
+end
+print("récord de oleada:", pf.progreso.mejorOleada, pf2.progreso.mejorOleada)
+informe("cooperativo")
 print("FIN")
