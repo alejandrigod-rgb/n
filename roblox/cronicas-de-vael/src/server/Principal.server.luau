@@ -21,7 +21,7 @@ Remotos.Name = "Remotos"
 for _, nombre in {
 	"ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin",
 	"Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion",
-	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar",
+	"Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo",
 } do
 	local r = Instance.new("RemoteEvent")
 	r.Name = nombre
@@ -388,6 +388,126 @@ Combate.alVencerJefe = function(j: Player, jefeId: string?)
 	})
 end
 
+-- ===================== ENCARGOS DEL TABLÓN (misiones secundarias) =====================
+local function progresoEncargo(perfil: any, e: any): number
+	local pr = perfil.progreso
+	if e.tipo == "secretos" then
+		local n = 0
+		for _ in pr.secretos or {} do
+			n += 1
+		end
+		return math.min(n, e.cantidad)
+	elseif e.tipo == "entregar" then
+		return math.min(perfil.objetos[e.objetivo] or 0, e.cantidad)
+	end
+	local st = pr.encargos and pr.encargos[e.id]
+	return st and math.min(st.n or 0, e.cantidad) or 0
+end
+
+local function listaEncargos(perfil: any): any
+	local pr = perfil.progreso
+	pr.encargos = pr.encargos or {}
+	local lista = {}
+	for _, id in Datos.OrdenEncargos do
+		local e = Datos.Encargos[id]
+		local st = pr.encargos[id]
+		local estado = "disponible"
+		if e.requiere == "final" and not pr.final then
+			estado = "bloqueado"
+		elseif st and st.estado == "hecha" then
+			estado = "hecha"
+		elseif st and st.estado == "activa" then
+			estado = progresoEncargo(perfil, e) >= e.cantidad and "lista" or "activa"
+		end
+		table.insert(lista, { id = id, estado = estado, n = progresoEncargo(perfil, e) })
+	end
+	return lista
+end
+
+local function abrirTablon(j: Player, entregado: string?)
+	local perfil = DatosJugador.obtener(j)
+	if perfil then
+		remoto("AbrirTablon"):FireClient(j, { lista = listaEncargos(perfil), entregado = entregado })
+	end
+end
+
+--- Suma progreso a los encargos activos que encajen (cazar, ganar en una zona, romper rocas…).
+local function sumarEncargo(j: Player, tipo: string, objetivo: string?, cantidad: number)
+	local perfil = DatosJugador.obtener(j) :: any
+	local encargos = perfil and perfil.progreso.encargos
+	if not encargos then
+		return
+	end
+	for id, st in encargos do
+		local e = Datos.Encargos[id]
+		if e and st.estado == "activa" and e.tipo == tipo and (e.objetivo == nil or e.objetivo == objetivo) then
+			st.n = math.min(e.cantidad, (st.n or 0) + cantidad)
+			if st.n >= e.cantidad and not st.avisado then
+				st.avisado = true
+				notificar(j, "¡Encargo listo! «" .. e.titulo .. "» · vuelve al tablón de la plaza")
+			end
+		end
+	end
+end
+Combate.alRomperRoca = function(j: Player)
+	sumarEncargo(j, "rocas", nil, 1)
+end
+
+remoto("AceptarEncargo").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j) :: any
+	local e = type(id) == "string" and Datos.Encargos[id]
+	if not perfil or not e then
+		return
+	end
+	local pr = perfil.progreso
+	pr.encargos = pr.encargos or {}
+	if pr.encargos[id] or (e.requiere == "final" and not pr.final) then
+		return
+	end
+	local activos = 0
+	for _, st in pr.encargos do
+		if st.estado == "activa" then
+			activos += 1
+		end
+	end
+	if activos >= Datos.MAX_ENCARGOS then
+		notificar(j, "Ya llevas " .. Datos.MAX_ENCARGOS .. " encargos. Termina alguno antes.")
+		return
+	end
+	pr.encargos[id] = { estado = "activa", n = 0 }
+	DatosJugador.guardar(j)
+	abrirTablon(j)
+end)
+
+remoto("EntregarEncargo").OnServerEvent:Connect(function(j, id)
+	local perfil = DatosJugador.obtener(j) :: any
+	local e = type(id) == "string" and Datos.Encargos[id]
+	local st = perfil and e and perfil.progreso.encargos and perfil.progreso.encargos[id]
+	if not st or st.estado ~= "activa" or progresoEncargo(perfil, e) < e.cantidad then
+		return
+	end
+	if e.tipo == "entregar" then
+		perfil.objetos[e.objetivo] -= e.cantidad
+	end
+	st.estado = "hecha"
+	perfil.oro += e.oro
+	perfil.xp += e.xp
+	while perfil.xp >= Datos.xpParaNivel(perfil.nivel) do
+		perfil.xp -= Datos.xpParaNivel(perfil.nivel)
+		perfil.nivel += 1
+		notificar(j, "¡Subes a nivel " .. perfil.nivel .. "!")
+	end
+	if e.objeto then
+		perfil.objetos[e.objeto] = (perfil.objetos[e.objeto] or 0) + 1
+	end
+	if e.mejora then
+		Combate.darMejora(j, e.mejora)
+	end
+	DatosJugador.guardar(j)
+	enviarEstado(j)
+	abrirTablon(j, id)
+end)
+
 -- ===================== TRES AÑOS DESPUÉS: BARBA, BARBERO Y BAÑO =====================
 --- Cuando ya se ha afeitado y bañado, vuelve a poder pelear.
 local function quizaLimpio(j: Player)
@@ -547,6 +667,13 @@ Combate.alTerminar = function(b)
 			local j = e.jugador
 			local perfil = j and DatosJugador.obtener(j) :: any
 			if j and perfil then
+				-- encargos: cada monstruo vencido y cada pelea ganada en una zona
+				for _, en in b.enemigos do
+					if en.enemigoId then
+						sumarEncargo(j, "cazar", en.enemigoId, 1)
+					end
+				end
+				sumarEncargo(j, "zona", b.zona.id, 1)
 				local pr = perfil.progreso
 				pr.vencidas = pr.vencidas or {}
 				local primera = not pr.vencidas[b.zona.id]
@@ -994,6 +1121,10 @@ for _, d in mundo:GetDescendants() do
 				notificar(j, "Ya estás limpio como una patena.")
 			end
 		end, 7)
+	elseif nombre == "tablon" then
+		aviso(p, "Ver encargos", "Tablón", function(j)
+			abrirTablon(j)
+		end)
 	elseif nombre == "secreto" then
 		local id = p:GetAttribute("Secreto") :: string
 		local d = SECRETOS[id]

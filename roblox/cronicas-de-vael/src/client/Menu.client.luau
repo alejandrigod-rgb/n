@@ -60,6 +60,7 @@ local Mapa: any = nil
 local Mochila: any = nil
 local Idioma: any = nil
 local Interaccion: any = nil
+local Encargos: any = nil
 
 local function remoto(nombre: string): RemoteEvent
 	return Vael:WaitForChild("Remotos"):WaitForChild(nombre) :: RemoteEvent
@@ -198,6 +199,9 @@ local function cerrarTodo()
 	end
 	if Mochila then
 		Mochila.cerrar()
+	end
+	if Encargos then
+		Encargos.cerrar()
 	end
 end
 
@@ -503,6 +507,24 @@ task.spawn(function()
 		end)
 	end)
 	remoto("AbrirEditor").OnClientEvent:Connect(abrirEditor)
+	-- tablón de encargos de la plaza
+	remoto("AbrirTablon").OnClientEvent:Connect(function(d: any)
+		if not Encargos or enCombate then
+			return
+		end
+		if d.entregado and Audio then
+			Audio.jingle("encargo")
+		end
+		if not Encargos.estaAbierto() then
+			cerrarTodo()
+		end
+		Encargos.abrir(gui, d, function(id)
+			sonido("pop")
+			remoto("AceptarEncargo"):FireServer(id)
+		end, function(id)
+			remoto("EntregarEncargo"):FireServer(id)
+		end)
+	end)
 	-- el final de la historia (la primera vez que cae el Rey Hongo)
 	-- victoria en pantalla grande → epílogo → tres años después → te despiertas (con barba) en casa
 	remoto("Epilogo").OnClientEvent:Connect(function()
@@ -570,6 +592,7 @@ task.spawn(function()
 	Mapa = cargar("MapaVael")
 	Mochila = cargar("Mochila")
 	Interaccion = cargar("Interaccion")
+	Encargos = cargar("Encargos")
 	if Interaccion then
 		pcall(Interaccion.iniciar)
 	end

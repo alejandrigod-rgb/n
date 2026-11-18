@@ -141,6 +141,29 @@ function Audio.hablar(semilla: number, letras: number)
 	end)
 end
 
+-- ===================== MINI FANFARRIAS =====================
+-- Se hacen encadenando los efectos que ya hay (con otro tono), así no hace falta subir audio nuevo.
+local JINGLES: { [string]: { { any } } } = {
+	-- { cuándo (s), efecto, volumen, tono }
+	victoria = { { 0, "victoria", 0.9, 1 }, { 0.35, "moneda", 0.6, 1.2 }, { 0.6, "brillo", 0.6, 1.1 } },
+	jefeVencido = { { 0, "explosion", 0.8, 0.8 }, { 0.3, "victoria", 1, 1 }, { 0.75, "nivel", 0.9, 1 }, { 1.15, "brillo", 0.7, 1.3 }, { 1.45, "mejora", 0.9, 1.15 }, { 1.8, "moneda", 0.7, 1.4 } },
+	jefe = { { 0, "explosion", 0.8, 0.6 }, { 0.45, "critico", 0.8, 0.75 }, { 0.9, "rayo", 0.7, 0.7 } },
+	zona = { { 0, "aviso", 0.6, 1 }, { 0.22, "brillo", 0.6, 1.2 }, { 0.5, "mejora", 0.7, 1 } },
+	zonaNueva = { { 0, "aviso", 0.7, 1 }, { 0.2, "brillo", 0.7, 1.25 }, { 0.45, "mejora", 0.8, 1 }, { 0.8, "nivel", 0.7, 1.1 } },
+	encargo = { { 0, "cofre", 0.8, 1.1 }, { 0.3, "moneda", 0.7, 1.2 }, { 0.55, "mejora", 0.8, 1.1 } },
+}
+function Audio.jingle(nombre: string)
+	local j = JINGLES[nombre]
+	if not j then
+		return
+	end
+	for _, nota in j do
+		task.delay(nota[1], function()
+			Audio.sfx(nota[2], nota[3], nota[4])
+		end)
+	end
+end
+
 -- ===================== MÚSICA SEGÚN EL SITIO =====================
 local jugador = Players.LocalPlayer
 local ultimoCambio = 0

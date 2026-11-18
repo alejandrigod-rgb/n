@@ -12,7 +12,7 @@ BASE.modulo("Datos", vael, FUENTES["shared/Datos.luau"])
 BASE.modulo("Sonidos", vael, FUENTES["shared/Sonidos.luau"])
 local remotos = I.new("Folder")
 remotos.Name = "Remotos"
-for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar" } do
+for _, n in { "ElegirClase", "EstadoJugador", "BatallaInicio", "BatallaEstado", "BatallaEvento", "BatallaTurno", "PedirAccion", "EnviarAccion", "BatallaFin", "Notificar", "AbrirTienda", "Comprar", "OfrecerMejoras", "ElegirMejora", "AbrirVendedor", "ComprarMejora", "Dialogo", "ElegirOpcion", "Vasos", "ElegirVaso", "Teletransporte", "Sonido", "GuardarApariencia", "ErrorServidor", "Emboscada", "AbrirEditor", "UsarObjeto", "GuardarAjustes", "Epilogo", "ElegirCompanero", "Final2", "Despertar", "AbrirTablon", "AceptarEncargo", "EntregarEncargo" } do
 	local r = I.new("RemoteEvent")
 	r.Name = n
 	r.Parent = remotos
@@ -295,4 +295,19 @@ end
 RT.avanzar(2)
 print("¿Final 2 cerrado?", boton("Siguiente") == nil)
 informe("final 2")
+-- tablón de encargos
+remotos.AbrirTablon.OnClientEvent:Fire({ lista = { { id = "babosas", estado = "disponible", n = 0 }, { id = "rocas", estado = "activa", n = 3 }, { id = "curioso", estado = "lista", n = 4 }, { id = "pinguinos", estado = "bloqueado", n = 0 }, { id = "setas", estado = "hecha", n = 8 } } })
+RT.avanzar(1)
+print("¿Tablón?", buscarTexto(pg, "Tablón de encargos") ~= nil)
+pulsar("Entregar")
+remotos.AbrirTablon.OnClientEvent:Fire({ lista = { { id = "curioso", estado = "hecha", n = 4 } }, entregado = "curioso" })
+RT.avanzar(1)
+-- el botón Cerrar del propio tablón (hay otros "Cerrar" en otras ventanas)
+local tablon = buscarTexto(pg, "Tablón de encargos")
+local bCerrar = tablon and buscarTexto(tablon.Parent, "Cerrar")
+while bCerrar and not bCerrar:IsA("TextButton") do bCerrar = bCerrar.Parent end
+if bCerrar then bCerrar.Activated:Fire() end
+RT.avanzar(1)
+print("¿Tablón cerrado?", buscarTexto(pg, "Tablón de encargos") == nil)
+informe("encargos")
 print("FIN")

@@ -218,6 +218,29 @@ end
 
 Datos.MAX_EQUIPO = 4
 
+-- ===================== ENCARGOS (misiones secundarias del tablón de la plaza) =====================
+-- tipo: "cazar" (enemigo, cantidad), "zona" (ganar peleas en una zona), "rocas" (romper rocas en combate),
+-- "secretos" (encontrar secretos) o "entregar" (dar objetos). requiere = "final" para los de la historia 2.
+export type Encargo = { id: string, titulo: string, de: string, texto: string, tipo: string, objetivo: string?, cantidad: number, oro: number, xp: number, objeto: string?, mejora: string?, requiere: string? }
+Datos.Encargos = {
+	babosas = { id = "babosas", titulo = "Babosas fuera", de = "Granjero Tomás", texto = "Las babosas se comen mis coles otra vez. Échame a 6.", tipo = "cazar", objetivo = "babosa", cantidad = 6, oro = 30, xp = 20 },
+	setas = { id = "setas", titulo = "Setas rebeldes", de = "Abuela Rosa", texto = "Los hongos saltarines me pisan las flores. Quítame 8 de encima.", tipo = "cazar", objetivo = "hongo", cantidad = 8, oro = 40, xp = 25 },
+	abejas = { id = "abejas", titulo = "Miel sin picaduras", de = "La panadera", texto = "Quiero miel para los bollos, pero las abejas pican. Espanta a 4.", tipo = "cazar", objetivo = "abeja", cantidad = 4, oro = 35, xp = 25, objeto = "pocion" },
+	lobos = { id = "lobos", titulo = "Aullidos de noche", de = "La guardia", texto = "Los lobos sombríos no dejan dormir a nadie. Vence a 3.", tipo = "cazar", objetivo = "lobo", cantidad = 3, oro = 50, xp = 40, mejora = "botas" },
+	ranas = { id = "ranas", titulo = "Concierto de ranas", de = "Ermitaño Fermín", texto = "¡Croac, croac, toda la noche! Gana 3 peleas en el Pantano.", tipo = "zona", objetivo = "pantano", cantidad = 3, oro = 60, xp = 50, objeto = "eter" },
+	fantasmas = { id = "fantasmas", titulo = "Sábanas que flotan", de = "La lavandera", texto = "Se me escapan las sábanas… ah no, son fantasmas. Vence a 3.", tipo = "cazar", objetivo = "fantasma", cantidad = 3, oro = 70, xp = 60, mejora = "espejo" },
+	lena = { id = "lena", titulo = "Leña segura", de = "El herrero", texto = "Necesito leña del Bosque, pero da miedo. Gana 3 peleas allí.", tipo = "zona", objetivo = "bosque", cantidad = 3, oro = 80, xp = 70 },
+	huesos = { id = "huesos", titulo = "Huesos sueltos", de = "Bigotes, el perro de la plaza", texto = "¡Guau! (Quiere que venzas a 5 esqueletos. Y los huesos, para él.)", tipo = "cazar", objetivo = "esqueleto", cantidad = 5, oro = 90, xp = 80, mejora = "diente" },
+	mimico = { id = "mimico", titulo = "Cofres con dientes", de = "Madame Zoé", texto = "Veo… un cofre que muerde en tu futuro. Véncelo y te pago.", tipo = "cazar", objetivo = "mimico", cantidad = 1, oro = 100, xp = 80 },
+	rocas = { id = "rocas", titulo = "Picapedrero", de = "El herrero", texto = "Me falta piedra para la fragua. Rompe 10 rocas en combate.", tipo = "rocas", cantidad = 10, oro = 80, xp = 60, mejora = "muelles" },
+	curioso = { id = "curioso", titulo = "Curiosidad", de = "Niño Lucas", texto = "¡Dicen que Vael está lleno de secretos! Encuentra 4.", tipo = "secretos", cantidad = 4, oro = 60, xp = 40, mejora = "lupa" },
+	botiquin = { id = "botiquin", titulo = "Botiquín", de = "Posadera Lola", texto = "Con tanto héroe herido me quedo sin pociones. Tráeme 3.", tipo = "entregar", objetivo = "pocion", cantidad = 3, oro = 120, xp = 50 },
+	pinguinos = { id = "pinguinos", titulo = "Pescado robado", de = "El Rey Hongo", texto = "¡Los pingüinos bandidos me roban el pescado del guiso! Vence a 5.", tipo = "cazar", objetivo = "pinguino", cantidad = 5, oro = 150, xp = 120, mejora = "gafas", requiere = "final" },
+	nieve = { id = "nieve", titulo = "Muñecos sin nariz", de = "Niño Lucas", texto = "Quiero zanahorias para mis muñecos… ¡los de verdad las tienen! Vence a 4 muñecos de nieve.", tipo = "cazar", objetivo = "munecoNieve", cantidad = 4, oro = 150, xp = 120, requiere = "final" },
+}
+Datos.OrdenEncargos = { "babosas", "setas", "abejas", "lobos", "ranas", "fantasmas", "lena", "huesos", "mimico", "rocas", "curioso", "botiquin", "pinguinos", "nieve" }
+Datos.MAX_ENCARGOS = 3
+
 -- ===================== COMPAÑEROS =====================
 -- Vecinos que se unen a tu aventura y pelean a tu lado (los maneja el juego). Se llevan de uno en uno, o ninguno
 -- ("ir solo"). Se eligen en la mochila. Cada uno se consigue en un momento de la historia.

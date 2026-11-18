@@ -26,6 +26,11 @@ Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **
 
 Al ganar al Rey Hongo: **animación de victoria a pantalla completa** (el héroe salta y levanta el Cucharón), el epílogo y un **subepílogo "Tres años después"** (el Rey Hongo es ahora cocinero y el Yeti Tragón se lleva la Olla del Gran Guiso). Te despiertas en casa **con barba**: hasta pasar por el **barbero Paco** (ciudad) y darte un **baño** en la posada no puedes pelear. Después, el Rey Hongo te da las **botas de nieve**, cruzas a los **Picos Nevados** (pingüinos bandidos, muñecos de nieve, lobos de la ventisca y espíritus de escarcha), consigues el **pico de hielo** peleando contra los pingüinos y subes a la **Cumbre** a por el **Yeti Tragón**. Final con victoria, la Olla y un epílogo de 4 láminas. En el menú: botones **Epílogo** y **Final 2**.
 
+### v1.7
+- **El héroe se gira al caminar:** de lado al ir a izquierda o derecha, de frente al venir hacia la cámara y de espaldas al alejarte (se ve la mochila). Quieto un rato, se pone de frente; en combate y en el aire, de lado. Son tres muñecos (`ap.vista` = "frente", "lado" o "espalda") que `Escena` cambia según la velocidad.
+- **Tablón de encargos** en la plaza (`Encargos.luau`, `Datos.Encargos`): 14 misiones secundarias (cazar monstruos, ganar peleas en una zona, romper rocas, encontrar secretos, entregar pociones), hasta 3 a la vez, con oro, EXP, objetos y mejoras. Dos se desbloquean tras la primera historia.
+- **Más sonido:** fanfarria al ganar, otra más grande al vencer a un jefe, entrada dramática de los jefes ("¡JEFE FINAL!") y un cartel con música al llegar a cada zona ("¡Zona nueva!" la primera vez). `Audio.jingle` encadena los efectos que ya hay.
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|

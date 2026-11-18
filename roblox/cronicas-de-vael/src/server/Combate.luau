@@ -781,6 +781,9 @@ end
 --- Rompe una roca del campo (deja la casilla libre). A veces dentro hay algo.
 local function romperRoca(b: Batalla, actor: Entidad, k: string, textos: { string })
 	quitarCasilla(b, k)
+	if actor.jugador and Combate.alRomperRoca then
+		pcall(Combate.alRomperRoca :: any, actor.jugador)
+	end
 	local perfil = actor.jugador and DatosJugador.obtener(actor.jugador)
 	local suerte = rng:NextNumber()
 	if perfil and suerte < 0.25 then
@@ -1475,7 +1478,7 @@ local function terminar(b: Batalla, victoria: boolean)
 		local j = e.jugador
 		if j and j.Parent then
 			local perfil = DatosJugador.obtener(j)
-			local resultado: any = { victoria = victoria, huida = b.huida }
+			local resultado: any = { victoria = victoria, huida = b.huida, jefe = b.jefe }
 			local mejora = false
 			if perfil then
 				if victoria then

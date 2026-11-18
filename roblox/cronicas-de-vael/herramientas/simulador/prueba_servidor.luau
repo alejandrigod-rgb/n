@@ -101,6 +101,12 @@ pf.progreso.companeros = { tomas = true, fermin = true }
 remotos.ElegirCompanero.OnServerEvent:Fire(j, "fermin")
 RT.avanzar(0.5)
 print("compañero elegido:", pf.progreso.companero)
+-- encargos: aceptar dos antes de la pelea (cuentan las rocas y los monstruos)
+remotos.AceptarEncargo.OnServerEvent:Fire(j, "rocas")
+remotos.AceptarEncargo.OnServerEvent:Fire(j, "babosas")
+remotos.AceptarEncargo.OnServerEvent:Fire(j, "curioso")
+remotos.AceptarEncargo.OnServerEvent:Fire(j, "lobos") -- el cuarto no cabe
+RT.avanzar(0.5)
 local b = Combate.empezar(Datos.Zonas[2], E.Vector3.new(110, 0, -10), { j }, { emboscada = true })
 print("aliados en combate:", b and #b.aliados)
 -- una roca pegada al héroe, para probar a romperla
@@ -143,6 +149,13 @@ if b and Combate.enBatalla(j) then
 	end
 end
 print("pelea acabada:", not Combate.enBatalla(j), "zonas ganadas:", pf.progreso.vencidas and pf.progreso.vencidas[Datos.Zonas[2].id])
+local enc = pf.progreso.encargos or {}
+print("encargos:", enc.rocas and enc.rocas.n, enc.babosas and enc.babosas.n, enc.lobos ~= nil)
+-- el de los secretos ya está completo (se pulsaron todos los avisos): entregarlo
+local oroAntes = pf.oro
+remotos.EntregarEncargo.OnServerEvent:Fire(j, "curioso")
+RT.avanzar(0.5)
+print("encargo entregado:", enc.curioso and enc.curioso.estado, pf.oro - oroAntes)
 -- final: la primera vez manda el epílogo, la segunda un diálogo
 Combate.alVencerJefe(j)
 Combate.alVencerJefe(j)

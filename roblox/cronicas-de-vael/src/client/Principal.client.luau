@@ -942,14 +942,18 @@ remoto("BatallaInicio").OnClientEvent:Connect(function(d: any)
 	Escena.enemigosCerca(centro)
 	Escena.ocultarPasto(centro)
 	Audio.forzada = d.jefe and "jefe" or "combate"
-	Audio.sfx("critico", 0.7)
+	if d.jefe then
+		Audio.jingle("jefe")
+	else
+		Audio.sfx("critico", 0.7)
+	end
 	mochila.Visible = false
 	camara.CameraType = Enum.CameraType.Scriptable
 	capaBatalla.Visible = true
 	Ui.tween(hud, { Position = UDim2.fromOffset(12, -200) }, 0.5)
 	mision.Visible = false
 	franjasCine(true)
-	mostrarTitulo(d.emboscada and "¡EMBOSCADA!" or ("¡COMBATE!  ·  " .. d.zona), d.emboscada and C.peligro or C.borde)
+	mostrarTitulo(d.jefe and ("¡JEFE FINAL!  ·  " .. d.zona) or d.emboscada and "¡EMBOSCADA!" or ("¡COMBATE!  ·  " .. d.zona), (d.jefe or d.emboscada) and C.peligro or C.borde)
 	sacudida = 1
 end)
 
@@ -963,8 +967,15 @@ remoto("BatallaFin").OnClientEvent:Connect(function(r: any)
 	else
 		texto, color = "Derrota…", C.peligro
 	end
-	mostrarTitulo(texto, color)
-	Audio.sfx(r.victoria and "victoria" or (r.huida and "boing" or "derrota"), 0.9)
+	mostrarTitulo(r.victoria and r.jefe and "¡JEFE DERROTADO!" or texto, color)
+	if r.victoria then
+		Audio.jingle(r.jefe and "jefeVencido" or "victoria")
+		if r.jefe then
+			sacudida = math.max(sacudida, 1.6)
+		end
+	else
+		Audio.sfx(r.huida and "boing" or "derrota", 0.9)
+	end
 	if r.subio then
 		task.delay(1.2, function()
 			Audio.sfx("nivel", 0.9)
@@ -1337,5 +1348,68 @@ jugador:GetAttributeChangedSignal("EnDialogo"):Connect(function()
 		mision.Visible = false
 	elseif estadoActual and not enBatalla then
 		actualizarHud(estadoActual)
+	end
+end)
+
+-- ===================== CARTEL AL LLEGAR A UNA ZONA =====================
+-- Al entrar en otro sitio baja un cartel de cartón con su nombre y suena una mini fanfarria
+-- (más larga la primera vez que se descubre en esta partida).
+local SITIOS_ZONA = {
+	{ -445, -205, "Aldea de Brezo" }, { -205, 45, "Ciudad de Vael" }, { 45, 163, "Pradera de Vael" },
+	{ 163, 263, "Pantano Brumoso" }, { 263, 363, "Bosque Susurrante" }, { 363, 463, "Ruinas de Ceniza" },
+	{ 463, 606, "Cueva del Rey Hongo" }, { 606, 712, "Picos Nevados" }, { 712, 810, "Cumbre del Yeti" },
+}
+local function zonaDe(p: Vector3): string?
+	if p.Y > 650 then
+		return "Callejón del Gato"
+	elseif p.Y > 450 then
+		return "Calle del Mercado"
+	elseif p.Y > 300 then
+		return "Posada El Ronquido"
+	elseif p.Y > 150 then
+		return "Taberna El Hongo Feliz"
+	end
+	for _, z in SITIOS_ZONA do
+		if p.X >= z[1] and p.X < z[2] then
+			return z[3]
+		end
+	end
+	return nil
+end
+local zonaActual: string? = nil
+local descubiertas: { [string]: boolean } = {}
+local function cartelZona(nombre: string, nueva: boolean)
+	local p = Ui.panel({ AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.new(0.5, 0, 0, -130), Size = UDim2.fromOffset(460, nueva and 96 or 76), BackgroundColor3 = Color3.fromRGB(205, 175, 130), Parent = gui, ZIndex = 60 })
+	p.Rotation = -1.5
+	Ui.texto({ Position = UDim2.fromOffset(16, 8), Size = UDim2.new(1, -32, 0, 52), Text = nombre, TextColor3 = Color3.fromRGB(250, 238, 205), ZIndex = 61, Parent = p })
+	if nueva then
+		Ui.texto({ Position = UDim2.fromOffset(16, 60), Size = UDim2.new(1, -32, 0, 26), Text = "¡Zona nueva!", TextColor3 = C.oro, ZIndex = 61, Parent = p })
+	end
+	Ui.tween(p, { Position = UDim2.new(0.5, 0, 0, 70) }, 0.5, Enum.EasingStyle.Back)
+	task.delay(2.6, function()
+		Ui.tween(p, { Position = UDim2.new(0.5, 0, 0, -130) }, 0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+		task.delay(0.45, function()
+			p:Destroy()
+		end)
+	end)
+end
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+		local ch = jugador.Character
+		local raiz = ch and ch:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if raiz and not enBatalla and jugador:GetAttribute("EnMenu") ~= true and jugador:GetAttribute("EnDialogo") ~= true then
+			local z = zonaDe(raiz.Position)
+			if z and z ~= zonaActual then
+				local primera = zonaActual == nil
+				zonaActual = z
+				if not primera then
+					local nueva = not descubiertas[z]
+					cartelZona(z, nueva)
+					Audio.jingle(nueva and "zonaNueva" or "zona")
+				end
+				descubiertas[z] = true
+			end
+		end
 	end
 end)

@@ -275,8 +275,174 @@ local function accesorio(m: Muneco, tipo: number, colorPelo: Color3)
 	end
 end
 
+-- ---------- vistas del héroe: de lado (mirando a la derecha) y de espaldas ----------
+-- Se usan al caminar: de lado al ir a izquierda/derecha, de frente al venir hacia la cámara y de espaldas al irse.
+local function colorBarba(c: Color3): Color3
+	return c:Lerp(Color3.fromRGB(110, 90, 70), 0.3)
+end
+
+local function heroeDeLado(m: Muneco, clase: string, a: any, barba: boolean)
+	local piel = A.pieles[a.piel]
+	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
+	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local cPelo = A.coloresPelo[a.colorPelo]
+	local deClase = a.gorro == 1
+	local capucha = deClase and (clase == "arquero" or clase == "sanador")
+	local casco = deClase and clase == "guerrero"
+	sombra(m, 0.5)
+	if clase == "guerrero" then
+		pieza(m, 0.33, 0.78, 0.22, 0.34, ropa:Lerp(NEGRO, 0.3), 0.2, 1, 8) -- capa ondeando detrás
+	end
+	-- mochila a la espalda (a la izquierda, porque mira a la derecha)
+	pieza(m, 0.28, 0.69, 0.24, 0.32, Color3.fromRGB(150, 105, 60), 0.3, 2)
+	pieza(m, 0.3, 0.54, 0.26, 0.08, Color3.fromRGB(110, 140, 90), 0.5, 2)
+	local mt = circ(m, 0.42, 0.78, 0.13, piel:Lerp(NEGRO, 0.12), 2) -- mano de atrás
+	pie(m, 0.45, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40), 2)
+	pie(m, 0.6, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40), 3)
+	pieza(m, 0.52, 0.76, 0.38, 0.3, ropa, 0.3, 3)
+	pieza(m, 0.52, 0.84, 0.38, 0.035, Color3.fromRGB(90, 60, 40), 0, 4, 0, { sb = true })
+	pieza(m, 0.4, 0.7, 0.04, 0.24, Color3.fromRGB(110, 75, 45), 0, 4, 6, { sb = true }) -- correa
+	local md = circ(m, 0.64, 0.78, 0.14, piel, 6) -- mano de delante
+	table.insert(m.manos, { f = mt.f, x = 0.42, y = 0.78 })
+	table.insert(m.manos, { f = md.f, x = 0.64, y = 0.78 })
+	-- cabeza de perfil
+	if capucha then
+		local cc = clase == "arquero" and Color3.fromRGB(70, 115, 70) or Color3.fromRGB(235, 228, 212)
+		circ(m, 0.47, 0.4, 0.8, cc, 4)
+	elseif a.pelo == 4 then
+		pieza(m, 0.4, 0.5, 0.5, 0.46, cPelo, 0.4, 4)
+	elseif a.pelo == 7 then
+		circ(m, 0.44, 0.3, 0.9, cPelo, 4)
+	end
+	circ(m, 0.53, 0.42, 0.7, piel, 5)
+	circ(m, 0.86, 0.47, 0.08, piel, 6) -- nariz
+	circ(m, 0.42, 0.45, 0.1, piel:Lerp(NEGRO, 0.1), 6) -- oreja
+	ojo(m, 0.68, 0.41, 0.12, 0.15, 8, nil, A.coloresOjos[a.colorOjos], 0.055, 0.02)
+	boca(m, 0.75, 0.56, 0.08, 0.022, 8)
+	if barba then
+		pieza(m, 0.68, 0.57, 0.3, 0.16, colorBarba(cPelo), 0.5, 9)
+		pieza(m, 0.74, 0.56, 0.06, 0.02, Color3.fromRGB(120, 30, 40), 0.5, 10, 0, { sb = true })
+	end
+	if not capucha and not casco and a.gorro ~= 7 then
+		-- pelo: la parte de atrás de la cabeza y por arriba
+		pieza(m, 0.38, 0.36, 0.3, 0.38, cPelo, 0.45, 7)
+		pieza(m, 0.52, 0.17, 0.6, 0.12, cPelo, 0.5, 9)
+		if a.pelo == 6 then
+			pieza(m, 0.18, 0.4, 0.14, 0.22, cPelo, 0.45, 4, -20)
+		elseif a.pelo == 5 then
+			pieza(m, 0.5, 0.08, 0.1, 0.16, cPelo, 0.3, 9, -10)
+		end
+	end
+	if casco then
+		pieza(m, 0.52, 0.2, 0.72, 0.2, Color3.fromRGB(175, 180, 195), 0.45, 10)
+		pieza(m, 0.52, 0.275, 0.78, 0.06, Color3.fromRGB(140, 145, 160), 0.3, 11)
+		pieza(m, 0.3, 0.14, 0.08, 0.14, Color3.fromRGB(250, 240, 215), 0.4, 9, -28)
+	elseif deClase and clase == "maga" then
+		pieza(m, 0.52, 0.21, 0.9, 0.06, Color3.fromRGB(85, 60, 150), 0.5, 12)
+		pieza(m, 0.5, 0.13, 0.44, 0.13, Color3.fromRGB(110, 85, 180), 0.3, 11)
+		pieza(m, 0.44, 0.05, 0.26, 0.09, Color3.fromRGB(110, 85, 180), 0.3, 11, -12)
+	elseif not deClase then
+		gorroDe(m, a.gorro, A.coloresGorro[a.colorGorro])
+	end
+	-- el arma en la mano de delante
+	if clase == "guerrero" then
+		pieza(m, 0.72, 0.6, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 12, 18)
+		pieza(m, 0.66, 0.76, 0.16, 0.03, Color3.fromRGB(220, 180, 70), 0.3, 13, 18)
+	elseif clase == "maga" or clase == "sanador" then
+		pieza(m, 0.68, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 12)
+		if clase == "maga" then
+			circ(m, 0.68, 0.33, 0.13, Color3.fromRGB(130, 200, 220), 13)
+		else
+			pieza(m, 0.68, 0.34, 0.05, 0.11, COLOR_CLASE.sanador, 0.2, 13)
+			pieza(m, 0.68, 0.33, 0.13, 0.035, COLOR_CLASE.sanador, 0.2, 13)
+		end
+	elseif clase == "arquero" then
+		local arco = pieza(m, 0.74, 0.66, 0.2, 0.4, BLANCO, 0.5, 12, 0, { t = 1, gr = m.grosor + 2 })
+		arco.f.BackgroundTransparency = 1
+		local trazo = arco.f:FindFirstChildOfClass("UIStroke")
+		if trazo then
+			trazo.Color = Color3.fromRGB(120, 80, 45)
+		end
+	end
+end
+
+local function heroeDeEspaldas(m: Muneco, clase: string, a: any, barba: boolean)
+	local piel = A.pieles[a.piel]
+	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
+	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase
+	local cPelo = A.coloresPelo[a.colorPelo]
+	local deClase = a.gorro == 1
+	local capucha = deClase and (clase == "arquero" or clase == "sanador")
+	local casco = deClase and clase == "guerrero"
+	sombra(m, 0.62)
+	pie(m, 0.37, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40))
+	pie(m, 0.63, 0.935, 0.2, 0.06, Color3.fromRGB(70, 50, 40))
+	-- el arma asoma por el otro lado
+	if clase == "guerrero" then
+		pieza(m, 0.12, 0.57, 0.06, 0.32, Color3.fromRGB(215, 220, 225), 0.3, 2)
+	elseif clase == "maga" or clase == "sanador" then
+		pieza(m, 0.88, 0.62, 0.035, 0.55, Color3.fromRGB(120, 80, 50), 0.3, 2)
+	end
+	pieza(m, 0.5, 0.76, 0.56, 0.3, ropa, 0.3, 3)
+	pieza(m, 0.5, 0.84, 0.56, 0.035, Color3.fromRGB(90, 60, 40), 0, 4, 0, { sb = true })
+	local mi = circ(m, 0.2, 0.77, 0.15, piel, 4)
+	local md = circ(m, 0.8, 0.77, 0.15, piel, 4)
+	table.insert(m.manos, { f = mi.f, x = 0.2, y = 0.77 })
+	table.insert(m.manos, { f = md.f, x = 0.8, y = 0.77 })
+	if clase == "guerrero" then
+		pieza(m, 0.5, 0.78, 0.62, 0.36, ropa:Lerp(NEGRO, 0.3), 0.2, 5) -- capa por encima
+	end
+	-- la mochila, bien grande en el centro (con saco de dormir y un cazo colgando)
+	pieza(m, 0.5, 0.71, 0.46, 0.32, Color3.fromRGB(150, 105, 60), 0.3, 6)
+	pieza(m, 0.5, 0.56, 0.5, 0.08, Color3.fromRGB(110, 140, 90), 0.5, 7)
+	pieza(m, 0.5, 0.76, 0.3, 0.12, Color3.fromRGB(130, 90, 50), 0.3, 7)
+	pieza(m, 0.5, 0.72, 0.06, 0.03, Color3.fromRGB(220, 190, 90), 0.2, 8, 0, { sb = true })
+	circ(m, 0.74, 0.8, 0.09, Color3.fromRGB(150, 150, 160), 7)
+	pieza(m, 0.38, 0.62, 0.04, 0.16, Color3.fromRGB(110, 75, 45), 0, 6, -6, { sb = true }) -- correas por encima de los hombros
+	pieza(m, 0.62, 0.62, 0.04, 0.16, Color3.fromRGB(110, 75, 45), 0, 6, 6, { sb = true })
+	-- cabeza de espaldas: casi todo pelo (o capucha, o casco)
+	circ(m, 0.5, 0.42, 0.74, piel, 5)
+	circ(m, 0.13, 0.44, 0.1, piel:Lerp(NEGRO, 0.08), 4) -- orejas
+	circ(m, 0.87, 0.44, 0.1, piel:Lerp(NEGRO, 0.08), 4)
+	if barba then
+		pieza(m, 0.5, 0.62, 0.42, 0.05, colorBarba(cPelo), 0.5, 4)
+	end
+	if capucha then
+		local cc = clase == "arquero" and Color3.fromRGB(70, 115, 70) or Color3.fromRGB(235, 228, 212)
+		circ(m, 0.5, 0.42, 0.8, cc, 9)
+		pieza(m, 0.5, 0.11, 0.24, 0.12, cc, 0.2, 9, 45)
+	elseif casco then
+		pieza(m, 0.5, 0.27, 0.74, 0.32, Color3.fromRGB(175, 180, 195), 0.45, 9)
+		pieza(m, 0.5, 0.4, 0.8, 0.06, Color3.fromRGB(140, 145, 160), 0.3, 10)
+	else
+		pieza(m, 0.5, 0.36, 0.76, 0.5, cPelo, 0.48, 9)
+		if a.pelo == 4 then
+			pieza(m, 0.5, 0.52, 0.8, 0.36, cPelo, 0.4, 9)
+		elseif a.pelo == 6 then
+			pieza(m, 0.5, 0.55, 0.14, 0.24, cPelo, 0.45, 10)
+			circ(m, 0.5, 0.45, 0.06, Color3.fromRGB(220, 70, 90), 11)
+		elseif a.pelo == 7 then
+			circ(m, 0.5, 0.32, 0.98, cPelo, 9)
+		end
+		if deClase and clase == "maga" then
+			pieza(m, 0.5, 0.21, 0.96, 0.06, Color3.fromRGB(85, 60, 150), 0.5, 12)
+			pieza(m, 0.5, 0.13, 0.46, 0.13, Color3.fromRGB(110, 85, 180), 0.3, 11)
+		elseif not deClase then
+			gorroDe(m, a.gorro, A.coloresGorro[a.colorGorro])
+		end
+	end
+end
+
 local function dibujarHeroe(m: Muneco, clase: string, ap: { [string]: any }?)
 	local a = Datos.validarApariencia(ap or {})
+	local vista = ap and ap.vista
+	if vista == "lado" then
+		heroeDeLado(m, clase, a, ap ~= nil and ap.barba == true)
+		return
+	elseif vista == "espalda" then
+		heroeDeEspaldas(m, clase, a, ap ~= nil and ap.barba == true)
+		return
+	end
 	local piel = A.pieles[a.piel]
 	local colorClase = COLOR_CLASE[clase] or COLOR_CLASE.guerrero
 	local ropa = a.ropa > 1 and A.coloresRopa[a.ropa] or colorClase

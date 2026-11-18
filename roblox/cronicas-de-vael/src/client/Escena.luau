@@ -174,9 +174,22 @@ local function montarHeroe(p: Player)
 		ap = ok and t or nil
 	end
 	local b = billboard(raiz, 4.6, 6, 0.05)
-	local m = Munecos.crear(b, "clase", clase, 3, ap)
+	-- tres vistas del mismo héroe (de frente, de lado y de espaldas); se enseña una según hacia dónde camina
+	local vistas = {}
+	for _, v in { "frente", "lado", "espalda" } do
+		local marco = Instance.new("Frame")
+		marco.Name = "Vista_" .. v
+		marco.Size = UDim2.fromScale(1, 1)
+		marco.BackgroundTransparency = 1
+		marco.Visible = v == "lado"
+		marco.Parent = b
+		local apV = table.clone(ap or {})
+		apV.vista = v
+		vistas[v] = { m = Munecos.crear(marco, "clase", clase, 3, apV), marco = marco }
+	end
+	local m = vistas.lado.m
 	nombreFlotante(raiz, (p:GetAttribute("NombreHeroe") :: string?) or p.DisplayName, p == jugador and Color3.fromRGB(255, 205, 90) or Color3.fromRGB(150, 200, 255), 3.9)
-	heroes[p] = { m = m, b = b, raiz = raiz, clase = clase }
+	heroes[p] = { m = m, b = b, raiz = raiz, clase = clase, vistas = vistas, vista = "lado", quieto = 0 }
 	porEntidad["j" .. p.UserId] = m
 	anclaDe["j" .. p.UserId] = raiz
 end
@@ -963,6 +976,48 @@ RunService:BindToRenderStep("EscenaVael", Enum.RenderPriority.Camera.Value + 1, 
 				h.m.mirar = 1
 			elseif math.abs(v.X) > 1 then
 				h.m.mirar = math.sign(v.X)
+			end
+			-- qué vista toca: de lado (izquierda/derecha), de frente (hacia la cámara) o de espaldas (alejándose).
+			-- En combate y en el aire, siempre de lado. Si se queda quieto un rato, se gira de frente.
+			local hv = h :: any
+			if hv.vistas then
+				local nueva = hv.vista
+				if h.raiz.Anchored or not enSuelo then
+					nueva = "lado"
+					hv.quieto = 0
+				elseif plano > 1.5 then
+					hv.quieto = 0
+					if math.abs(v.X) >= math.abs(v.Z) * 0.8 then
+						nueva = "lado"
+					elseif v.Z > 0 then
+						nueva = "frente"
+					else
+						nueva = "espalda"
+					end
+				else
+					hv.quieto += dt
+					if hv.quieto > 2.5 then
+						nueva = "frente"
+					end
+				end
+				local activo = hv.vistas[nueva].m
+				if nueva ~= hv.vista then
+					local antes = h.m
+					hv.vista = nueva
+					for nombre, vv in hv.vistas do
+						vv.marco.Visible = nombre == nueva
+					end
+					-- el nuevo muñeco sigue el paso del anterior (sin saltos) y hace la "media vuelta"
+					activo.t, activo.andar, activo.ritmo, activo.vy, activo.enSuelo = antes.t, antes.andar, antes.ritmo, antes.vy, antes.enSuelo
+					activo.mirar = antes.mirar
+					activo.giro = 0.16
+					h.m = activo
+					porEntidad["j" .. p.UserId] = activo
+				end
+				-- de lado mira a donde va (el dibujo mira a la derecha: a la izquierda, se da la vuelta)
+				if nueva == "lado" then
+					Munecos.espejo(activo, (h.m.mirar or 1) < 0)
+				end
 			end
 		end
 	end

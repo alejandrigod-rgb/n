@@ -1666,6 +1666,17 @@ local function extras(rng: Random)
 	disco(cx + 1.8, P + 3.3, -8.9, 0.6, Color3.fromRGB(255, 220, 90), false) -- patito
 	punto("banera", Vector3.new(cx, P + 2.8, -8), {})
 
+	-- ---------- TABLÓN DE ENCARGOS (plaza de la ciudad) ----------
+	plano(-90, 2.5, -11.4, 0.6, 5, Color3.fromRGB(110, 70, 45))
+	plano(-84, 2.5, -11.4, 0.6, 5, Color3.fromRGB(110, 70, 45))
+	plano(-87, 5.2, -11.2, 8, 4.6, Color3.fromRGB(170, 120, 75))
+	for k, d in { { -89.2, 5.8, -6 }, { -87, 4.6, 4 }, { -84.9, 5.9, 8 }, { -88.4, 4.2, -3 } } do
+		plano(d[1], d[2], -10.9, 1.6, 1.8, k % 2 == 0 and Color3.fromRGB(250, 245, 225) or Color3.fromRGB(245, 225, 170), false, nil, d[3])
+		disco(d[1], d[2] + 0.75, -10.7, 0.3, Color3.fromRGB(200, 60, 60), false)
+	end
+	letrero(-87, 8.2, -11, 6, 1.3, "Encargos", Color3.fromRGB(150, 95, 55), Color3.fromRGB(255, 235, 170))
+	punto("tablon", Vector3.new(-87, 2.8, -9.5))
+
 	-- ---------- SECRETOS EN EL MUNDO ----------
 	-- la olla del Gran Guiso de la plaza
 	punto("secreto", Vector3.new(-78, 2.8, -11), { Secreto = "olla" })
