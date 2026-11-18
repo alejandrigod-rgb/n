@@ -777,12 +777,65 @@ local function alcanceDe(actor: Entidad, h: Datos.Habilidad?): number
 end
 
 -- ===================== ACCIONES =====================
+--- Rompe una roca del campo (deja la casilla libre). A veces dentro hay algo.
+local function romperRoca(b: Batalla, actor: Entidad, k: string, textos: { string })
+	quitarCasilla(b, k)
+	local perfil = actor.jugador and DatosJugador.obtener(actor.jugador)
+	local suerte = rng:NextNumber()
+	if perfil and suerte < 0.25 then
+		perfil.objetos.pocion = (perfil.objetos.pocion or 0) + 1
+		table.insert(textos, "¡Dentro de la roca había una poción!")
+	elseif perfil and suerte < 0.45 then
+		perfil.oro += 5
+		table.insert(textos, "¡Entre los trozos brillan 5 monedas!")
+	end
+end
+
 local function ejecutar(b: Batalla, actor: Entidad, accion: Accion)
 	local golpes: { Golpe } = {}
 	local textos: { string } = {}
 	local texto = ""
 	local habilidadId: string? = nil
 	local perfil = actor.jugador and DatosJugador.obtener(actor.jugador)
+
+	-- romper una roca con un ataque o una habilidad de daño (objetivo "roca:col,fila")
+	local rk = accion.objetivo and string.match(accion.objetivo, "^roca:(%d+,%d+)$")
+	if rk and (accion.tipo == "atacar" or accion.tipo == "habilidad") then
+		local c, f = string.match(rk, "(%d+),(%d+)")
+		local col, fila = tonumber(c) :: number, tonumber(f) :: number
+		local h = accion.tipo == "habilidad" and accion.id and Datos.Habilidades[accion.id] or nil
+		local valida = b.casillas[rk] == "roca" and distancia(actor, col, fila) <= alcanceDe(actor, h)
+		if h then
+			local clase = actor.claseId and Datos.Clases[actor.claseId]
+			valida = valida and h.tipo == "dano" and actor.mp >= h.coste and clase ~= nil and table.find(clase.habilidades, h.id) ~= nil and actor.nivel >= h.nivelMinimo
+		end
+		if valida then
+			if h then
+				actor.mp -= h.coste
+				guardarVida(actor)
+			end
+			local rocas = { rk }
+			-- las habilidades en cruz rompen también las rocas de alrededor
+			if h and h.area == "cruz" then
+				for _, d in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+					local k2 = clave(col + d[1], fila + d[2])
+					if b.casillas[k2] == "roca" then
+						table.insert(rocas, k2)
+					end
+				end
+			end
+			for _, k2 in rocas do
+				romperRoca(b, actor, k2, textos)
+			end
+			texto = actor.nombre .. (h and (" usa " .. h.nombre .. " y") or "") .. " rompe " .. (#rocas > 1 and "las rocas" or "la roca") .. ". ¡CRAC!"
+			for _, t in textos do
+				texto ..= " " .. t
+			end
+			aTodos(b, "BatallaEvento", { texto = texto, actor = actor.id, habilidad = h and h.id or nil, golpes = {}, rocas = rocas })
+			return
+		end
+		accion = { tipo = accion.tipo, id = accion.id }
+	end
 
 	if accion.tipo == "habilidad" and accion.id then
 		local h = Datos.Habilidades[accion.id]
@@ -854,7 +907,23 @@ local function ejecutar(b: Batalla, actor: Entidad, accion: Accion)
 					table.insert(golpes, { id = o.id, cantidad = 0, tipo = h.efecto or "mejora" })
 				end
 			end
-			if #objetivos == 0 then
+			-- los golpes alrededor (torbellino) también rompen las rocas pegadas
+			local rotas = {}
+			if h.tipo == "dano" and h.area == "alrededor" then
+				for dc = -1, 1 do
+					for df = -1, 1 do
+						local k2 = clave(actor.col + dc, actor.fila + df)
+						if (dc ~= 0 or df ~= 0) and b.casillas[k2] == "roca" then
+							romperRoca(b, actor, k2, textos)
+							table.insert(rotas, k2)
+						end
+					end
+				end
+			end
+			if #rotas > 0 then
+				table.insert(textos, "¡CRAC! Las rocas de alrededor saltan en pedazos")
+				aTodos(b, "BatallaEvento", { texto = "", actor = actor.id, golpes = {}, rocas = rotas })
+			elseif #objetivos == 0 then
 				texto ..= "… y no le da a nadie. Qué vergüenza."
 			end
 		end

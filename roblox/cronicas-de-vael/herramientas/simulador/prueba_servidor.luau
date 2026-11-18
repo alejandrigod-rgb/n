@@ -95,13 +95,33 @@ RT.avanzar(0.5)
 print("compañero elegido:", pf.progreso.companero)
 local b = Combate.empezar(Datos.Zonas[2], E.Vector3.new(110, 0, -10), { j }, { emboscada = true })
 print("aliados en combate:", b and #b.aliados)
+-- una roca pegada al héroe, para probar a romperla
+for _, e in (b and b.aliados or {}) do
+	if e.jugador == j then b.casillas[(e.col + 1) .. "," .. e.fila] = "roca" end
+end
+local rocasAntes = 0
+for _, t in (b and b.casillas or {}) do if t == "roca" then rocasAntes += 1 end end
 print("combate:", b ~= nil)
 for paso = 1, 40 do
 	RT.avanzar(1)
-	remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = paso % 3 == 0 and "mover" or "atacar", col = 2, fila = 2 })
+	-- de vez en cuando, intentar romper una roca
+	local roca = nil
+	for k, t in b.casillas do
+		if t == "roca" then
+			roca = k
+		end
+	end
+	if roca and paso <= 12 then
+		remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = "atacar", objetivo = "roca:" .. roca })
+	else
+		remotos.EnviarAccion.OnServerEvent:Fire(j, { tipo = paso % 3 == 0 and "mover" or "atacar", col = 2, fila = 2 })
+	end
 	if not Combate.enBatalla(j) then break end
 end
 RT.avanzar(5)
+local rocasDespues = 0
+for _, t in (b and b.casillas or {}) do if t == "roca" then rocasDespues += 1 end end
+print("rocas antes/después:", rocasAntes, rocasDespues)
 informe("combate")
 remotos.ElegirMejora.OnServerEvent:Fire(j, "calcetin")
 print("zonas ganadas:", pf.progreso.vencidas and pf.progreso.vencidas[Datos.Zonas[2].id])

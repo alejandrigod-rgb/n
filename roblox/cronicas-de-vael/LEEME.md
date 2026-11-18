@@ -18,6 +18,8 @@ Cada otoño, Vael celebra la **Fiesta del Gran Guiso**, que se remueve con el **
 - **Más detalle:** el Mercado tiene tiendas detrás, torre del reloj, globo, banderines y farolillos; la taberna, trofeo de babosa, diana, lámpara que se balancea, jamones y un gato junto al fuego; la posada, cuadro del Gran Guiso, reloj, estantería y velas.
 - **8 secretos** (`SECRETOS` en `Principal.server.luau`): el gato morado del Callejón, la puerta del NO, la olla del Gran Guiso, la puertecita del Bosque, el pato de goma del Pantano, la piedra con cara de las Ruinas y los dos bordes del mundo. Cada uno da 5 de oro; todos juntos, la Corona de cartón.
 - **Menú:** solo suenan la música y los botones.
+- **Peleas obligatorias** (`guardianes` en `Principal.server.luau`): cada objeto clave tiene guardianes. Las babosas del almacén de Bruno (cuerda), el sapo del cofre del Pantano (hacha), los duendes que persiguen las setas de Fermín (llave) y los esqueletos de la cripta (farol). Si pierdes, se puede repetir.
+- **Rocas rompibles:** en combate, "Atacar" y las habilidades de daño pueden apuntar a una roca a tu alcance y romperla (¡CRAC!). Las habilidades en cruz rompen también las de al lado, y el torbellino las que tienes pegadas. A veces dentro hay una poción o 5 monedas.
 - **Letra de los diálogos:** Patrick Hand (`Ui.FuenteDialogo`), más fácil de leer que la de rotulador.
 
 ## Teclas

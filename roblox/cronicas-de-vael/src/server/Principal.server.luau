@@ -230,6 +230,29 @@ local function darLlave(j: Player, llave: string)
 	end
 end
 
+--- Pelea obligatoria para conseguir un objeto clave: unos guardianes salen y hay que ganarles.
+--- Si pierdes, vuelves a intentarlo cuando quieras (el objeto sigue ahí).
+local function guardianes(j: Player, titulo: string, texto: string, quien: { string }, batalla: any, x: number, alGanar: (Player) -> ())
+	if Combate.enBatalla(j) then
+		return
+	end
+	dialogo(j, {
+		titulo = titulo,
+		texto = texto,
+		quien = quien,
+		opciones = {
+			{ texto = "¡A pelear!", accion = function()
+				if not Combate.enBatalla(j) then
+					batalla.guardian = true
+					Combate.empezar(batalla, Vector3.new(x, 0, 0), { j }, { emboscada = true, alGanar = alGanar })
+				end
+				return nil
+			end },
+			{ texto = "Mejor luego" },
+		},
+	})
+end
+
 -- ===================== JUGADORES =====================
 Players.PlayerAdded:Connect(function(j)
 	DatosJugador.cargar(j)
@@ -427,7 +450,9 @@ Combate.alTerminar = function(b)
 				local pr = perfil.progreso
 				pr.vencidas = pr.vencidas or {}
 				local primera = not pr.vencidas[b.zona.id]
-				pr.vencidas[b.zona.id] = true
+				if not b.zona.guardian then
+					pr.vencidas[b.zona.id] = true
+				end
 				-- Tomás se une al echar a las babosas de su huerto
 				if primera and b.zona.id == "huerto" then
 					task.delay(3, function()
@@ -555,9 +580,13 @@ remoto("ElegirVaso").OnServerEvent:Connect(function(j, vaso)
 		perfil.oro += 12
 		notificar(j, "¡Acertaste! +12 de oro. Racha: " .. perfil.progreso.racha)
 		if perfil.progreso.racha >= 2 and not perfil.llaves.cuerda then
-			task.delay(1, function()
-				notificar(j, "Bruno: «Vale, vale… te la has ganado.»")
-				darLlave(j, "cuerda")
+			task.delay(1.2, function()
+				guardianes(j, "Tabernero Bruno", "Vale, vale… te la has ganado. La cuerda está en mi almacén de atrás… pero se ha llenado de babosas. Si las echas, es tuya.", { "vecino", "1984" },
+					{ id = "pradera", nombre = "El almacén de Bruno", nivel = 2, grupos = { { "babosa", "babosa", "hongo", "babosa" } }, color = Color3.fromRGB(120, 190, 80) }, -100,
+					function(g)
+						notificar(g, "Bruno: «¡Mi almacén está limpio! Toma, la cuerda.»")
+						darLlave(g, "cuerda")
+					end)
 			end)
 		end
 	else
@@ -575,11 +604,19 @@ local function ermitano(j: Player)
 	elseif n >= 3 then
 		dialogo(j, {
 			titulo = "Ermitaño Fermín",
-			texto = "¡Mis tres setas brillantes! Toma, esta llave de piedra abre la puerta de las Ruinas. Yo ya no salgo de casa.",
+			texto = "¡Mis tres setas brillantes! Gracias, joven. Con ellas te daré la llave de piedra de las Ruinas… Espera. ¿Qué es ese ruido?",
 			quien = { "vecino", "60606" },
-			opciones = { { texto = "¡Gracias!", accion = function()
-				darLlave(j, "llave")
-				reclutar(j, "fermin")
+			opciones = { { texto = "¡De nada!", accion = function()
+				-- unos duendes le han seguido para robar las setas: pelea antes de la llave
+				task.delay(0.6, function()
+					guardianes(j, "¡Duendes ladrones!", "¡Unos duendes te han seguido hasta aquí para robar las setas brillantes! Fermín se esconde detrás de ti. «¡Defiéndelas, joven!»", { "enemigo", "duende" },
+						{ id = "bosque", nombre = "¡Duendes ladrones!", nivel = 4, grupos = { { "duende", "duende", "arana" } }, color = Color3.fromRGB(150, 180, 70) }, 329,
+						function(g)
+							notificar(g, "Fermín: «¡Gracias! Toma, la llave de piedra.»")
+							darLlave(g, "llave")
+							reclutar(g, "fermin")
+						end)
+				end)
 				return nil
 			end } },
 		})
@@ -915,7 +952,11 @@ for _, d in mundo:GetDescendants() do
 			if perfil.llaves.hacha then
 				notificar(j, "El cofre está vacío. Ya cogiste el hacha.")
 			else
-				darLlave(j, "hacha")
+				guardianes(j, "¡Un sapo enorme!", "Un sapo gordísimo está sentado encima del cofre. «Croac. Este cofre es MÍO. Y mis primos opinan igual.»", { "enemigo", "rana" },
+					{ id = "pantano", nombre = "Los guardianes del cofre", nivel = 3, grupos = { { "rana", "rana", "planta" } }, color = Color3.fromRGB(90, 170, 110) }, 245,
+					function(g)
+						darLlave(g, "hacha")
+					end)
 			end
 		end, 6)
 	elseif nombre == "seta" then
@@ -953,7 +994,11 @@ for _, d in mundo:GetDescendants() do
 			elseif #perfil.progreso.palancas < 3 then
 				notificar(j, "Está cerrado con un mecanismo. Faltan palancas: " .. #perfil.progreso.palancas .. " de 3.")
 			else
-				darLlave(j, "farol")
+				guardianes(j, "La cripta despierta", "Al tocar el cofre, la cripta tiembla. Los huesos del suelo se levantan… y no parecen contentos.", { "enemigo", "esqueleto" },
+					{ id = "ruinas", nombre = "Los guardianes de la cripta", nivel = 5, grupos = { { "esqueleto", "esqueleto", "murcielago" } }, color = Color3.fromRGB(200, 190, 160) }, 432,
+					function(g)
+						darLlave(g, "farol")
+					end)
 			end
 		end)
 	end

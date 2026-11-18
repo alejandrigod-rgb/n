@@ -486,6 +486,22 @@ local function elegirObjetivo(lado: string, caidos: boolean, alcance: number?, a
 			end, n)
 		end
 	end
+	-- las rocas del campo también se pueden romper (con ataques y habilidades de daño)
+	if lado == "enemigo" and not caidos and estadoBatalla and estadoBatalla.casillas then
+		for k, t in estadoBatalla.casillas do
+			local c, f = string.match(k, "(%d+),(%d+)")
+			local col, fila = tonumber(c), tonumber(f)
+			local dist = (peticion and col and fila) and (math.abs(col - peticion.col) + math.abs(fila - peticion.fila)) or 99
+			if t == "roca" and (not alcance or dist <= alcance) then
+				n += 1
+				validos[k] = "roca:" .. k
+				pintar(k, Color3.fromRGB(200, 170, 110))
+				opcion("Romper roca", Color3.fromRGB(130, 110, 90), true, function()
+					alElegir("roca:" .. k)
+				end, n, "espada")
+			end
+		end
+	end
 	seleccion = { validos = validos, alElegir = alElegir }
 	if n == 0 then
 		menuTitulo.Text = Ui.t("¡Nadie a tu alcance! Muévete")
@@ -804,6 +820,23 @@ remoto("BatallaEvento").OnClientEvent:Connect(function(ev: any)
 		Munecos.atacar(actor, string.sub(ev.actor, 1, 1) == "j" and 1 or -1)
 	end
 	Efectos.accion(ev, posDe, alImpacto)
+	-- rocas rotas: ¡CRAC!, trozos que saltan y la casilla vuelve a estar libre
+	for _, k in ev.rocas or {} do
+		local c = casillas[k]
+		if c and c.p.Parent then
+			local v, visible = camara:WorldToViewportPoint(c.p.Position + Vector3.new(0, 1.5, 0))
+			if visible then
+				local p = Vector2.new(v.X, v.Y)
+				Efectos.onomatopeya(p, "¡CRAC!", Color3.fromRGB(230, 200, 140), true)
+				Efectos.estallido(p, { Color3.fromRGB(150, 145, 155), Color3.fromRGB(190, 185, 195), Color3.fromRGB(110, 105, 115) }, 10, 90)
+			end
+		end
+		Audio.sfx("golpe", 0.9, 0.7)
+		sacudida = math.max(sacudida, 0.8)
+		if estadoBatalla and estadoBatalla.casillas then
+			estadoBatalla.casillas[k] = nil
+		end
+	end
 end)
 
 -- cámara de combate: tablero de juego de mesa, que se puede girar (Q/E o arrastrar con el botón derecho),
