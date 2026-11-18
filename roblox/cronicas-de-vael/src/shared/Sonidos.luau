@@ -13,7 +13,17 @@ Sonidos.IDS = {
 	ciudad = "rbxassetid://125024038150085", -- vael-musica-ciudad.ogg (ciudad y menú)
 	aventura = "rbxassetid://84249680099635", -- vael-musica-aventura.ogg (pradera, pantano, bosque)
 	combate = "rbxassetid://123965169837547", -- vael-musica-combate.ogg
-	jefe = "rbxassetid://72517976367422", -- vael-musica-jefe.ogg (ruinas, cueva y Rey Hongo)
+	jefe = "rbxassetid://72517976367422", -- vael-musica-jefe.ogg (cueva, Cumbre y jefes)
+	-- canciones de cada zona (v2.0): súbelas y pega aquí su id. Mientras estén vacías, suena una de las de arriba
+	-- con otro tempo (ver RESERVA en Audio.luau).
+	aldea = "", -- vael-musica-aldea.ogg (Aldea de Brezo y la posada)
+	pantano = "", -- vael-musica-pantano.ogg
+	bosque = "", -- vael-musica-bosque.ogg
+	ruinas = "", -- vael-musica-ruinas.ogg
+	picos = "", -- vael-musica-picos.ogg
+	callejon = "", -- vael-musica-callejon.ogg
+	taberna = "", -- vael-musica-taberna.ogg
+	bodegas = "", -- vael-musica-bodegas.ogg (la mazmorra)
 }
 
 -- dónde empieza cada efecto dentro de vael-efectos.ogg (segundos) y cuánto dura

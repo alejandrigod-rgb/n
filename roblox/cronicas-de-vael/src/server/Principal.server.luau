@@ -137,6 +137,7 @@ local function enviarEstado(j: Player)
 		creado = perfil.creado,
 		nombreHeroe = perfil.nombreHeroe,
 		final = perfil.progreso.final == true,
+		vencidas = perfil.progreso.vencidas,
 		final2 = perfil.progreso.final2 == true,
 		barba = perfil.progreso.barba == true,
 		afeitado = perfil.progreso.afeitado == true,
@@ -243,6 +244,42 @@ remoto("ElegirOpcion").OnServerEvent:Connect(function(j, id, indice)
 	end
 	enviarEstado(j)
 end)
+
+--- En qué punto de la historia va el jugador (los vecinos hablan según esto: se acuerdan de lo que has hecho).
+local function etapa(perfil: any): string
+	local pr = perfil.progreso
+	local ll = perfil.llaves
+	if pr.final2 then
+		return "final2"
+	elseif pr.barba then
+		return "barba"
+	elseif pr.final then
+		return "final"
+	elseif ll.farol then
+		return "farol"
+	elseif ll.llave then
+		return "llave"
+	elseif ll.hacha then
+		return "hacha"
+	elseif ll.cuerda then
+		return "cuerda"
+	elseif pr.vencidas and pr.vencidas.huerto then
+		return "huerto"
+	end
+	return "inicio"
+end
+local ORDEN_ETAPAS = { "inicio", "huerto", "cuerda", "hacha", "llave", "farol", "final", "barba", "final2" }
+--- Elige el texto de la etapa más avanzada que tenga uno (si no hay para la etapa exacta, la anterior).
+local function segunEtapa(perfil: any, textos: { [string]: string }): string
+	local actual = table.find(ORDEN_ETAPAS, etapa(perfil)) or 1
+	for i = actual, 1, -1 do
+		local t = textos[ORDEN_ETAPAS[i]]
+		if t then
+			return t
+		end
+	end
+	return textos.inicio or ""
+end
 
 --- Qué toca hacer ahora (lo dicen la abuela y la lista de objetivos).
 pista = function(perfil: any): string
@@ -1387,7 +1424,12 @@ for _, d in mundo:GetDescendants() do
 			local perfil = DatosJugador.obtener(j) :: any
 			dialogo(j, {
 				titulo = "Frutero Paco",
-				texto = "¡Manzanas de cartón piedra, las mejores de Vael! Curan un montón. Y no engordan, porque no se pueden comer… es broma, sí se pueden.",
+				texto = segunEtapa(perfil, {
+					inicio = "¡Manzanas de cartón piedra, las mejores de Vael! Curan un montón. Y no engordan, porque no se pueden comer… es broma, sí se pueden.",
+					final = "¡Manzanas para el héroe del Cucharón! Hoy te hago precio de amigo… que es el mismo precio, pero con una sonrisa.",
+					barba = "¡AAAH, un yeti en el mercado! …Perdón, perdón, eras tú. Toma una manzana y ve al barbero, por favor.",
+					final2 = "El Yeti me compra diez manzanas al día. ¡Nunca había vendido tanto! Gracias, héroe.",
+				}),
 				quien = { "vecino", "7070" },
 				opciones = {
 					{ texto = "Comprar una manzana (6 oro)", accion = function()
@@ -1407,7 +1449,12 @@ for _, d in mundo:GetDescendants() do
 		aviso(p, "Hablar", "Sastre Benito", function(j)
 			dialogo(j, {
 				titulo = "Sastre Benito",
-				texto = "¿Ese look? Mmm… valiente. ¿Quieres que te lo arregle? Hoy cambiar de pinta sale gratis.",
+				texto = segunEtapa(DatosJugador.obtener(j) :: any, {
+					inicio = "¿Ese look? Mmm… valiente. ¿Quieres que te lo arregle? Hoy cambiar de pinta sale gratis.",
+					final = "¡El héroe del Cucharón en mi tienda! Para ti, cambiar de pinta sigue saliendo gratis. Y te hago una foto para el escaparate.",
+					barba = "Esa barba no es cosa mía, cielo. Ve al barbero Paco, y luego vienes y te dejo guapísimo.",
+					final2 = "Estoy cosiendo un gorro para el Yeti. Lleva tres semanas y voy por la mitad.",
+				}),
 				quien = { "vecino", "6262" },
 				opciones = {
 					{ texto = "¡Cámbiame el look!", accion = function()
@@ -1659,12 +1706,29 @@ for _, d in mundo:GetDescendants() do
 		p:SetAttribute("Npc", "vecino:4242")
 		p:SetAttribute("Frases", "¡Las babosas se comen mis coles!|Ese espantapájaros no espanta ni a una mosca.")
 		aviso(p, "Hablar", "Granjero Tomás", function(j)
+			local perfil = DatosJugador.obtener(j) :: any
+			local pr = perfil.progreso
+			local texto = segunEtapa(perfil, {
+				inicio = "¡Las babosas se han metido en mi huerto! Entra en la mancha verde de detrás de las coles y échalas. Es fácil, hasta mi gallina lo haría.",
+				huerto = "¡Mi huerto, libre de babosas! Las coles te mandan saludos. Y ya sabes: mi horca va contigo a donde haga falta.",
+				cuerda = "¿Ya tienes la cuerda de Bruno? ¡Ese tramposo! Yo nunca le he ganado a los vasos… ni una vez.",
+				llave = "Dicen que te has metido en el Bosque. ¿Has visto algún duende? A mí me roban las zanahorias.",
+				farol = "¿Vas a ir a por el Rey Hongo? Ten cuidado. Y si puedes, tráeme una seta para la tortilla. Es broma. O no.",
+				final = "¡Qué fiesta, qué fiesta! Me comí tres platos de Gran Guiso. Sin setas, ¡y estaba buenísimo!",
+				barba = "¡Uy, un oso! ¡Socorro! …Ah, que eres tú. Anda, ve al barbero, que asustas a las gallinas.",
+				final2 = "¡Ahora el Yeti me ayuda a arar el huerto! Tira del arado él solito. Y se come las coles feas.",
+			})
+			if pr.encargos and pr.encargos.babosas and pr.encargos.babosas.estado == "activa" then
+				texto = "¿Ya has echado a esas 6 babosas del encargo? Las cuento desde aquí: ¡todavía queda alguna!"
+			elseif pr.companero == "tomas" and etapa(perfil) ~= "inicio" and etapa(perfil) ~= "barba" then
+				texto ..= " ¡Y gracias por llevarme contigo!"
+			end
 			dialogo(j, {
 				titulo = "Granjero Tomás",
-				texto = "¡Las babosas se han metido en mi huerto! Entra en la mancha verde de detrás de las coles y échalas. Es fácil, hasta mi gallina lo haría.",
+				texto = texto,
 				quien = { "vecino", "4242" },
-				opciones = { { texto = "¡Voy!" }, { texto = "¿Y tu gallina?", accion = function()
-					return "«Está de vacaciones.»"
+				opciones = { { texto = etapa(perfil) == "inicio" and "¡Voy!" or "¡Hasta luego, Tomás!" }, { texto = "¿Y tu gallina?", accion = function()
+					return segunEtapa(perfil, { inicio = "«Está de vacaciones.»", huerto = "«Ha vuelto de vacaciones. Morena.»", final = "«Se comió media olla de guiso. Ahora duerme.»", final2 = "«El Yeti la lleva a hombros. Son inseparables.»" })
 				end } },
 			})
 		end)
@@ -1675,7 +1739,7 @@ for _, d in mundo:GetDescendants() do
 			local perfil = DatosJugador.obtener(j) :: any
 			dialogo(j, {
 				titulo = "Guardia del puente",
-				texto = perfil.llaves.cuerda and "¡Con esa cuerda el puente queda como nuevo! Adelante, el Pantano te espera." or "El puente está roto. Necesitas una CUERDA. Bruno, el de la taberna de la ciudad, tiene una… pero solo se la da a quien le gane dos veces seguidas a los vasos.",
+				texto = perfil.progreso.barba and "¡Alto! ¿Quién va? …¿Eres tú? Madre mía, afeita eso antes de cruzar, que asustas a los patos." or perfil.progreso.final2 and "Desde que el Yeti viene a cenar, el puente cruje un poco más. Pero aguanta." or perfil.progreso.final and "¡El héroe del Cucharón! Pasa, pasa. Hoy el río huele a guiso." or perfil.llaves.cuerda and "¡Con esa cuerda el puente queda como nuevo! Adelante, el Pantano te espera." or "El puente está roto. Necesitas una CUERDA. Bruno, el de la taberna de la ciudad, tiene una… pero solo se la da a quien le gane dos veces seguidas a los vasos.",
 				quien = { "vecino", "8080" },
 				opciones = { { texto = "Entendido" } },
 			})

@@ -30,7 +30,7 @@ end
 
 -- ===================== MÚSICA =====================
 local pistas: { [string]: Sound } = {}
-for _, nombre in { "ciudad", "aventura", "combate", "jefe" } do
+for _, nombre in { "ciudad", "aventura", "combate", "jefe", "aldea", "pantano", "bosque", "ruinas", "picos", "callejon", "taberna", "bodegas" } do
 	local id = Sonidos.IDS[nombre]
 	if hay(id) then
 		local s = Instance.new("Sound")
@@ -45,23 +45,33 @@ for _, nombre in { "ciudad", "aventura", "combate", "jefe" } do
 end
 local actual: string? = nil
 
+-- si la canción de una zona aún no está subida, suena otra con distinto tempo (para que al menos cambie)
+local RESERVA: { [string]: { any } } = {
+	aldea = { "ciudad", 0.9 }, pantano = { "aventura", 0.82 }, bosque = { "aventura", 0.92 }, ruinas = { "jefe", 0.85 },
+	picos = { "aventura", 1.08 }, callejon = { "ciudad", 0.8 }, taberna = { "ciudad", 1.15 }, bodegas = { "combate", 0.92 },
+}
+
 function Audio.musica(nombre: string?)
 	if nombre == actual then
 		return
 	end
 	actual = nombre
-	for n, s in pistas do
-		if n == nombre then
+	local pista, velocidad = nombre and pistas[nombre], 1
+	if nombre and not pista and RESERVA[nombre] then
+		pista, velocidad = pistas[RESERVA[nombre][1]], RESERVA[nombre][2]
+	end
+	for _, s in pistas do
+		if s == pista then
 			if not s.IsPlaying then
 				s.TimePosition = 0
 				s:Play()
 			end
-			TweenService:Create(s, TweenInfo.new(1.2), { Volume = 0.6 }):Play()
+			TweenService:Create(s, TweenInfo.new(1.2), { Volume = 0.6, PlaybackSpeed = velocidad }):Play()
 		else
 			local t = TweenService:Create(s, TweenInfo.new(1.2), { Volume = 0 })
 			t:Play()
 			t.Completed:Connect(function()
-				if actual ~= n then
+				if s ~= pista and s.Volume < 0.01 then
 					s:Stop()
 				end
 			end)
@@ -182,13 +192,36 @@ RunService.Heartbeat:Connect(function()
 		Audio.musica("ciudad")
 		return
 	end
+	-- cada sitio con su canción
 	local p = raiz.Position
-	if p.Y > 150 or p.X < 45 then
+	if p.Y > 850 then
+		Audio.musica("bodegas")
+	elseif p.Y > 650 then
+		Audio.musica("callejon")
+	elseif p.Y > 450 then
+		Audio.musica("ciudad") -- Calle del Mercado
+	elseif p.Y > 300 then
+		Audio.musica("aldea") -- la posada, tranquila
+	elseif p.Y > 150 then
+		Audio.musica("taberna")
+	elseif p.X < -205 then
+		Audio.musica("aldea")
+	elseif p.X < 45 then
 		Audio.musica("ciudad")
-	elseif p.X < 362 or (p.X > 606 and p.X < 712) then
-		Audio.musica("aventura")
+	elseif p.X < 163 then
+		Audio.musica("aventura") -- la Pradera
+	elseif p.X < 263 then
+		Audio.musica("pantano")
+	elseif p.X < 363 then
+		Audio.musica("bosque")
+	elseif p.X < 463 then
+		Audio.musica("ruinas")
+	elseif p.X < 606 then
+		Audio.musica("jefe") -- la Cueva del Rey Hongo
+	elseif p.X < 712 then
+		Audio.musica("picos")
 	else
-		Audio.musica("jefe")
+		Audio.musica("jefe") -- la Cumbre del Yeti
 	end
 end)
 

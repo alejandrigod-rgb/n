@@ -582,6 +582,33 @@ local CONVERSACIONES = {
 	{ "¿Has visto la olla gigante de la plaza?", "Fría como mi suegra.", "¡Que te oye!" },
 }
 
+-- charlas que solo salen en cierto punto de la historia (los vecinos se enteran de lo que haces)
+local CONVERSACIONES_ETAPA: { [string]: { { string } } } = {
+	huerto = {
+		{ "¿Te has enterado? ¡Alguien ha limpiado el huerto de Tomás!", "¿Las babosas? ¿Todas?", "Todas. Tomás está que no cabe en sí." },
+		{ "Ese chaval nuevo pelea bien.", "Pues tiene cara de dormir mucho.", "Eso también." },
+	},
+	cuerda = {
+		{ "¡Le han ganado a Bruno a los vasos!", "¿A Bruno? ¿Dos veces seguidas?", "Y se ha llevado la cuerda. Bruno está de morros." },
+	},
+	farol = {
+		{ "Dicen que el nuevo va a por el Rey Hongo.", "Valiente…", "O muy hambriento." },
+	},
+	final = {
+		{ "¡Qué fiesta la del Gran Guiso!", "La mejor en cien años.", "Y sin una seta. ¡Por fin!" },
+		{ "¿Has visto al Rey Hongo de cocinero?", "Lleva delantal y todo.", "Le queda mejor que la corona." },
+		{ "Ese es el héroe del Cucharón.", "¿Me firmará la sartén?", "Pídeselo, es muy majo." },
+	},
+	barba = {
+		{ "¿Quién es ese barbudo?", "Dicen que es el héroe… después de tres años de siesta.", "Pues huele a guiso rancio." },
+		{ "¡Se han llevado la Olla!", "Huellas enormes y peludas…", "Yo no salgo de casa hasta que vuelva." },
+	},
+	final2 = {
+		{ "El Yeti me ha saludado esta mañana.", "¿Y qué has hecho?", "Desmayarme. Pero con educación." },
+		{ "¡La Olla ha vuelto!", "Y el Yeti trae hielo para los refrescos.", "Este pueblo cada día es más raro. Me encanta." },
+	},
+}
+
 local enConversacion: { [any]: boolean } = {}
 local function conversar(a: any, b: any, lineas: { string })
 	enConversacion[a], enConversacion[b] = true, true
@@ -616,7 +643,12 @@ local function quizaCharla(cx: number)
 	for i = 1, #cerca do
 		for j = i + 1, #cerca do
 			if math.abs(cerca[i].x - cerca[j].x) < 16 then
-				conversar(cerca[i], cerca[j], CONVERSACIONES[math.random(1, #CONVERSACIONES)])
+				local lista = CONVERSACIONES
+				local extra = Escena.etapa and CONVERSACIONES_ETAPA[Escena.etapa()]
+				if extra and math.random() < 0.6 then
+					lista = extra
+				end
+				conversar(cerca[i], cerca[j], lista[math.random(1, #lista)])
 				return
 			end
 		end
@@ -627,6 +659,91 @@ Escena.quizaCharla = quizaCharla
 -- ----- personajes con los que se habla (tabernero, ermitaño, herrera, posadera, paraderos) -----
 -- El servidor marca sus puntos con el atributo "Npc" ("vecino:semilla" o "vendedor") y "Frases" (separadas por |).
 local npcHechos: { [BasePart]: boolean } = {}
+local npcPorPunto: { [string]: { { pa: any, base: { string }? } } } = {}
+-- frases de los bocadillos de cada vecino según en qué punto de la historia vas
+local FRASES_ETAPA: { [string]: { [string]: { string } } } = {
+	granjero = {
+		huerto = { "¡Mi huerto, libre!", "¡Gracias por echar a las babosas!", "Las coles crecen felices." },
+		final = { "¡Qué rico estaba el guiso!", "Tres platos me comí.", "¡Viva el héroe del Cucharón!" },
+		barba = { "¿Eso es un oso?", "Ve al barbero, anda.", "Hueles a guiso de hace tres años." },
+		final2 = { "El Yeti tira del arado.", "¡Mira qué coles!", "Mi gallina y el Yeti, inseparables." },
+	},
+	abuela = {
+		huerto = { "¡Así se hace, cielo!", "Tomás está contentísimo.", "Abrígate, que refresca." },
+		final = { "¡Mi nieto, el héroe!", "Te guardé un plato de guiso.", "Lloré un poquito. Fue la cebolla." },
+		barba = { "¡Esa barba!", "Al barbero, ¡ya!", "Y date un baño, por favor." },
+		final2 = { "El Yeti es un encanto.", "Ya viene a cenar los domingos.", "Qué orgullosa estoy." },
+	},
+	tabernero = {
+		cuerda = { "Me ganaste. No vuelvas.", "Es broma… vuelve.", "Mi cuerda… snif." },
+		final = { "¡Ronda gratis para el héroe!", "Zumo de seta, sin seta.", "¡Por el Cucharón!" },
+		barba = { "¿Un cliente nuevo?", "Ah, eres tú. Dúchate.", "Aquí no se entra con barba de tres años." },
+	},
+	posadera = {
+		final = { "Habitación de honor para el héroe.", "¿Una siestecita de campeón?" },
+		barba = { "La bañera está libre.", "¡Al baño, por favor!", "Tengo jabón de sobra." },
+	},
+	nino = {
+		final = { "¡Quiero ser como tú!", "¿Me enseñas a pelear?", "¡El Cucharón! ¡El Cucharón!" },
+		barba = { "¡Pareces un pirata!", "¿Puedo tocar la barba?", "Hueles raro." },
+		final2 = { "¡Me monté en el Yeti!", "¡Es blandito!", "Quiero un Yeti para mi cumple." },
+	},
+	guardaPuente = {
+		cuerda = { "¡El puente aguanta!", "Pasa, pasa.", "Buen trabajo con la cuerda." },
+		final = { "¡El héroe del Cucharón!", "El río huele a guiso." },
+		barba = { "¡Alto! ¿Quién va?", "Ah… afeita eso.", "Asustas a los patos." },
+	},
+}
+local function etapaDe(e: any): string
+	if not e then
+		return "inicio"
+	end
+	if e.final2 then
+		return "final2"
+	elseif e.barba then
+		return "barba"
+	elseif e.final then
+		return "final"
+	end
+	local ll = e.llaves or {}
+	local v = e.vencidas or {}
+	if ll.farol then
+		return "farol"
+	elseif ll.llave then
+		return "llave"
+	elseif ll.hacha then
+		return "hacha"
+	elseif ll.cuerda then
+		return "cuerda"
+	elseif v.huerto then
+		return "huerto"
+	end
+	return "inicio"
+end
+local ORDEN_ETAPAS = { "inicio", "huerto", "cuerda", "hacha", "llave", "farol", "final", "barba", "final2" }
+local estadoParaFrases: any = nil
+function Escena.etapa(): string
+	return etapaDe(estadoParaFrases)
+end
+function Escena.refrescarFrases()
+	local actual = table.find(ORDEN_ETAPAS, etapaDe(estadoParaFrases)) or 1
+	for nombre, lista in npcPorPunto do
+		local porEtapa = FRASES_ETAPA[nombre]
+		local elegidas = nil
+		if porEtapa then
+			for i = actual, 1, -1 do
+				if porEtapa[ORDEN_ETAPAS[i]] then
+					elegidas = porEtapa[ORDEN_ETAPAS[i]]
+					break
+				end
+			end
+		end
+		for _, n in lista do
+			n.pa.frases = elegidas or n.base
+		end
+	end
+end
+
 local function montarNpc(p: BasePart)
 	local npc = p:GetAttribute("Npc") :: string?
 	if not npc or npcHechos[p] then
@@ -645,6 +762,14 @@ local function montarNpc(p: BasePart)
 	pa.espera = math.huge
 	pa.fuente = p
 	pa.proxFrase = os.clock() + 1 + math.random() * 4
+	local nombre = p:GetAttribute("Punto") :: string?
+	if nombre then
+		npcPorPunto[nombre] = npcPorPunto[nombre] or {}
+		table.insert(npcPorPunto[nombre], { pa = pa, base = frases })
+		if Escena.refrescarFrases then
+			Escena.refrescarFrases()
+		end
+	end
 end
 local function vigilarPunto(d: Instance)
 	if d:IsA("BasePart") then
@@ -785,7 +910,9 @@ end
 --- Lo llama la interfaz cada vez que llega el estado del jugador.
 function Escena.estado(e: any)
 	estadoMio = e
+	estadoParaFrases = e
 	aplicarEstado()
+	Escena.refrescarFrases()
 end
 task.spawn(function()
 	-- con StreamingEnabled las barreras pueden llegar tarde: se repasan cada poco

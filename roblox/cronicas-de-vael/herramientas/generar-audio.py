@@ -567,7 +567,240 @@ def efectos():
     return buf
 
 
+# ---------------------------------------------------------------- música por zona (v2.0)
+ESCALA_DORICA = [0, 2, 3, 5, 7, 9, 10]
+ESCALA_FRIGIA = [0, 1, 3, 5, 7, 8, 10]
+ESCALA_LIDIA = [0, 2, 4, 6, 7, 9, 11]
+
+
+def tocar_melodia(buf, partes, ton, esc, octava, q, instrumento, vol, desde=0.0, hasta=None):
+    pos = desde
+    for parte in partes:
+        for n, d in melodia_desde(parte, ton, esc, octava):
+            if n is not None and (hasta is None or pos < hasta):
+                mezclar(buf, instrumento(nota(n), d * q * 0.92), pos, vol)
+            pos += d * q
+    return pos
+
+
+def musica_aldea():
+    """Aldea de Brezo: vals tranquilo de pueblo (3/4), flauta y acordeón, con pájaros."""
+    bpm, ton, esc = 96, 65, ESCALA_MAYOR  # Fa mayor
+    progresion = [0, 3, 4, 0, 5, 3, 1, 4]
+    motivo = [(4, 1), (5, 0.5), (4, 0.5), (2, 1), (0, 2), (1, 1), (2, 2), (None, 1),
+              (4, 1), (5, 0.5), (7, 0.5), (6, 1), (5, 2), (4, 1), (2, 2), (None, 1)]
+    motivo_b = [(7, 2), (6, 1), (5, 1.5), (4, 0.5), (5, 1), (4, 2), (2, 1), (1, 1.5), (2, 0.5), (4, 1), (0, 3)]
+
+    def render(buf, q):
+        compas = 3 * q
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 8])
+            ini = c * compas
+            mezclar(buf, bajo(nota(ac[0] - 12), q * 0.9), ini, 0.4)
+            for k in (1, 2):
+                for n in ac:
+                    mezclar(buf, cuerda(nota(n), q * 0.5, 0.4), ini + k * q, 0.07)
+            mezclar(buf, pad([nota(n) for n in ac], compas), ini, 0.12)
+            if c % 4 == 2:  # un pajarito
+                mezclar(buf, silbido(nota(ton + 31), 0.12), ini + 0.3, 0.08)
+                mezclar(buf, silbido(nota(ton + 34), 0.1), ini + 0.45, 0.06)
+        tocar_melodia(buf, (motivo, motivo_b, motivo, motivo_b), ton, esc, 1, q, flauta_cuadrada, 0.18, desde=4 * compas, hasta=32 * compas)
+
+    # vals: 32 compases de 3 tiempos (bucle() cuenta en compases de 4, así que se pasa 24)
+    return bucle(24, bpm, render)
+
+
+def musica_pantano():
+    """Pantano Brumoso: lento y un poco cómico-tenebroso. Fagot, gotas de marimba y croar de ranas."""
+    bpm, ton, esc = 76, 50, ESCALA_DORICA  # Re dórico
+    progresion = [0, 0, 3, 4]
+    motivo = [(0, 1), (2, 0.5), (3, 0.5), (4, 2), (3, 1), (2, 1), (0, 2), (None, 2),
+              (4, 1), (5, 0.5), (4, 0.5), (3, 1), (2, 1), (1, 2), (0, 2), (None, 2)]
+
+    def render(buf, q):
+        for c in range(24):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            mezclar(buf, pad([nota(ac[0] - 12), nota(ac[2] - 12)], 4 * q), ini, 0.16)
+            for k in range(4):
+                mezclar(buf, cuerda(nota(ac[0] - 24 + (7 if k % 2 else 0)), q * 0.8, 0.2), ini + k * q, 0.3)
+            # gotas
+            for k in (1, 3):
+                n = ac[(c + k) % 3] + 24
+                mezclar(buf, marimba(nota(n), q * 0.6), ini + k * q + q * 0.5, 0.1)
+                mezclar(buf, marimba(nota(n), q * 0.6), ini + k * q + q * 0.8, 0.04)  # eco
+            if c % 3 == 1:  # una rana
+                tt = t(0.25)
+                croac = paso_bajo(cuadrada(110 * (1 + 0.3 * np.sin(2 * np.pi * 25 * tt)), 0.25, 0.3), 700) * np.exp(-tt * 8)
+                mezclar(buf, croac, ini + 2.5 * q, 0.15)
+        tocar_melodia(buf, (motivo, motivo, motivo), ton, esc, 0, q, fagot, 0.22, desde=4 * 4 * q, hasta=24 * 4 * q)
+
+    return bucle(24, bpm, render)
+
+
+def musica_bosque():
+    """Bosque Susurrante: misterioso, arpa en 6/8 y flauta."""
+    bpm, ton, esc = 104, 64, ESCALA_MENOR  # Mi menor
+    progresion = [0, 5, 2, 6]
+    motivo = [(4, 1.5), (3, 0.5), (2, 1), (4, 1), (7, 2), (None, 2),
+              (6, 1.5), (5, 0.5), (4, 1), (2, 1), (3, 3), (None, 1)]
+    motivo_b = [(7, 1), (8, 1), (7, 1), (6, 1), (4, 2), (2, 2), (3, 1), (4, 1), (2, 1), (1, 1), (0, 4)]
+
+    def render(buf, q):
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            mezclar(buf, pad([nota(n - 12) for n in ac], 4 * q), ini, 0.12)
+            arpe = [ac[0], ac[1], ac[2], ac[1] + 12, ac[2], ac[1]]
+            for k, n in enumerate(arpe * 2):
+                mezclar(buf, cuerda(nota(n), q * 0.9, 0.8), ini + k * (4 * q / 12), 0.1)
+            mezclar(buf, bajo(nota(ac[0] - 24), 2 * q), ini, 0.3)
+            mezclar(buf, timbal(nota(ac[0] - 24), 0.6), ini, 0.12)
+        tocar_melodia(buf, (motivo, motivo_b, motivo, motivo_b, motivo), ton, esc, 1, q, silbido, 0.2, desde=4 * 4 * q, hasta=32 * 4 * q)
+
+    return bucle(32, bpm, render)
+
+
+def musica_ruinas():
+    """Ruinas de Ceniza: antiguo y solemne. Tambores lentos, modo frigio y coro de pad."""
+    bpm, ton, esc = 84, 52, ESCALA_FRIGIA  # Mi frigio
+    progresion = [0, 1, 0, 6]
+    motivo = [(0, 2), (1, 1), (3, 1), (4, 2), (3, 1), (1, 1), (0, 4),
+              (4, 1), (5, 1), (4, 1), (3, 1), (1, 2), (3, 2), (0, 4)]
+
+    def render(buf, q):
+        for c in range(24):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            mezclar(buf, pad([nota(n) for n in ac] + [nota(ac[0] - 12)], 4 * q), ini, 0.2)
+            mezclar(buf, timbal(nota(ac[0] - 24), 1.2), ini, 0.3)
+            mezclar(buf, timbal(nota(ac[0] - 24), 0.6), ini + 2.5 * q, 0.18)
+            mezclar(buf, bombo(0.4, 0.8), ini + 3 * q, 0.2)
+            for k in range(4):
+                mezclar(buf, maraca(0.12), ini + k * q + q / 2, 0.06)
+        tocar_melodia(buf, (motivo, motivo, motivo), ton, esc, 1, q, fagot, 0.18, desde=8 * q, hasta=24 * 4 * q)
+        tocar_melodia(buf, (motivo,), ton, esc, 2, q, flauta_cuadrada, 0.1, desde=12 * 4 * q, hasta=24 * 4 * q)
+
+    return bucle(24, bpm, render)
+
+
+def musica_picos():
+    """Picos Nevados: helado y brillante. Celesta (marimba aguda), cascabeles y modo lidio."""
+    bpm, ton, esc = 112, 59, ESCALA_LIDIA  # Si lidio
+    progresion = [0, 1, 0, 4]
+    motivo = [(4, 1), (6, 1), (7, 2), (6, 1), (4, 1), (2, 2), (3, 1), (4, 1), (1, 2), (0, 4),
+              (7, 1), (8, 1), (9, 2), (8, 1), (7, 1), (6, 2), (4, 1), (3, 1), (4, 4), (None, 2)]
+
+    def render(buf, q):
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            mezclar(buf, pad([nota(n) for n in ac], 4 * q), ini, 0.14)
+            for k, n in enumerate([ac[0], ac[2], ac[1] + 12, ac[2]] * 2):
+                mezclar(buf, marimba(nota(n + 24), q * 0.5), ini + k * q / 2, 0.1)
+            mezclar(buf, bajo(nota(ac[0] - 12), 4 * q * 0.9), ini, 0.3)
+            for k in range(8):  # cascabeles de trineo
+                mezclar(buf, charles(0.09), ini + k * q / 2, 0.1 if k % 2 == 0 else 0.05)
+        tocar_melodia(buf, (motivo, motivo, motivo), ton, esc, 1, q, silbido, 0.19, desde=4 * 4 * q, hasta=32 * 4 * q)
+
+    return bucle(32, bpm, render)
+
+
+def musica_callejon():
+    """Callejón del Gato: sigiloso, de puntillas. Contrabajo caminando y fagot a saltitos."""
+    bpm, ton, esc = 100, 57, ESCALA_MENOR  # La menor
+    progresion = [0, 3, 0, 4]
+    motivo = [(0, 0.5), (None, 0.5), (2, 0.5), (None, 0.5), (3, 0.5), (None, 0.5), (4, 1), (None, 1),
+              (6, 0.5), (4, 0.5), (3, 0.5), (2, 0.5), (0, 2), (None, 2)]
+
+    def render(buf, q):
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            camino = [ac[0], ac[0] + 2, ac[1], ac[2]]
+            for k, n in enumerate(camino):
+                mezclar(buf, cuerda(nota(n - 24), q * 0.7, 0.2), ini + k * q, 0.4)
+            for k in range(4):
+                mezclar(buf, charles(0.08), ini + k * q + q * 0.66, 0.08)
+                if k in (1, 3):
+                    mezclar(buf, caja(0.12), ini + k * q, 0.1)
+            if c % 8 == 7:  # un maullido
+                tt = t(0.5)
+                miau = seno(700 + 300 * np.sin(np.pi * tt / 0.5), 0.5) * env(len(tt), 0.05, 0.1, 0.6, 0.2)
+                mezclar(buf, miau, ini + 2 * q, 0.06)
+        tocar_melodia(buf, (motivo,) * 6, ton, esc, 0, q, fagot, 0.2, desde=4 * 4 * q, hasta=32 * 4 * q)
+
+    return bucle(32, bpm, render)
+
+
+def musica_taberna():
+    """Taberna El Hongo Feliz: giga rápida y gamberra con kazoo, tuba y palmas."""
+    bpm, ton, esc = 150, 62, ESCALA_MAYOR  # Re mayor
+    progresion = [0, 4, 0, 4, 3, 0, 4, 0]
+    motivo = [(0, 0.5), (2, 0.5), (4, 0.5), (4, 0.5), (5, 0.5), (4, 0.5), (2, 1), (4, 0.5), (2, 0.5), (0, 1), (1, 1),
+              (2, 0.5), (4, 0.5), (7, 0.5), (7, 0.5), (6, 0.5), (4, 0.5), (5, 1), (4, 0.5), (2, 0.5), (0, 2)]
+
+    def render(buf, q):
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 8])
+            ini = c * 4 * q
+            for k in range(4):
+                n = ac[0] if k % 2 == 0 else ac[2]
+                mezclar(buf, tuba(nota(n - 24), q * 0.5), ini + k * q, 0.35)
+                for m in ac:
+                    mezclar(buf, cuerda(nota(m), q * 0.3, 0.6), ini + k * q + q / 2, 0.06)
+            for k in (1, 3):  # palmas
+                mezclar(buf, caja(0.1), ini + k * q, 0.18)
+            for k in range(8):
+                mezclar(buf, maraca(), ini + k * q / 2, 0.08)
+        tocar_melodia(buf, (motivo,) * 8, ton, esc, 1, q, kazoo, 0.15, desde=2 * 4 * q, hasta=32 * 4 * q)
+
+    return bucle(32, bpm, render)
+
+
+def musica_bodegas():
+    """Bodegas del Gran Guiso: tensa y con ritmo, para las oleadas."""
+    bpm, ton, esc = 132, 53, ESCALA_MENOR  # Fa menor
+    progresion = [0, 0, 5, 4]
+    motivo = [(0, 0.5), (0, 0.5), (2, 0.5), (3, 0.5), (4, 1), (3, 0.5), (2, 0.5), (0, 1), (None, 1),
+              (4, 0.5), (4, 0.5), (5, 0.5), (6, 0.5), (7, 1), (6, 0.5), (5, 0.5), (4, 2)]
+
+    def render(buf, q):
+        for c in range(32):
+            ac = acorde(ton, esc, progresion[c % 4])
+            ini = c * 4 * q
+            for k in range(8):  # ostinato grave
+                mezclar(buf, bajo(nota(ac[0] - 12 + (12 if k % 4 == 3 else 0)), q * 0.45), ini + k * q / 2, 0.3)
+            mezclar(buf, pad([nota(n) for n in ac], 4 * q), ini, 0.12)
+            for k in range(4):
+                mezclar(buf, bombo(0.3), ini + k * q, 0.35)
+                if k % 2 == 1:
+                    mezclar(buf, caja(), ini + k * q, 0.25)
+                mezclar(buf, charles(), ini + k * q + q / 2, 0.1)
+            if c % 4 == 3:
+                mezclar(buf, timbal(nota(ac[0] - 24), 0.8), ini + 3.5 * q, 0.25)
+        tocar_melodia(buf, (motivo,) * 7, ton, esc, 1, q, flauta_cuadrada, 0.16, desde=4 * 4 * q, hasta=32 * 4 * q)
+
+    return bucle(32, bpm, render)
+
+
+NUEVAS = {
+    "aldea": musica_aldea, "pantano": musica_pantano, "bosque": musica_bosque, "ruinas": musica_ruinas,
+    "picos": musica_picos, "callejon": musica_callejon, "taberna": musica_taberna, "bodegas": musica_bodegas,
+}
+
+
 def main():
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == "zonas":
+        # solo las canciones nuevas de cada zona (v2.0)
+        for nombre, f in NUEVAS.items():
+            print("Componiendo música:", nombre, "…")
+            x = normalizar(f(), 0.8)
+            retardo = int(0.012 * SR)
+            der = np.concatenate([np.zeros(retardo), x[:-retardo]]) * 0.9 + x * 0.1
+            guardar_ogg(x, "vael-musica-" + nombre, der)
+        return
     print("Generando efectos…")
     guardar_ogg(efectos(), "vael-efectos")
     for nombre, f in (("ciudad", musica_ciudad), ("aventura", musica_aventura), ("combate", musica_combate), ("jefe", musica_jefe)):

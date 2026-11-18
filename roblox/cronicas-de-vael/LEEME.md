@@ -43,6 +43,10 @@ Al ganar al Rey Hongo: **animación de victoria a pantalla completa** (el héroe
 - **Emotes** (tecla **G** o el botón del corazón): saludar, bailar, reír, aplaudir, enfadarse, dormir y "¡A pelear!". Todos los ven, con bocadillo y animación.
 - **Clasificación** (pausa → Clasificación): los del servidor (nivel, victorias y récord de oleada) y el top 10 de todos los servidores (OrderedDataStore `VaelVictorias_v1`). La lista de jugadores de Roblox enseña **Nivel** y **Victorias** (leaderstats).
 
+### v2.0: música por zona y vecinos con memoria
+- **8 canciones nuevas** en `audio/` (`herramientas/generar-audio.py zonas`): aldea (vals tranquilo), pantano (fagot y ranas), bosque (arpa misteriosa), ruinas (tambores antiguos), picos (celesta y cascabeles), callejón (sigilosa, con maullido), taberna (giga con kazoo) y bodegas (tensa, para las oleadas). Hay que subirlas y pegar sus ids en `Sonidos.IDS`; mientras tanto, cada zona usa una de las 4 de antes con otro tempo (`RESERVA` en `Audio.luau`).
+- **Los vecinos se acuerdan de lo que has hecho** (`etapa`/`segunEtapa` en el servidor, `FRASES_ETAPA` y `CONVERSACIONES_ETAPA` en `Escena`): el granjero Tomás, la abuela, Bruno, la posadera, Lucas, el guardia, el frutero y el sastre cambian lo que dicen según en qué punto de la historia vas (huerto limpio, cuerda, final, barba, Yeti…), y las charlas entre vecinos también.
+
 ## Teclas
 | Tecla | Qué hace |
 |---|---|
