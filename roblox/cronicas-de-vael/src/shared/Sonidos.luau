@@ -16,14 +16,14 @@ Sonidos.IDS = {
 	jefe = "rbxassetid://72517976367422", -- vael-musica-jefe.ogg (cueva, Cumbre y jefes)
 	-- canciones de cada zona (v2.0): súbelas y pega aquí su id. Mientras estén vacías, suena una de las de arriba
 	-- con otro tempo (ver RESERVA en Audio.luau).
-	aldea = "", -- vael-musica-aldea.ogg (Aldea de Brezo y la posada)
-	pantano = "", -- vael-musica-pantano.ogg
-	bosque = "", -- vael-musica-bosque.ogg
-	ruinas = "", -- vael-musica-ruinas.ogg
-	picos = "", -- vael-musica-picos.ogg
-	callejon = "", -- vael-musica-callejon.ogg
-	taberna = "", -- vael-musica-taberna.ogg
-	bodegas = "", -- vael-musica-bodegas.ogg (la mazmorra)
+	aldea = "rbxassetid://86219994469479", -- vael-musica-aldea.ogg (Aldea de Brezo y la posada)
+	pantano = "rbxassetid://111133728106454", -- vael-musica-pantano.ogg
+	bosque = "rbxassetid://85104646180038", -- vael-musica-bosque.ogg
+	ruinas = "rbxassetid://118451988371676", -- vael-musica-ruinas.ogg
+	picos = "rbxassetid://129161063895272", -- vael-musica-picos.ogg
+	callejon = "rbxassetid://121134513131188", -- vael-musica-callejon.ogg
+	taberna = "rbxassetid://70589477060501", -- vael-musica-taberna.ogg
+	bodegas = "rbxassetid://112693768939137", -- vael-musica-bodegas.ogg (la mazmorra)
 }
 
 -- dónde empieza cada efecto dentro de vael-efectos.ogg (segundos) y cuánto dura
